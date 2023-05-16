@@ -6,7 +6,7 @@ simply follow the instructions below to install the required packages and depend
 <ol>
     <li>Clone the repository:</li>
 </ol>
-<pre><code>git clone https://github.com/your_username/your_package.git
+<pre><code>git clone https://github.com/menouarazib/eventdetector.git
 cd eventdetector
 </code></pre>
 <ol start="2">
