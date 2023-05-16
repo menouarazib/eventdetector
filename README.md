@@ -31,6 +31,13 @@ env\Scripts\activate.bat  # for Windows
 </ol>
 
 <pre><code>
+from datetime import datetime
+
+import pandas as pd
+
+from eventdetector import MIDDLE_EVENT_LABEL, FFN, GRU
+from eventdetector.metamodel.meta_model import MetaModel
+
 # Get the dataset.
 dataset_mex: pd.DataFrame = pd.read_pickle("mex_dataset_2012.pkl")
 start_date = datetime(2012, 1, 1)

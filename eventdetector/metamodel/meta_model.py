@@ -2,15 +2,13 @@
 import os
 import pprint
 import shutil
-from datetime import datetime
 from typing import Union
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from eventdetector import SELF_ATTENTION, FFN, GRU, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER, \
-    MIDDLE_EVENT_LABEL
+from eventdetector import SELF_ATTENTION, FFN, GRU, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER
 from eventdetector.data.helpers import compute_middle_event, remove_close_events, \
     convert_events_to_intervals, get_union_times_events, get_dataset_within_events_times, \
     convert_dataframe_to_sliding_windows, op, check_time_unit
@@ -321,34 +319,3 @@ class MetaModel:
         self.plotter.plot_prediction()
         self.plotter.plot_predicted_events()
         self.plotter.plot_delta_t(bins=10)
-
-
-cuda_dir = os.environ.get('CUDA_DIR')
-print(cuda_dir)
-
-# Get the dataset.
-dataset_mex: pd.DataFrame = pd.read_pickle("mex_dataset_2012.pkl")
-start_date = datetime(2012, 1, 1)
-stop_date = datetime(2012, 5, 1)
-# Filtering dataset by giving a starting date and an ending date.
-dataset_mex = dataset_mex[(dataset_mex.index >= start_date) & (dataset_mex.index <= stop_date)]
-print(dataset_mex)
-# Get the events.
-mex_bow_shocks: pd.DataFrame = pd.read_pickle("mex_events.pkl")
-# Filtering events by giving a starting date and an ending date.
-mex_bow_shocks = mex_bow_shocks[
-    (mex_bow_shocks[MIDDLE_EVENT_LABEL] >= start_date) & (mex_bow_shocks[MIDDLE_EVENT_LABEL] <= stop_date)]
-# This parameter determines the amount of data to include in the dataset around each reference event, specified in
-# units of time.
-time_window: int = 5400  # in seconds
-# Create the MetaModel
-meta_model = MetaModel(output_dir="mex_bow_shocks", dataset=dataset_mex, events=mex_bow_shocks, width=45, step=1,
-                       time_window=time_window, batch_size=3000, models=[(FFN, 2), (GRU, 1)])
-# Prepare the events and dataset for computing op.
-meta_model.prepare_data_and_computing_op()
-# Builds a stacking learning pipeline using the provided models and hyperparameters.
-meta_model.build_stacking_learning()
-# Run the Event Extraction Optimization process.
-meta_model.event_extraction_optimization()
-# Plot the results: true/predicted op, true/predicted events, deltat_t.
-meta_model.plot()
