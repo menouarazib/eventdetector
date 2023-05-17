@@ -33,4 +33,4 @@ jobs:
           ls "${{ github.workspace }}"
       - name: Test with pytest
         run: |
-          pytest --rootdir=$(dirname "${{ github.workspace }}")/tests
+          python3 -m pytest tests/
