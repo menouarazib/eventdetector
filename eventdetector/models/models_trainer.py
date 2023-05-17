@@ -91,11 +91,11 @@ class ModelTrainer:
             if self.use_kfold:
                 logger_models.info("Performing a KFold cross-validation")
                 # Calculate cross validation score using custom function
-                score: float = custom_cross_val_score(model=model, x=self.data_splitter.train_x,
-                                                      y=self.data_splitter.train_y,
-                                                      cv=KFold(n_splits=5, shuffle=False), epochs=self.epochs,
-                                                      batch_size=self.batch_size,
-                                                      callbacks=[early_stopping, custom_early_stopping])
+                score: np.ndarray = custom_cross_val_score(model=model, x=self.data_splitter.train_x,
+                                                           y=self.data_splitter.train_y,
+                                                           cv=KFold(n_splits=5, shuffle=False), epochs=self.epochs,
+                                                           batch_size=self.batch_size,
+                                                           callbacks=[early_stopping, custom_early_stopping])
                 # Print cross validation score for the current model
                 logger_models.info(f"The cross validation score for {model_name} is {score}")
             # Split training data into training and validation sets

@@ -56,7 +56,7 @@ class DataSplitter:
         self.train_x, self.test_x, self.train_y, self.test_y = train_test_split(x, y, test_size=self.test_size,
                                                                                 shuffle=False)
 
-        n_time_steps, n_features = x.shape[1], x.shape[2]
+        n_time_steps = x.shape[1]
 
         self.scalers = {}
         # Apply scaler to each time step

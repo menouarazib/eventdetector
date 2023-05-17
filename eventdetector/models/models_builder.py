@@ -1,5 +1,4 @@
 import os
-import os
 import random
 from typing import Optional, Tuple, Dict, List
 
@@ -86,15 +85,18 @@ class ModelBuilder:
 
             # Check if the shape, dtype, and rank are compatible
             if expected_shape is not None and expected_shape != actual_shape:
-                msg = f"The expected input shape for layer '{layer.name}' is {expected_shape}, but received {actual_shape} instead."
+                msg = f"The expected input shape for layer '{layer.name}' is {expected_shape}, " \
+                      f"but received {actual_shape} instead."
                 logger_models.critical(msg)
                 raise ValueError(msg)
             if expected_dtype is not None and expected_dtype != actual_dtype:
-                msg = f"The expected input dtype for layer '{layer.name}' is {expected_dtype}, but received {actual_dtype} instead."
+                msg = f"The expected input dtype for layer '{layer.name}' is {expected_dtype}, " \
+                      f"but received {actual_dtype} instead."
                 logger_models.critical(msg)
                 raise ValueError(msg)
             if expected_rank is not None and expected_rank != actual_rank:
-                msg = f"The expected input rank for layer '{layer.name}' is {expected_rank}, but received {actual_rank} instead."
+                msg = f"The expected input rank for layer '{layer.name}' is {expected_rank}, " \
+                      f"but received {actual_rank} instead."
                 logger_models.critical(msg)
                 raise ValueError(msg)
 
