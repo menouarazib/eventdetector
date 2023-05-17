@@ -28,6 +28,9 @@ jobs:
           # default set of ruff rules with GitHub Annotations
           ruff --format=github --target-version=py37 .
         continue-on-error: true
+      - name: List files in workspace
+        run: |
+          ls "${{ github.workspace }}"
       - name: Test with pytest
         run: |
           pytest --rootdir=$(dirname "${{ github.workspace }}")/tests
