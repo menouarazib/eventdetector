@@ -1,0 +1,25 @@
+name: Unit Tests
+
+on:
+  push:
+    branches:
+      - main  # Adjust the branch name if needed
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10  # Adjust the Python version if needed
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt  # Adjust the command if needed
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -p "*_test.py"  # Adjust the command if needed
