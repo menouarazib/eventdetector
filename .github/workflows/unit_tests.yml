@@ -3,7 +3,7 @@ name: Unit Tests
 on:
   push:
     branches:
-      - main  # Adjust the branch name if needed
+      - master  # Adjust the branch name if needed
 
 jobs:
   test:
