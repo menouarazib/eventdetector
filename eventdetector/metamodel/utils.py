@@ -247,5 +247,14 @@ def validate_args(meta_model: 'MetaModel') -> None:
     if meta_model.hyperparams_rnn[1] >= meta_model.hyperparams_rnn[2]:
         raise ValueError("Minimum number of hidden units must be less than the maximum number for hyperparams_rnn")
 
+    if len(meta_model.hyperparams_mm_network) != 2:
+        raise ValueError("hyperparams_mm_network must be a tuple of length 2")
+
+    if not all(isinstance(val, int) for val in meta_model.hyperparams_mm_network):
+        raise ValueError("hyperparams_mm_network values must be integers")
+
     if not isinstance(meta_model.use_multiprocessing, bool):
         raise InvalidArgumentError("Invalid use_multiprocessing parameter: must be a boolean.")
+
+    if not isinstance(meta_model.save_models_as_dot_format, bool):
+        raise InvalidArgumentError("Invalid save_models_as_dot_format parameter: must be a boolean.")

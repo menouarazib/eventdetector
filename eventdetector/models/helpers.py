@@ -2,7 +2,7 @@ import logging
 
 import numpy as np
 import tensorflow as tf
-from keras.utils import io_utils
+from keras.utils.io_utils import print_msg
 from sklearn.model_selection import KFold
 
 
@@ -83,7 +83,7 @@ class CustomEarlyStopping(tf.keras.callbacks.Callback):
                     self.stopped_epoch = epoch
                     self.model.stop_training = True
                     if self.verbose > 0:
-                        io_utils.print_msg(
+                        print_msg(
                             "Restoring model weights from "
                             "the end of the best epoch: "
                             f"{self.best_epoch + 1}."
@@ -97,7 +97,7 @@ class CustomEarlyStopping(tf.keras.callbacks.Callback):
         """
         if logs is not None:
             if self.stopped_epoch > 0 and self.verbose > 0:
-                io_utils.print_msg(
+                print_msg(
                     f"Epoch {self.stopped_epoch + 1}: early stopping. "
                     "Restoring model weights from "
                     "the end of the best epoch: "
@@ -133,7 +133,7 @@ class SelfAttention(tf.keras.layers.Layer):
         Return:
             output tensor of the layer.
         """
-        # Apply multi-head attention on query
+        # Apply multi-head attention on a query
         attn_output, attn_scores = self.mha(
             query=query,
             key=query,
@@ -151,7 +151,7 @@ class SelfAttention(tf.keras.layers.Layer):
 
 
 def custom_cross_val_score(model: tf.keras.Model, x: np.ndarray, y: np.ndarray, cv: KFold, epochs: int, batch_size: int,
-                           callbacks: list) -> float:
+                           callbacks: list) -> np.ndarray:
     """
     A function to perform custom cross-validation for a Keras model.
     

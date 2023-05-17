@@ -34,20 +34,22 @@ class MetaModel:
         Initializes a new instance of the MetaModel class.
 
         Args:
-            output_dir: (str) The directory to save the model artifacts to.
-            dataset: (pd.DataFrame) The input dataset.
-            events: (Union[list, pd.DataFrame]) The event or anomaly labels.
-            width: (int) The width of the sliding window.
-            step: (int) The step size between successive windows.
-            kwargs: Optional keyword arguments for MetaModel.
-                - t_max: (float) The maximum total time related to sigma. The default value is (3 * self.w_s) / 2).
-                - delta: (int) The maximum time tolerance used to determine the correspondence between a predicted event
+
+            output_dir (str): The name or path of the directory where all outputs will be saved. If output_dir is a
+                folder name, it will create the full path in the current directory.
+            dataset (pd.DataFrame): The input dataset as pd.DataFrame.
+            events (Union[list, pd.DataFrame]): The input events.
+            width (int): The width to be used for creating sliding windows.
+            step (int): The step size between two successive windows.
+            kwargs (Dict): Optional keyword arguments:
+                - t_max (float): The maximum total time related to sigma. The default value is (3 * self.w_s) / 2).
+                - delta (int): The maximum time tolerance used to determine the correspondence between a predicted event
                     and its actual counterpart in the true events. The default value is w_s.
-                - s_h: (float) A step parameter for the peak height threshold h. The default value is 0.05.
-                - epsilon: (float) A small constant used to control the size of set which contains the top models
+                - s_h (float): A step parameter for the peak height threshold h. The default value is 0.05.
+                - epsilon (float): A small constant used to control the size of set which contains the top models
                     with the lowest MSE values. The default value is 0.0002.
-                - pa: (int) The patience for the early stopping algorithm. The default value is 5.
-                - t_r: (float) The ratio threshold for the early stopping algorithm. The default value is 0.97.
+                - pa (int): The patience for the early stopping algorithm. The default value is 5.
+                - t_r (float): The ratio threshold for the early stopping algorithm. The default value is 0.97.
                 - time_window Optional[int] = None: This parameter determines the amount of data to include in
                     the dataset around each reference event, specified in units of time.
                 - models (List[Union[str, Tuple[str, int]]]): Determines the type of deep learning models to use.
@@ -60,6 +62,8 @@ class MetaModel:
                     The default value is (16, 64, 3, 8 , 2).
                 - hyperparams_rnn (Tuple[int, int, int]): Specify for the RNN the maximum number of RNN layers
                     the minimum and the maximum number of hidden units. The default value is (1, 16, 128).
+                - hyperparams_mm_network (Tuple[int, int]): Specify for the MetaModel network the number
+                    of layers and the number of neurons per layer. The default value is (1, 32).
                 - epochs (int): The number of epochs to train different models. The default value is False 256.
                 - batch_size (int): The number of samples per gradient update. The default value is 32.
                 - fill_nan (str): Specifies the method to use for filling NaN values in the dataset.
@@ -75,6 +79,9 @@ class MetaModel:
                     Should be a value between 0 and 1. Default is 0.2.
                 - use_multiprocessing (bool): Whether to use multiprocessing or not for the event exctraction
                     optimization. The default value is False.
+                - save_models_as_dot_format (bool): Whether to save the models as a dot format file.
+                    The default value is False. If set to True, then you should have graphviz software
+                    to be installed on your machine.
         """
         self.step = step
         self.width = width
@@ -92,15 +99,17 @@ class MetaModel:
         self.model_creator: ModelCreator = ModelCreator(models=self.models, hyperparams_ffn=self.hyperparams_ffn,
                                                         hyperparams_cnn=self.hyperparams_cnn,
                                                         hyperparams_rnn=self.hyperparams_rnn,
+                                                        save_models_as_dot_format=self.save_models_as_dot_format,
                                                         root_dir=self.output_dir)
         # Create a `DataSplitter` object with the provided test_size and scaler_type
         self.data_splitter: DataSplitter = DataSplitter(test_size=self.test_size, scaler_type=self.scaler)
         # Create a `ModelTrainer` object with the provided data_splitter, epochs,
-        #   batch_size, pa, t_r, use_kfold, val_size and epsilon.
+        #   batch_size, pa, t_r, use_kfold, val_size, epsilon and save_models_as_dot_format.
         self.model_trainer: ModelTrainer = ModelTrainer(data_splitter=self.data_splitter, epochs=self.epochs,
                                                         batch_size=self.batch_size, pa=self.pa, t_r=self.t_r,
                                                         use_kfold=self.use_kfold,
-                                                        val_size=self.val_size, epsilon=self.epsilon)
+                                                        val_size=self.val_size, epsilon=self.epsilon,
+                                                        save_models_as_dot_format=self.save_models_as_dot_format)
         # class represents the data used for the event extraction pipeline.
         self.optimization_data: OptimizationData = OptimizationData(t_max=self.t_max, w_s=self.w_s, s_s=self.s_s,
                                                                     s_h=self.s_h, delta=self.delta,
@@ -111,30 +120,29 @@ class MetaModel:
 
     def __create_output_dir(self) -> None:
         """
-           Creates a new directory with the specified name for storing model output.
-           The new directory will be created at the same level as the package directory.
+           Check if output_dir is already a complete path, if output_dir is a folder name,
+            create the full path in the current directory.
 
            Returns:
                None
            """
 
-        # Get the absolute path of the current directory
-        current_directory = os.path.abspath(".")
-        # Get the absolute path of the parent directory
-        current_directory = os.path.abspath(os.path.join(current_directory, os.pardir))
-        # Get the absolute path of the parent of the parent directory
-        current_directory = os.path.abspath(os.path.join(current_directory, os.pardir))
-        # Get the absolute path of the parent of the parent of the parent directory
-        current_directory = os.path.abspath(os.path.join(current_directory, os.pardir))
+        # Check if output_dir is already a complete path
+        if os.path.isabs(self.output_dir):
+            if not os.path.exists(self.output_dir):
+                logger_meta_model.critical(f"{self.output_dir} does not exists")
+                raise ValueError(f"{self.output_dir} does not exists")
 
-        working_dir = os.path.join(current_directory, self.output_dir)
-
-        if os.path.exists(working_dir):
-            logger_meta_model.warning(f"The working directory '{working_dir}' exists and it will be deleted")
-            shutil.rmtree(working_dir)
-        logger_meta_model.info(f"Creating the working directory at: '{working_dir}'")
-        os.makedirs(working_dir)
-        self.output_dir = working_dir
+        # If output_dir is a folder name, create the full path in the current directory
+        else:
+            # Get the absolute path of the current directory
+            current_directory = os.path.abspath(".")
+            self.output_dir = os.path.join(current_directory, self.output_dir)
+            if os.path.exists(self.output_dir):
+                logger_meta_model.warning(f"The working directory '{self.output_dir}' exists and it will be deleted")
+                shutil.rmtree(self.output_dir)
+            logger_meta_model.info(f"Creating the working directory at: '{self.output_dir}'")
+            os.makedirs(self.output_dir)
 
     def __set_defaults(self) -> None:
         """
@@ -160,6 +168,7 @@ class MetaModel:
         self.hyperparams_ffn = self.kwargs.get('hyperparams_ffn', (3, 64, 256))
         self.hyperparams_cnn = self.kwargs.get('hyperparams_cnn', (16, 64, 3, 8, 2))
         self.hyperparams_rnn = self.kwargs.get('hyperparams_rnn', (1, 16, 128))
+        self.hyperparams_mm_network = self.kwargs.get('hyperparams_mm_network', (1, 32))
         self.epochs = self.kwargs.get('epochs', 256)
         self.batch_size = self.kwargs.get('batch_size', 32)
         self.fill_nan = self.kwargs.get('fill_nan', FILL_NAN_ZEROS)
@@ -169,6 +178,7 @@ class MetaModel:
         self.test_size = self.kwargs.get('test_size', 0.2)
         self.val_size = self.kwargs.get('val_size', 0.2)
         self.use_multiprocessing = self.kwargs.get('use_multiprocessing', False)
+        self.save_models_as_dot_format = self.kwargs.get('save_models_as_dot_format', False)
 
         log_dict = {
             't_max': self.t_max,
@@ -182,6 +192,7 @@ class MetaModel:
             'hyperparams_ffn': self.hyperparams_ffn,
             'hyperparams_cnn': self.hyperparams_cnn,
             'hyperparams_rnn': self.hyperparams_rnn,
+            'hyperparams_mm_network': self.hyperparams_mm_network,
             'epochs': self.epochs,
             'batch_size': self.batch_size,
             'fill_nan': self.fill_nan,
@@ -190,7 +201,8 @@ class MetaModel:
             'use_kfold': self.use_kfold,
             'test_size': self.test_size,
             'val_size': self.val_size,
-            'use_multiprocessing': self.use_multiprocessing
+            'use_multiprocessing': self.use_multiprocessing,
+            'save_models_as_dot_format': self.save_models_as_dot_format
         }
 
         log_message = pprint.pformat(log_dict, indent=4)
@@ -247,11 +259,10 @@ class MetaModel:
         intervals = convert_events_to_intervals(self.events, self.w_s, self.time_unit)
 
         if self.time_window is not None:
-            logger_meta_model.warning("time_window is provided")
+            logger_meta_model.warning(f"time_window is provided = {self.time_window} {self.time_unit}")
             events_times = get_union_times_events(self.events, self.time_window, self.time_unit)
             logger_meta_model.warning(
-                f"Extracts the data from the dataset that fall within the events intervals using time_window "
-                f"of {self.time_window}: {self.time_unit}...")
+                "Extracts the data from the dataset that fall within the events intervals using time_window")
             self.dataset = get_dataset_within_events_times(self.dataset, events_times)
 
         logger_meta_model.info("Computing sliding windows...")
@@ -292,7 +303,7 @@ class MetaModel:
         logger_meta_model.info("Saving the best models...")
         self.model_trainer.save_best_models(output_dir=self.output_dir)
         predicted_y, loss, test_y = self.model_trainer.train_meta_model(type_training=self.type_training,
-                                                                        hyperparams_ffn=self.hyperparams_ffn,
+                                                                        hyperparams_mm_network=self.hyperparams_ffn,
                                                                         output_dir=self.output_dir)
         self.optimization_data.set_predicted_op(predicted_op=predicted_y)
         logger_meta_model.info(f"The loss of the MetaModel is {loss:.4f}")
@@ -301,6 +312,7 @@ class MetaModel:
     def event_extraction_optimization(self) -> None:
         """
         Run the Event Extraction Optimization process.
+
         Returns:
             None
         """

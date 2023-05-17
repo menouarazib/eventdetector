@@ -1,6 +1,10 @@
+import os
 import unittest
 
 import numpy as np
+
+# Set the environment variable to disable debug info messages
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 
 from eventdetector.models.helpers import CustomEarlyStopping

@@ -5,8 +5,6 @@ from typing import Optional, Tuple, Dict, List
 
 import numpy as np
 import tensorflow as tf
-from keras.backend import int_shape
-from keras.utils import plot_model
 
 from eventdetector import LSTM, GRU, CNN, RNN_BIDIRECTIONAL, RNN_ENCODER_DECODER, CNN_RNN, FFN, CONV_LSTM1D, \
     SELF_ATTENTION, MODELS_DIR
@@ -326,23 +324,25 @@ class ModelBuilder:
         # Add the global max pooling layer to the model
         self.__add_layer(pooling)
 
-    def build(self, name: str, root_dir: str, png: bool = True) -> tf.keras.Model:
-        """Builds the model and compiles it.
+    def build(self, name: str, save_models_as_dot_format: bool, root_dir: Optional[str] = None,
+              ) -> tf.keras.Model:
+        """
+        Builds the model and compiles it.
 
         Args:
             name: The name of the model.
-            png: Whether or not to save a PNG of the model graph.
-            root_dir: The root directory in which to save the PNG.
+            save_models_as_dot_format: Whether to save the model as a dot format file.
+            root_dir (Optional[str]): The root directory in which to save the model as a dot format file.
 
         Returns:
             The compiled model.
         """
         model_ = tf.keras.Model(inputs=self.inputs, outputs=self.outputs, name=name)
 
-        if png and root_dir is not None:
+        if save_models_as_dot_format and root_dir is not None:
             png_path = os.path.join(root_dir, f"{name}.png")
-            plot_model(model_, png_path, show_shapes=True, show_dtype=True,
-                       show_layer_names=True, expand_nested=True)
+            tf.keras.utils.plot_model(model_, png_path, show_shapes=True, show_dtype=True,
+                                      show_layer_names=True, expand_nested=True)
 
         model_.compile(
             optimizer=tf.keras.optimizers.Adam(1e-3),
@@ -364,12 +364,14 @@ class ModelCreator:
            hyperparams_cnn (Tuple[int, int, int, int, int]): Specify the hyper-parameters for the CNN.
            hyperparams_rnn (Tuple[int, int, int]): Specify the hyper-parameters for the RNN.
            inputs (tf.keras.Input): The input layer for the neural network.
+           save_models_as_dot_format (bool): Whether to save the models as a dot format file.
            root_dir (str): The root directory where the created models will be saved.
 
        """
 
     def __init__(self, models: List[Tuple[str, int]], hyperparams_ffn: Tuple[int, int, int],
                  hyperparams_cnn: Tuple[int, int, int, int, int], hyperparams_rnn: Tuple[int, int, int],
+                 save_models_as_dot_format: bool,
                  root_dir: Optional[str] = None):
         """
         Initialize the ModelCreator class with the given arguments.
@@ -380,9 +382,13 @@ class ModelCreator:
                 RNN_ENCODER_DECODER, CNN_RNN, SELF_ATTENTION, and FFN.
             hyperparams_ffn (Tuple[int, int, int]): Specify the hyper-parameters for the FFN.
             hyperparams_cnn (Tuple[int, int, int, int, int]): Specify the hyper-parameters for the CNN.
-            hyperparams_rnn (Tuple[int, int, int]): Specify the hyper-parameters for the RNN.
+            hyperparams_rnn (Tuple[int, int, int]): Specify the hyperparameters for the RNN.
+            save_models_as_dot_format (bool): Whether to save the models as a dot format file.
+                The default value is False. If set to True, then you should have graphviz software
+                to be installed on your machine.
             root_dir (str): The root directory where the created models will be saved.
         """
+        self.save_models_as_dot_format = save_models_as_dot_format
         self.train_losses: Dict[str, np.ndarray] = {}
         self.val_losses: Dict[str, np.ndarray] = {}
         self.root_dir: str = root_dir
@@ -395,11 +401,12 @@ class ModelCreator:
         self.__create_models_dir()
 
     def __create_models_dir(self):
-        # Create the directory if it doesn't exist
-        models_dir = os.path.join(self.root_dir, MODELS_DIR)
-        if not os.path.exists(models_dir):
-            os.makedirs(models_dir)
-        self.root_dir = models_dir
+        if self.root_dir is not None:
+            # Create the directory if it doesn't exist
+            models_dir = os.path.join(self.root_dir, MODELS_DIR)
+            if not os.path.exists(models_dir):
+                os.makedirs(models_dir)
+            self.root_dir = models_dir
 
     def __create_lstm_networks(self) -> None:
         """
@@ -433,7 +440,8 @@ class ModelCreator:
                 # for regression where the output is a continuous numerical value.
                 model.add_dense_layer(units=1, dropout=None)
                 # Build the model with the chosen name and save it to the created_models dictionary
-                keras_model = model.build(name=name, root_dir=self.root_dir)
+                keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
+                                          root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_gru_networks(self) -> None:
@@ -461,7 +469,8 @@ class ModelCreator:
                         model.add_gru_layer(hidden_dim=units_j, return_sequences=True)
                 # Add last layer for regression
                 model.add_dense_layer(units=1, dropout=None)
-                keras_model = model.build(name=name, root_dir=self.root_dir)
+                keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
+                                          root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_cnn_networks(self):
@@ -492,7 +501,8 @@ class ModelCreator:
                 model.add_flatten_layer()
                 # Add dense output layer for regression
                 model.add_dense_layer(units=1, dropout=None)
-                keras_model = model.build(name=name, root_dir=self.root_dir)
+                keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
+                                          root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_bi_lstm(self):
@@ -513,7 +523,8 @@ class ModelCreator:
                         model.add_bidirectional(hidden_dim=units_j, return_sequences=True)
                 # Add last layer for regression
                 model.add_dense_layer(units=1, dropout=None)
-                keras_model = model.build(name=name, root_dir=self.root_dir)
+                keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
+                                          root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_ffn(self):
@@ -532,7 +543,8 @@ class ModelCreator:
                     model.add_dense_layer(units=units_j)
                 # Add last layer for regression
                 model.add_dense_layer(units=1, dropout=None)
-                keras_model = model.build(name=name, root_dir=self.root_dir)
+                keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
+                                          root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_rnn_encoder_decoder(self):
@@ -556,7 +568,8 @@ class ModelCreator:
 
                 # Add last layer for regression
                 model.add_dense_layer(units=1, dropout=None)
-                keras_model = model.build(name=name, root_dir=self.root_dir)
+                keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
+                                          root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_cnn_rnn(self):
@@ -586,7 +599,8 @@ class ModelCreator:
                 model.add_flatten_layer()
                 # Add last layer for regression
                 model.add_dense_layer(units=1, dropout=None)
-                keras_model = model.build(name=name, root_dir=self.root_dir)
+                keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
+                                          root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_conv_lstm1d(self):
@@ -595,7 +609,7 @@ class ModelCreator:
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
-                shape_inputs = int_shape(model.inputs)
+                shape_inputs = tf.keras.backend.int_shape(model.inputs)
                 new_shape = (shape_inputs[1], 1, shape_inputs[2])
                 model.add_reshape(shape=new_shape)
                 name = f"{CONV_LSTM1D}_{i}"
@@ -611,7 +625,8 @@ class ModelCreator:
                 model.add_flatten_layer()
                 # Add last layer for regression
                 model.add_dense_layer(units=1, dropout=None)
-                keras_model = model.build(name=name, root_dir=self.root_dir)
+                keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
+                                          root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_encoder_decoder_self_attention(self):
@@ -641,7 +656,8 @@ class ModelCreator:
                             model.add_global_max_pooling()
                 # Add last layer for regression
                 model.add_dense_layer(units=1, dropout=None)
-                keras_model = model.build(name=name, root_dir=self.root_dir)
+                keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
+                                          root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def create_models(self, inputs: tf.keras.Input) -> None:

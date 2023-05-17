@@ -3,7 +3,6 @@ from typing import Dict, Tuple
 
 import numpy as np
 import tensorflow as tf
-from keras.losses import mse
 from numpy import ndarray
 from sklearn.model_selection import KFold, train_test_split
 
@@ -29,13 +28,16 @@ class ModelTrainer:
         val_size (float): The size of the validation set to use during training.
         epsilon (float): A small constant used to control the size of set which contains the top models
             with the lowest MSE values.
+        save_models_as_dot_format (bool): Whether to save the models as a dot format file.
+                The default value is False. If set to True, then you should have graphviz software
+                to be installed on your machine.
         train_losses (Dict[str, list]): A dictionary containing the training losses for each model.
         val_losses (Dict[str, list]): A dictionary containing the validation losses for each model.
     """
 
     def __init__(self, data_splitter: DataSplitter, epochs: int,
                  batch_size: int, pa: int, t_r: float,
-                 use_kfold: bool, val_size: float, epsilon: float) -> None:
+                 use_kfold: bool, val_size: float, epsilon: float, save_models_as_dot_format: bool) -> None:
         """
         Initialize the ModelTrainer object.
 
@@ -50,8 +52,12 @@ class ModelTrainer:
             val_size (float): The size of the validation set to use during training.
             epsilon (float): A small constant used to control the size of set which contains the top models
                     with the lowest MSE values.
+            save_models_as_dot_format (bool): Whether to save the models as a dot format file.
+                The default value is False. If set to True, then you should have graphviz software
+                to be installed on your machine.
         """
 
+        self.save_models_as_dot_format = save_models_as_dot_format
         self.best_models: Dict[str, tf.keras.Model] = {}
         self.train_losses = {}
         self.val_losses = {}
@@ -144,18 +150,18 @@ class ModelTrainer:
             model.save(model_path)
         logger_models.info("Models saved successfully.")
 
-    def train_meta_model(self, type_training: str, hyperparams_ffn: Tuple[int, int, int], output_dir: str) \
+    def train_meta_model(self, type_training: str, hyperparams_mm_network: Tuple[int, int], output_dir: str) \
             -> tuple[ndarray, float, ndarray]:
         """
-        Trains the metamodel using the best models from each machine learning algorithm.
+        Trains the metamodel using the best models predictions as features.
 
          Args:
             type_training: The type of training to use, either "ffn" or "mean".
-            hyperparams_ffn: A tuple containing the hyperparameters for the feedforward neural network (FFN).
+            hyperparams_mm_network: A tuple containing the hyperparameters the MetaModel network.
             output_dir: The directory to save the trained models to.
 
         Returns:
-            A tuple containing the final prediction and the mean-squared error.
+            A tuple containing the final prediction and the loss.
         """
         predictions = []
         for model_name, model in self.best_models.items():
@@ -176,35 +182,35 @@ class ModelTrainer:
                                                                 shuffle=False)
             # Build the FFN model
             inputs = tf.keras.Input(shape=(train_x.shape[1],), name="Input")
-            max_layers, min_units, max_units = hyperparams_ffn
+            layers, units = hyperparams_mm_network
             model_builder: ModelBuilder = ModelBuilder(inputs=inputs)
-            name: str = "meta_model_ffn"
-            units = [np.random.randint(min_units, max_units + 1) for _ in range(max_layers)]
-            units = sorted(units, reverse=True)
-            for j in range(max_layers):
-                units_j = units[j]
+            name: str = "meta_model_network"
+            for j in range(layers):
+                units_j = units
                 model_builder.add_dense_layer(units=units_j)
             model_builder.add_dense_layer(units=1, dropout=None)
-            keras_model = model_builder.build(name=name, root_dir=output_dir)
+            keras_model = model_builder.build(name=name, root_dir=output_dir,
+                                              save_models_as_dot_format=self.save_models_as_dot_format)
             # Train the model
-            logger_models.info("Fitting the MetaModel...")
+            logger_models.info("Fitting the MetaModel network...")
             keras_model.fit(train_x, train_y, epochs=self.epochs, batch_size=self.batch_size, verbose=1,
                             validation_data=(test_x, test_y))
 
             path = os.path.join(output_dir, MODELS_DIR)
             model_path = os.path.join(path, name)
             keras_model.save(model_path)
-            logger_models.info("MetaModel saved successfully.")
+            logger_models.info("MetaModel network saved successfully.")
 
             # final_prediction: np.ndarray = keras_model.predict(self.data_splitter.test_x, batch_size=self.batch_size,
             #                                                   use_multiprocessing=True)
             final_prediction: np.ndarray = keras_model.predict(test_x, batch_size=self.batch_size,
                                                                use_multiprocessing=True)
             final_prediction = final_prediction.flatten()
-            return final_prediction, mse(final_prediction, test_y), test_y
+            return final_prediction, tf.keras.losses.mse(final_prediction, test_y), test_y
             # return final_prediction, mse(final_prediction, self.data_splitter.test_y), self.data_splitter.test_y
         else:
             # Compute the average prediction
             logger_models.info("Compute the average of predictions to produce a final prediction")
             final_prediction = np.mean(x, axis=1)
-            return final_prediction, mse(final_prediction, self.data_splitter.test_y), self.data_splitter.test_y
+            return final_prediction, tf.keras.losses.mse(final_prediction,
+                                                         self.data_splitter.test_y), self.data_splitter.test_y

@@ -1,5 +1,8 @@
+import os
 import unittest
 
+# Set the environment variable to disable debug info messages
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from sympy.testing import pytest
 
@@ -33,15 +36,14 @@ class TestModelsBuilder(unittest.TestCase):
         model_creator = ModelCreator(
             [(RNN_ENCODER_DECODER, 1), (FFN, 2), (CNN, 2), (RNN_BIDIRECTIONAL, 1), (CONV_LSTM1D, 1), (LSTM, 3),
              (SELF_ATTENTION, 3)],
-            hyperparams_rnn=(45, 3),
-            hyperparams_cnn=(64, 3, 3),
-            hyperparams_ffn=(128, 3), root_dir=None, inputs=self.inputs_rnn)
+            hyperparams_rnn=(3, 45, 46),
+            hyperparams_cnn=(64, 65, 3, 4, 1),
+            hyperparams_ffn=(3, 64, 128), save_models_as_dot_format=False, root_dir=None)
 
-        model_creator.create_models()
+        model_creator.create_models(inputs=self.inputs_rnn)
 
         for key, value in model_creator.created_models.items():
             keras_model: tf.keras.Model = value
-            print(value.summary())
             self.assertEqual(keras_model.layers[-1].output_shape, (None, 1))
 
 
