@@ -12,7 +12,6 @@ from eventdetector import MIN_MAX_SCALER, ROBUST_SCALER, SCALERS_DIR, FILL_NAN_Z
     FILL_NAN_MEDIAN, RNN_BIDIRECTIONAL, CONV_LSTM1D, RNN_ENCODER_DECODER, FFN, CNN_RNN, GRU, CNN, SELF_ATTENTION, \
     LSTM, TYPE_TRAINING_AVERAGE, TYPE_TRAINING_FFN, STANDARD_SCALER
 from eventdetector.data.helpers import InvalidArgumentError
-from eventdetector.metamodel import logger_meta_model
 
 
 class DataSplitter:
@@ -92,13 +91,13 @@ class DataSplitter:
             # Generate the path to save the scaler to
             scaler_i_path = os.path.join(scalers_dir, f'scaler_{i}.joblib')
             # Print progress
-            logger_meta_model.info(f"Saving scaler...{i + 1}/{n_time_steps}", extra={"end": ""})
+            print("\rSaving scaling...{}/{}".format(i + 1, n_time_steps), end="")
             # Save the scaler to disk
             joblib.dump(self.scalers[i], scaler_i_path)
         print()
 
 
-def validate_args(meta_model: 'MetaModel') -> None:
+def validate_args(meta_model) -> None:
     """
     Validate the arguments of the MetaModel.
 

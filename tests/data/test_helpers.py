@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 from sympy.testing import pytest
 
-from eventdetector import MIDDLE_EVENT_LABEL
 from eventdetector.data.helpers import sliding_windows, convert_dataframe_to_sliding_windows, compute_middle_event
 
 
@@ -72,7 +71,7 @@ class TestHelpers(unittest.TestCase):
 
         # Test case 2: List of events with 1 column
         events_list = [['2022-01-01'], ['2022-01-03']]
-        expected_output = pd.DataFrame({MIDDLE_EVENT_LABEL: [datetime(2022, 1, 1), datetime(2022, 1, 3)]})
+        expected_output = pd.DataFrame({"event": [datetime(2022, 1, 1), datetime(2022, 1, 3)]})
         # call function to get actual output
         actual_output = compute_middle_event(events_list)
 
@@ -81,7 +80,7 @@ class TestHelpers(unittest.TestCase):
         # Test case 3: Pandas DataFrame with 2 columns
         events_df = pd.DataFrame({'Starting Date': ['2022-01-01', '2022-01-03'],
                                   'Ending Date': ['2022-01-02', '2022-01-05']})
-        expected_output = pd.DataFrame({MIDDLE_EVENT_LABEL: [datetime(2022, 1, 1, 12, 0), datetime(2022, 1, 4)]})
+        expected_output = pd.DataFrame({"event": [datetime(2022, 1, 1, 12, 0), datetime(2022, 1, 4)]})
         # call function to get actual output
         actual_output = compute_middle_event(events_df)
 
@@ -90,7 +89,7 @@ class TestHelpers(unittest.TestCase):
 
         # Test case 4: Pandas DataFrame with 1 column
         events_df = pd.DataFrame({'Starting Date': ['2022-01-01', '2022-01-03']})
-        expected_output = pd.DataFrame({MIDDLE_EVENT_LABEL: [datetime(2022, 1, 1), datetime(2022, 1, 3)]})
+        expected_output = pd.DataFrame({"event": [datetime(2022, 1, 1), datetime(2022, 1, 3)]})
         # call function to get actual output
         actual_output = compute_middle_event(events_list)
 
