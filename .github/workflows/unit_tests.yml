@@ -16,7 +16,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.10  # Adjust the Python version if needed
+          python-version: '3.10'
+          extra-path: |
+            /opt/hostedtoolcache/Python/3.10.0/x64/bin
 
       - name: Install dependencies
         run: pip install -r requirements.txt  # Adjust the command if needed
