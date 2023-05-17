@@ -94,6 +94,9 @@ class MetaModel:
         self.__compute_and_set_time_sampling()
         self.__set_defaults()
         validate_args(self)
+        if self.save_models_as_dot_format:
+            logger_meta_model.warning("save_models_as_dot_format is set to true, "
+                                      "you should have graphviz software to be installed on your machine.")
         self.__create_output_dir()
         # Create a `ModelCreator` object with the provided models and hyperparameters
         self.model_creator: ModelCreator = ModelCreator(models=self.models, hyperparams_ffn=self.hyperparams_ffn,
