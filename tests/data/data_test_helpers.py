@@ -62,7 +62,7 @@ class TestHelpers(unittest.TestCase):
     def test_compute_middle_event(self):
         # Test case 1: List of events with 2 columns
         events_list = [['2022-01-01', '2022-01-02'], ['2022-01-03', '2022-01-05']]
-        expected_output = pd.DataFrame({'Middle Event': [datetime(2022, 1, 1, 12, 0), datetime(2022, 1, 4)]})
+        expected_output = pd.DataFrame({'event': [datetime(2022, 1, 1, 12, 0), datetime(2022, 1, 4)]})
         # call function to get actual output
         actual_output = compute_middle_event(events_list)
 

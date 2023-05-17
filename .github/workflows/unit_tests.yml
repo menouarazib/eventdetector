@@ -30,4 +30,4 @@ jobs:
         continue-on-error: true
       - name: Test with pytest
         run: |
-          pytest
+          pytest --path ${{ github.workspace }}/tests
