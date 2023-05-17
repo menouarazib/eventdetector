@@ -1,8 +1,5 @@
-import os
 import unittest
 
-# Set the environment variable to disable debug info messages
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from sympy.testing import pytest
 
