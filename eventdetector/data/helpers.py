@@ -477,29 +477,29 @@ def check_time_unit(diff: timedelta) -> Tuple[int, TimeUnit]:
     t_s = 0
     time_unit = None
 
-    if diff.total_seconds() > 31536000:  # 1 year in seconds
+    if diff.total_seconds() >= 31536000:  # 1 year in seconds
         years = int(diff.total_seconds() / 31536000)
         t_s = years
         time_unit = TimeUnit.YEAR
-    elif diff.total_seconds() > 86400:  # 1 day in seconds
+    elif diff.total_seconds() >= 86400:  # 1 day in seconds
         days = int(diff.total_seconds() / 86400)
         t_s = days
         time_unit = TimeUnit.DAY
-    elif diff.total_seconds() > 3600:  # 1 hour in seconds
+    elif diff.total_seconds() >= 3600:  # 1 hour in seconds
         hours = int(diff.total_seconds() / 3600)
         t_s = hours
         time_unit = TimeUnit.HOUR
-    elif diff.total_seconds() > 60:  # 1 minute in seconds
+    elif diff.total_seconds() >= 60:  # 1 minute in seconds
         minutes = int(diff.total_seconds() / 60)
         t_s = minutes
         time_unit = TimeUnit.MINUTE
-    elif diff.total_seconds() > 1:
+    elif diff.total_seconds() >= 1:
         t_s = int(diff.total_seconds())
         time_unit = TimeUnit.SECOND
-    elif diff.total_seconds() * 1000 > 1:
+    elif diff.total_seconds() * 1000 >= 1:
         t_s = int(diff.total_seconds() * 1000)
         time_unit = TimeUnit.MILLISECOND
-    elif diff.total_seconds() * 1000000 > 1:
+    elif diff.total_seconds() * 1000000 >= 1:
         t_s = int(diff.total_seconds() * 1000000)
         time_unit = TimeUnit.MICROSECOND
     else:
