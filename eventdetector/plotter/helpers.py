@@ -8,6 +8,21 @@ from eventdetector.data.helpers import convert_time_to_datetime, get_timedelta
 
 
 def event_to_rectangle(event, w_s, time_unit: TimeUnit, color, height=1, style="solid"):
+    """
+    Function to convert an event to a rectangle object for visualization.
+    
+    Args:
+    event (datetime or other): The event timestamp or object.
+    w_s (int): The window size in time units.
+    time_unit (TimeUnit): The time unit of the window size.
+    color (str): The color of the rectangle.
+    height (int): The height of the rectangle.
+    style (str): The linestyle of the rectangle.
+
+    Returns:
+        Rectangle: The rectangle object representing the event.
+
+    """
     time = event
     if not isinstance(event, datetime):
         time = convert_time_to_datetime(event, to_timestamp=False)

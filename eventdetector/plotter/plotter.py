@@ -1,3 +1,4 @@
+import csv
 import os
 
 import matplotlib.dates as mdates
@@ -8,6 +9,7 @@ import seaborn as sns
 from matplotlib.patches import Patch
 
 from eventdetector import OUTPUT_DIR, TimeUnit, MIDDLE_EVENT_LABEL
+from eventdetector.data.helpers import get_timedelta
 from eventdetector.plotter import logger, COLOR_TRUE, COLOR_PREDICTED, STYLE_PREDICTED, STYLE_TRUE
 from eventdetector.plotter.helpers import event_to_rectangle
 
@@ -152,6 +154,7 @@ class Plotter:
         # Show the plot
         if self.show:
             plt.show()
+        self.__save_events()
 
     def plot_delta_t(self, bins=10) -> None:
         """
@@ -177,3 +180,28 @@ class Plotter:
         # Show the plot
         if self.show:
             plt.show()
+
+    def __save_events(self) -> None:
+        """
+        Save predicted events/true events to csv files.
+
+        Returns:
+            None
+        """
+        path = os.path.join(self.working_dir, "predicted_events.csv")
+        radius = get_timedelta(self.w_s // 2, self.time_unit)
+        with open(path, 'w', encoding='UTF8', newline='') as f:
+            writer = csv.writer(f, delimiter=' ')
+            for i in range(len(self.predicted_events)):
+                predicted_event = self.predicted_events[i]
+                start_time = predicted_event - radius
+                end_time = predicted_event + radius
+                writer.writerow([start_time.isoformat(), end_time.isoformat()])
+
+        path = os.path.join(self.working_dir, "true_events.csv")
+        with open(path, 'w', encoding='UTF8', newline='') as f:
+            writer = csv.writer(f, delimiter=' ')
+            for _, test_date in enumerate(self.true_events[MIDDLE_EVENT_LABEL]):
+                start_time = test_date - radius
+                end_time = test_date + radius
+                writer.writerow([start_time.isoformat(), end_time.isoformat()])
