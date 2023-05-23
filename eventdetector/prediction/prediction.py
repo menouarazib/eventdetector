@@ -44,13 +44,17 @@ def apply_scaling(x: np.ndarray, config_data: Dict) -> np.ndarray:
     n_time_steps = x.shape[1]
     output_dir: str = config_data.get("output_dir")
     scalers_dir = os.path.join(output_dir, SCALERS_DIR)
-    for i in range(n_time_steps):
-        scaler_i_path = os.path.join(scalers_dir, f'scaler_{i}.joblib')
-        # Print progress
-        print("\rLoading scaling...{}/{}".format(i + 1, n_time_steps), end="")
-        # Load the scaler from disk
-        scaler = joblib.load(scaler_i_path)
-        x[:, i, :] = scaler.transform(x[:, i, :])
+    try:
+        for i in range(n_time_steps):
+            scaler_i_path = os.path.join(scalers_dir, f'scaler_{i}.joblib')
+            # Print progress
+            print("\rLoading scaling...{}/{}".format(i + 1, n_time_steps), end="")
+            # Load the scaler from disk
+            scaler = joblib.load(scaler_i_path)
+            x[:, i, :] = scaler.transform(x[:, i, :])
+    except ValueError as e:
+        logger.critical(e)
+        raise e
 
     return np.asarray(x).astype('float32')
 

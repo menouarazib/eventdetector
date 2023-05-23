@@ -15,7 +15,7 @@ def plot_prediction(predicted_op: np.ndarray, filtered_predicted_op: np.ndarray)
     Returns:
         None
     """
-    sns.set_palette("PuBuGn_d")
+    sns.set(style="ticks", palette="Set2")
     plt.figure(figsize=(8, 6))  # Set the figure size
 
     # Plot the true and predicted values using Seaborn
@@ -27,7 +27,6 @@ def plot_prediction(predicted_op: np.ndarray, filtered_predicted_op: np.ndarray)
     plt.xlabel('Windows')
     plt.ylabel('Op')
     plt.title('Predicted Op')
-
     # Add legend
     plt.legend()
     # Show
