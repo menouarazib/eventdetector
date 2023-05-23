@@ -41,7 +41,6 @@ import pandas as pd
 
 from eventdetector import MIDDLE_EVENT_LABEL, FFN
 
-```
 from eventdetector.metamodel.meta_model import MetaModel
 from eventdetector.prediction.prediction import predict
 from eventdetector.prediction.utils import plot_prediction
