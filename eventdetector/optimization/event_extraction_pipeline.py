@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
 
-from eventdetector import MIDDLE_EVENT_LABEL, TimeUnit
+from eventdetector import MIDDLE_EVENT_LABEL, TimeUnit, config_dict
 from eventdetector.data.helpers import get_timedelta, get_total_units
 from eventdetector.optimization import logger
 from eventdetector.optimization.algorithms import convolve_with_gaussian_kernel
@@ -185,7 +185,7 @@ class EventOptimization:
         # Create a list of all combinations to evaluate
         combinations = [(sigma, m, h) for sigma in sigma_range for m in [sigma, 2 * sigma, 3 * sigma] for
                         h in h_values]
-    
+
         try:
             if use_multiprocessing:
                 # Create a multiprocessing pool with the desired number of processes
@@ -204,6 +204,7 @@ class EventOptimization:
         # Find the combination with the maximum F1 score
         best_combination_index = np.argmax(list(map(lambda metrics: metrics[0], results)))
         best_combination = combinations[best_combination_index]
+        config_dict["best_combination"] = best_combination
         max_f1_score, precision, recall, peaks, delta_t = results[best_combination_index]
 
         formatted_combination = ', '.join(f'{item:.2f}' for item in best_combination)

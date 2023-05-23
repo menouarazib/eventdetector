@@ -2,16 +2,17 @@
 import os
 import pprint
 import shutil
-from typing import Union
+from typing import Union, Dict
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from eventdetector import SELF_ATTENTION, FFN, GRU, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER
+from eventdetector import SELF_ATTENTION, FFN, GRU, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER, config_dict, \
+    CONFIG_FILE
 from eventdetector.data.helpers import compute_middle_event, remove_close_events, \
     convert_events_to_intervals, get_union_times_events, get_dataset_within_events_times, \
-    convert_dataframe_to_sliding_windows, op, check_time_unit
+    convert_dataframe_to_sliding_windows, op, check_time_unit, save_dict_to_json
 from eventdetector.metamodel import logger_meta_model
 from eventdetector.metamodel.utils import DataSplitter, validate_args
 from eventdetector.models.models_builder import ModelCreator
@@ -88,7 +89,7 @@ class MetaModel:
         self.events = events
         self.dataset = dataset
         self.output_dir = output_dir
-        self.kwargs = kwargs
+        self.kwargs: Dict = kwargs
         self.y = np.empty(shape=(0,))
         self.x = np.empty(shape=(0,))
         self.__compute_and_set_time_sampling()
@@ -146,6 +147,8 @@ class MetaModel:
                 shutil.rmtree(self.output_dir)
             logger_meta_model.info(f"Creating the working directory at: '{self.output_dir}'")
             os.makedirs(self.output_dir)
+
+        config_dict['output_dir'] = self.output_dir
 
     def __set_defaults(self) -> None:
         """
@@ -211,6 +214,9 @@ class MetaModel:
         log_message = pprint.pformat(log_dict, indent=4)
         logger_meta_model.warning(log_message)
 
+        config_dict.update({'width': self.width, 'step': self.step, 'batch_size': self.batch_size,
+                            'type_training': self.type_training, 'fill_nan': self.fill_nan})
+
     def __compute_and_set_time_sampling(self) -> None:
         """
         Compute the time sampling of the dataset by calculating the time difference between the first two index values.
@@ -233,6 +239,8 @@ class MetaModel:
             self.t_s, self.time_unit = check_time_unit(diff=diff)
             self.w_s = self.t_s * self.width
             self.s_s = self.t_s * self.step
+            config_dict['time_unit'] = self.time_unit.__str__()
+            config_dict['w_s'] = self.w_s
         except AttributeError:
             logger_meta_model.critical("The dataset is not compatible with the datetime format")
             raise TypeError("The index should be in datetime format.")
@@ -292,6 +300,7 @@ class MetaModel:
 
         # Get the number of time steps and features from the x data
         n_time_steps, n_features = self.x.shape[1], self.x.shape[2]
+        config_dict['n_time_steps'] = n_time_steps
         inputs = tf.keras.Input(shape=(n_time_steps, n_features), name="Input")
         # Call the `create_models` method to create the models
         logger_meta_model.info(f"Create the following models: {list(map(lambda x: x[0], self.models))}")
@@ -306,7 +315,8 @@ class MetaModel:
         logger_meta_model.info("Saving the best models...")
         self.model_trainer.save_best_models(output_dir=self.output_dir)
         predicted_y, loss, test_y = self.model_trainer.train_meta_model(type_training=self.type_training,
-                                                                        hyperparams_mm_network=self.hyperparams_ffn,
+                                                                        hyperparams_mm_network=
+                                                                        self.hyperparams_mm_network,
                                                                         output_dir=self.output_dir)
         self.optimization_data.set_predicted_op(predicted_op=predicted_y)
         logger_meta_model.info(f"The loss of the MetaModel is {loss:.4f}")
@@ -321,6 +331,9 @@ class MetaModel:
         """
         event_optimization: EventOptimization = EventOptimization(optimization_data=self.optimization_data)
         predicted_events, delta_t = event_optimization.max_f1score(use_multiprocessing=self.use_multiprocessing)
+        path = os.path.join(self.output_dir, CONFIG_FILE)
+        logger_meta_model.info(f"Saving config file into {path}")
+        save_dict_to_json(path=path, data=config_dict)
         self.plotter.set_data_events(predicted_events=predicted_events, true_events=self.optimization_data.true_events)
         self.plotter.set_delta_t(delta_t=delta_t)
 

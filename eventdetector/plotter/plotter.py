@@ -105,11 +105,12 @@ class Plotter:
         # Add legend
         plt.legend()
         # Save the plot to a file
-        path = os.path.join(self.working_dir, "true_op_vs_predicted_op.png")
+        path = os.path.join(self.working_dir, "op.png")
         plt.savefig(path, dpi=300)
         # Show the plot
         if self.show:
             plt.show()
+        self.__save_op()
 
     def plot_predicted_events(self) -> None:
         """
@@ -149,7 +150,7 @@ class Plotter:
         ax.legend(handles=[predicted_patch, true_patch], edgecolor="black")
 
         # Save the plot to a file
-        path = os.path.join(self.working_dir, "true_events_vs_predicted_events.png")
+        path = os.path.join(self.working_dir, "events.png")
         plt.savefig(path, dpi=300)
         # Show the plot
         if self.show:
@@ -205,3 +206,14 @@ class Plotter:
                 start_time = test_date - radius
                 end_time = test_date + radius
                 writer.writerow([start_time.isoformat(), end_time.isoformat()])
+
+    def __save_op(self) -> None:
+        """
+        Save predicted/true Op into csv file.
+
+        Returns:
+            None
+        """
+        df = pd.DataFrame({'True-Op': self.test_y, 'Predicted-Op': self.predicted_y})
+        path = os.path.join(self.working_dir, "op.csv")
+        df.to_csv(path, index=True, sep=" ")

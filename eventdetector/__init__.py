@@ -1,5 +1,6 @@
 from enum import Enum
 from logging import config
+from typing import Dict
 
 TIME_LABEL = "time"
 MIDDLE_EVENT_LABEL = "event"
@@ -21,6 +22,7 @@ FILL_NAN_MEDIAN = 'median'
 
 TYPE_TRAINING_AVERAGE = 'average'
 TYPE_TRAINING_FFN = 'ffn'
+META_MODEL_NETWORK = "meta_model_ffn"
 
 # Define constants for scaler types
 MIN_MAX_SCALER = "MinMaxScaler"
@@ -30,6 +32,9 @@ ROBUST_SCALER = "RobustScaler"
 SCALERS_DIR = "scalers"
 MODELS_DIR = "models"
 OUTPUT_DIR = "output"
+CONFIG_FILE = ".config.json"
+# Store some important values for prediction
+config_dict: Dict = {}
 
 
 class TimeUnit(Enum):

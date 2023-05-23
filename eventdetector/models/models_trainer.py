@@ -6,7 +6,7 @@ import tensorflow as tf
 from numpy import ndarray
 from sklearn.model_selection import KFold, train_test_split
 
-from eventdetector import MODELS_DIR
+from eventdetector import MODELS_DIR, META_MODEL_NETWORK, config_dict, TYPE_TRAINING_FFN
 from eventdetector.metamodel.utils import DataSplitter
 from eventdetector.models import logger_models
 from eventdetector.models.helpers import CustomEarlyStopping, custom_cross_val_score
@@ -130,6 +130,8 @@ class ModelTrainer:
                 self.best_models[model_name] = created_models[model_name]
         logger_models.info(f"Best models selected: {self.best_models.keys()}")
 
+        config_dict["models"] = list(self.best_models.keys())
+
     def save_best_models(self, output_dir: str) -> None:
         """
         Save the best models to the specified output directory.
@@ -174,7 +176,7 @@ class ModelTrainer:
         # Convert a list of 1D NumPy arrays to 2D NumPy array
         x = np.stack(predictions, axis=1)
 
-        if type_training == "ffn":
+        if type_training == TYPE_TRAINING_FFN:
             logger_models.info("Train the MetaModel using a FFN to produce a final prediction")
             # Split the data into training and test sets
             train_x, test_x, train_y, test_y = train_test_split(x, self.data_splitter.test_y,
@@ -184,12 +186,12 @@ class ModelTrainer:
             inputs = tf.keras.Input(shape=(train_x.shape[1],), name="Input")
             layers, units = hyperparams_mm_network
             model_builder: ModelBuilder = ModelBuilder(inputs=inputs)
-            name: str = "meta_model_network"
+
             for j in range(layers):
                 units_j = units
                 model_builder.add_dense_layer(units=units_j)
             model_builder.add_dense_layer(units=1, dropout=None)
-            keras_model = model_builder.build(name=name, root_dir=output_dir,
+            keras_model = model_builder.build(name=META_MODEL_NETWORK, root_dir=output_dir,
                                               save_models_as_dot_format=self.save_models_as_dot_format)
             # Train the model
             logger_models.info("Fitting the MetaModel network...")
@@ -197,7 +199,7 @@ class ModelTrainer:
                             validation_data=(test_x, test_y))
 
             path = os.path.join(output_dir, MODELS_DIR)
-            model_path = os.path.join(path, name)
+            model_path = os.path.join(path, META_MODEL_NETWORK)
             keras_model.save(model_path)
             logger_models.info("MetaModel network saved successfully.")
 

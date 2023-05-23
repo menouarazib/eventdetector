@@ -1,6 +1,7 @@
+import json
 from datetime import datetime, timedelta
 from functools import reduce
-from typing import Optional, Union, Tuple
+from typing import Optional, Union, Tuple, Dict
 
 import numpy as np
 import pandas as pd
@@ -61,7 +62,7 @@ def convert_dataframe_to_sliding_windows(
         Numpy array of shape (nb_windows, width, nb_features), containing the created sliding windows.
     """
     dataframe.index = pd.to_datetime(dataframe.index)
-    dataframe[TIME_LABEL] = dataframe.index.to_pydatetime()
+    dataframe.loc[:, TIME_LABEL] = dataframe.index.to_pydatetime()
 
     if fill_method == FILL_NAN_ZEROS:
         dataframe = dataframe.fillna(0)
@@ -242,9 +243,9 @@ def convert_events_to_intervals(events_df: pd.DataFrame, w_s: int, unit: TimeUni
     Convert events from a pandas DataFrame to intervals.
 
     Args:
-        unit: The unit time
         events_df (pd.DataFrame): DataFrame containing the events' data.
         w_s (int): The sliding window size in unit time.
+        unit: The unit time
 
     Returns:
         list[Interval]: A list of intervals.
@@ -277,10 +278,10 @@ def get_union_times_events(events_df: pd.DataFrame, window_size: int, unit_time:
     at least one event was taking place.
 
     Args:
-        unit_time (TimeUnit): The unit time
         events_df (pd.DataFrame): A DataFrame containing at least a MIDDLE_EVENT_LABEL column with the datetime
             of each event.
         window_size (int): The size of the time window to consider before and after each event.
+        unit_time (TimeUnit): The unit time
 
     Returns:
         pd.DatetimeIndex: A DatetimeIndex of all times during which at least one event was taking place.
@@ -506,3 +507,17 @@ def check_time_unit(diff: timedelta) -> Tuple[int, TimeUnit]:
         raise ValueError("Could not determine the unit of time of the dataset")
 
     return t_s, time_unit
+
+
+def save_dict_to_json(path: str, data: Dict):
+    """
+    Save a dictionary into a json file
+    Args:
+        path (str): the path where to store the json file
+        data (Dict): the dictionary
+
+    Returns:
+
+    """
+    with open(path, 'w') as f:
+        json.dump(data, f)
