@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Dict, Optional, List, Tuple
+from typing import Dict, List, Tuple
 
 import joblib
 import numpy as np
@@ -14,13 +14,9 @@ from eventdetector.optimization.event_extraction_pipeline import get_peaks
 from eventdetector.prediction import logger
 
 
-def load_config_file(path: Optional[str] = None) -> Dict:
+def load_config_file(path: str) -> Dict:
     # Load config file of the meta-model
-    current_directory = os.path.abspath(".")
-    if path is not None:
-        current_directory = path
-
-    config_file_path = os.path.join(current_directory, CONFIG_FILE)
+    config_file_path = os.path.join(path, CONFIG_FILE)
     if not os.path.exists(config_file_path):
         msg: str = f"The config file {CONFIG_FILE} does not exist in this path: {config_file_path}"
         logger.critical(msg)
@@ -73,17 +69,24 @@ def compute_op_as_mid_times(sliding_windows: np.ndarray, op_g: np.ndarray) -> Tu
     return t, op_g_
 
 
-def predict(dataset: pd.DataFrame, path: Optional[str] = None) -> Tuple[List, np.ndarray, np.ndarray]:
+def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndarray]:
     """
     Generates output predictions for the input dataset
     Args:
-        dataset (pd.DataFrame): The input dataset
-        path (Optional[str] = None): The path to the created folder by the MetaModel 
+        dataset (pd.DataFrame): The input dataset.
+        path (str): The path to the created folder by the MetaModel. 
 
     Returns:
         Tuple[List, np.ndarray, np.ndarray]: Predicted events, predicted Op and filtered predicted Op
     """
+
+    if path is None or not isinstance(path, str) or len(path) == 0:
+        msg: str = f"The provided path {path} is not valid."
+        logger.critical(msg)
+        raise ValueError(msg)
+
     config_data: Dict = load_config_file(path=path)
+    config_data['output_dir'] = path
     logger.info(f"Config dict: {config_data}")
     logger.info("Converting the dataset to sliding windows.")
     dataset_as_sliding_windows: np.ndarray = convert_dataframe_to_sliding_windows(dataset,
