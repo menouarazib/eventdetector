@@ -206,7 +206,7 @@ class ModelTrainer:
             # final_prediction: np.ndarray = keras_model.predict(self.data_splitter.test_x, batch_size=self.batch_size,
             #                                                   use_multiprocessing=True)
             final_prediction: np.ndarray = keras_model.predict(test_x, batch_size=self.batch_size,
-                                                               use_multiprocessing=True)
+                                                               use_multiprocessing=False)
             final_prediction = final_prediction.flatten()
             return final_prediction, tf.keras.losses.mse(final_prediction, test_y), test_y
             # return final_prediction, mse(final_prediction, self.data_splitter.test_y), self.data_splitter.test_y

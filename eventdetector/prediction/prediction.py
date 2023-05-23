@@ -91,7 +91,6 @@ def predict(dataset: pd.DataFrame, path: Optional[str] = None) -> Tuple[List, np
                                                                                   step=config_data.get("step"),
                                                                                   fill_method=config_data.get(
                                                                                       'fill_nan'))
-
     # Remove the column containing the timestamps from the sliding windows
     x: np.ndarray = np.delete(dataset_as_sliding_windows, -1, axis=2)
     logger.info(f"Applying a scaling for data of shape: {x.shape}")
@@ -105,7 +104,7 @@ def predict(dataset: pd.DataFrame, path: Optional[str] = None) -> Tuple[List, np
     for model in models:
         # Make predictions using each model
         predicted_y: np.ndarray = model.predict(x, batch_size=batch_size,
-                                                use_multiprocessing=True)
+                                                use_multiprocessing=False)
         predicted_y = predicted_y.flatten()
         predictions.append(predicted_y)
 

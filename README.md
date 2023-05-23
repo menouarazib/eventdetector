@@ -88,7 +88,7 @@ dataset_mex_prediction = dataset_mex[
 print(dataset_mex_prediction)
 
 # Call the 'predict' method
-predicted_events, predicted_op, filtered_predicted_op = predict(dataset=dataset_mex,
+predicted_events, predicted_op, filtered_predicted_op = predict(dataset=dataset_mex_prediction,
                                                                 path='path/mex_bow_shocks/')
 # Plot the predicted Op
 plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predicted_op)
