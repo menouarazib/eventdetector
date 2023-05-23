@@ -73,10 +73,10 @@ meta_model.build_stacking_learning()
 meta_model.event_extraction_optimization()
 # Plot the results: true/predicted op, true/predicted events, deltat_t.
 meta_model.plot()
-``
+
 
 5. Make Predictions
-```python
+
 # Make Predictions
 start_date_prediction = datetime(2012, 10, 1)
 stop_date_prediction = datetime(2013, 1, 1)
@@ -90,4 +90,3 @@ predicted_events, predicted_op, filtered_predicted_op = predict(dataset=dataset_
                                                                 path='path/mex_bow_shocks/')
 # Plot the predicted Op
 plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predicted_op)
-``
