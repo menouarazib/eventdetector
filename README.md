@@ -58,8 +58,14 @@ mex_bow_shocks: pd.DataFrame = pd.read_pickle("mex_events.pkl")
 mex_bow_shocks = mex_bow_shocks[
     (mex_bow_shocks[MIDDLE_EVENT_LABEL] >= start_date) & (mex_bow_shocks[MIDDLE_EVENT_LABEL] <= stop_date)]
 
-# This parameter determines the amount of data to include in the dataset around each reference event, specified in
-# units of time. By default, it is set to None, and in this case all data will be used.
+"""
+The 'time_window' parameter is crucial for controlling the amount of data used in the dataset. It should be specified 
+as a number of units of time. By default, it is set to None, which means that all available data will be used.
+However, if a value is provided, the dataset will only include a specific interval of data around each reference event.
+This interval consists of data from both the left and right sides of each event, with a duration equal to the specified 
+'time_window'. Setting a time_window can offer several advantages, including speeding up the training process and 
+improving the neural networks' understanding for rare events.
+"""
 time_window: int = 5400
 
 # Create the MetaModel
