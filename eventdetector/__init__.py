@@ -23,6 +23,7 @@ FILL_NAN_MEDIAN = 'median'
 TYPE_TRAINING_AVERAGE = 'average'
 TYPE_TRAINING_FFN = 'ffn'
 META_MODEL_NETWORK = "meta_model_ffn"
+META_MODEL_SCALER = "meta_model_scaler"
 
 # Define constants for scaler types
 MIN_MAX_SCALER = "MinMaxScaler"

@@ -1,12 +1,14 @@
 import os
 from typing import Dict, Tuple
 
+import joblib
 import numpy as np
 import tensorflow as tf
 from numpy import ndarray
 from sklearn.model_selection import KFold, train_test_split
+from sklearn.preprocessing import StandardScaler
 
-from eventdetector import MODELS_DIR, META_MODEL_NETWORK, config_dict, TYPE_TRAINING_FFN
+from eventdetector import MODELS_DIR, META_MODEL_NETWORK, config_dict, TYPE_TRAINING_FFN, SCALERS_DIR, META_MODEL_SCALER
 from eventdetector.metamodel.utils import DataSplitter
 from eventdetector.models import logger_models
 from eventdetector.models.helpers import CustomEarlyStopping, custom_cross_val_score
@@ -182,12 +184,20 @@ class ModelTrainer:
             train_x, test_x, train_y, test_y = train_test_split(x, self.data_splitter.test_y,
                                                                 test_size=self.data_splitter.test_size,
                                                                 shuffle=False)
+
+            scaler = StandardScaler()
+            train_x = scaler.fit_transform(train_x)
+            test_x = scaler.transform(test_x)
+            scalers_dir = os.path.join(output_dir, SCALERS_DIR)
+            scaler_path = os.path.join(scalers_dir, f"{META_MODEL_SCALER}.joblib")
+            joblib.dump(scaler, scaler_path)
+
             # Build the FFN model
             inputs = tf.keras.Input(shape=(train_x.shape[1],), name="Input")
             layers, units = hyperparams_mm_network
             model_builder: ModelBuilder = ModelBuilder(inputs=inputs)
 
-            for j in range(layers):
+            for _ in range(layers):
                 units_j = units
                 model_builder.add_dense_layer(units=units_j)
             model_builder.add_dense_layer(units=1, dropout=None)
@@ -209,7 +219,6 @@ class ModelTrainer:
                                                                use_multiprocessing=False)
             final_prediction = final_prediction.flatten()
             return final_prediction, tf.keras.losses.mse(final_prediction, test_y), test_y
-            # return final_prediction, mse(final_prediction, self.data_splitter.test_y), self.data_splitter.test_y
         else:
             # Compute the average prediction
             logger_models.info("Compute the average of predictions to produce a final prediction")

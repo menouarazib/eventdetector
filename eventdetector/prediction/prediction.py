@@ -1,13 +1,14 @@
 import json
 import os
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
 
 import joblib
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from eventdetector import CONFIG_FILE, SCALERS_DIR, TYPE_TRAINING_FFN, TimeUnit, MODELS_DIR
+from eventdetector import CONFIG_FILE, SCALERS_DIR, TYPE_TRAINING_FFN, TimeUnit, MODELS_DIR, META_MODEL_NETWORK, \
+    META_MODEL_SCALER
 from eventdetector.data.helpers import convert_dataframe_to_sliding_windows, get_timedelta
 from eventdetector.optimization.algorithms import convolve_with_gaussian_kernel
 from eventdetector.optimization.event_extraction_pipeline import get_peaks, compute_op_as_mid_times
@@ -70,7 +71,7 @@ def apply_scaling(x: np.ndarray, config_data: Dict) -> np.ndarray:
         for i in range(n_time_steps):
             scaler_i_path = os.path.join(scalers_dir, f'scaler_{i}.joblib')
             # Print progress
-            print("\rLoading scaling...{}/{}".format(i + 1, n_time_steps), end="")
+            print("\rLoading and applying scalers...{}/{}".format(i + 1, n_time_steps), end="")
             # Load the scaler from disk
             scaler = joblib.load(scaler_i_path)
             x[:, i, :] = scaler.transform(x[:, i, :])
@@ -78,7 +79,28 @@ def apply_scaling(x: np.ndarray, config_data: Dict) -> np.ndarray:
         logger.critical(e)
         raise e
 
-    return np.asarray(x).astype('float32')
+    logger.info("Convert data to float32 for consistency...")
+    x = np.asarray(x).astype('float32')
+    return x
+
+
+def load_meta_model(output_dir: str) -> Tuple[tf.keras.Model, Any]:
+    """
+    Load the metamodel network and the scaler.
+    Args:
+        output_dir (str): The parent directory where the trained models are stored
+
+    Returns:
+        tf.keras.Model, StanderScaler
+    """
+    path = os.path.join(output_dir, MODELS_DIR)
+    path = os.path.join(path, META_MODEL_NETWORK)
+    model = tf.keras.models.load_model(path)
+    scalers_dir = os.path.join(output_dir, SCALERS_DIR)
+    scaler_path = os.path.join(scalers_dir, f'{META_MODEL_SCALER}.joblib')
+    scaler = joblib.load(scaler_path)
+
+    return model, scaler
 
 
 def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndarray]:
@@ -108,7 +130,7 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
                                                                                       'fill_nan'))
     # Remove the column containing the timestamps from the sliding windows
     x: np.ndarray = np.delete(dataset_as_sliding_windows, -1, axis=2)
-    logger.info(f"Applying a scaling for data of shape: {x.shape}")
+    logger.info(f"The shape of the input data: {x.shape}")
     x = apply_scaling(x=x, config_data=config_data)
     model_keys: List[str] = config_data.get('models')
     logger.info(f"Loading models: {model_keys}")
@@ -128,8 +150,10 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
     # Convert a list of 1D NumPy arrays to 2D NumPy array
     predictions = np.stack(predictions, axis=1)
     if type_training == TYPE_TRAINING_FFN:
-        # TODO
-        predicted_op = np.mean(predictions, axis=1)
+        model, scaler = load_meta_model(output_dir=config_data.get('output_dir'))
+        predictions = scaler.transform(predictions)
+        predicted_op = model.predict(predictions, batch_size=batch_size)
+        predicted_op = predicted_op.flatten()
     else:
         predicted_op = np.mean(predictions, axis=1)
 
