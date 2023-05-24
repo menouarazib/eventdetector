@@ -10,12 +10,20 @@ import tensorflow as tf
 from eventdetector import CONFIG_FILE, SCALERS_DIR, TYPE_TRAINING_FFN, TimeUnit, MODELS_DIR
 from eventdetector.data.helpers import convert_dataframe_to_sliding_windows, get_timedelta
 from eventdetector.optimization.algorithms import convolve_with_gaussian_kernel
-from eventdetector.optimization.event_extraction_pipeline import get_peaks
+from eventdetector.optimization.event_extraction_pipeline import get_peaks, compute_op_as_mid_times
 from eventdetector.prediction import logger
 
 
 def load_config_file(path: str) -> Dict:
-    # Load config file of the meta-model
+    """
+     Load config file of the meta-model.
+     
+    Args:
+        path (str): Where the config file is stored
+
+    Returns:
+        Data as a Dict which contains all configuration information
+    """
     config_file_path = os.path.join(path, CONFIG_FILE)
     if not os.path.exists(config_file_path):
         msg: str = f"The config file {CONFIG_FILE} does not exist in this path: {config_file_path}"
@@ -28,6 +36,15 @@ def load_config_file(path: str) -> Dict:
 
 
 def load_models(model_keys: List[str], output_dir: str) -> List[tf.keras.Model]:
+    """
+    Loads the trained models.
+    Args:
+        model_keys (List[str]): List of model's name
+        output_dir (str): The parent directory where the trained models are stored
+
+    Returns:
+        List of keras models
+    """
     models: List[tf.keras.Model] = []
     for key in model_keys:
         path = os.path.join(output_dir, MODELS_DIR)
@@ -37,6 +54,15 @@ def load_models(model_keys: List[str], output_dir: str) -> List[tf.keras.Model]:
 
 
 def apply_scaling(x: np.ndarray, config_data: Dict) -> np.ndarray:
+    """
+    Scaling input data according to the stored scalers.
+    Args:
+        x (np.ndarray): Input data to be scaled 
+        config_data (Dict): Configuration Data 
+
+    Returns:
+        Scaled data.
+    """
     n_time_steps = x.shape[1]
     output_dir: str = config_data.get("output_dir")
     scalers_dir = os.path.join(output_dir, SCALERS_DIR)
@@ -53,20 +79,6 @@ def apply_scaling(x: np.ndarray, config_data: Dict) -> np.ndarray:
         raise e
 
     return np.asarray(x).astype('float32')
-
-
-def compute_op_as_mid_times(sliding_windows: np.ndarray, op_g: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-    t = []
-    op_g_ = []
-    for n in range(len(op_g)):
-        w_n = sliding_windows[n]
-        b_n = w_n[0][-1].to_pydatetime()
-        e_n = w_n[-1][-1].to_pydatetime()
-        c_n = b_n + (e_n - b_n) / 2
-        t.append(c_n)
-        op_g_.append(op_g[n])
-    t, op_g_ = np.array(t), np.array(op_g_)
-    return t, op_g_
 
 
 def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndarray]:

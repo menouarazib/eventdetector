@@ -83,9 +83,42 @@ class OptimizationData:
         self.true_events = true_events_test
 
 
-def get_peaks(h, t: np.ndarray, op_g: np.ndarray) -> np.ndarray:
+def get_peaks(h: float, t: np.ndarray, op_g: np.ndarray) -> np.ndarray:
+    """
+    Compute peaks for given mid_times of windows, op values and threshold h. 
+    Args:
+        h (float): Threshold for peaks.
+        t (np.ndarray): mid_times of windows
+        op_g (np.ndarray): op values
+
+    Returns:
+        np.ndarray: Peaks.
+    """
     peaks, _ = find_peaks(op_g, height=np.array([h, 1.0]))
     return t[peaks]
+
+
+def compute_op_as_mid_times(sliding_windows: np.ndarray, op_g: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute op as a function of mid-times of windows instead of window's index.
+    Args:
+        sliding_windows (np.ndarray): Sliding windows
+        op_g (np.ndarray): Op array
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray]: mid-times of windows, op as a function of mid-times of windows
+    """
+    t = []
+    op_g_ = []
+    for n in range(len(op_g)):
+        w_n = sliding_windows[n]
+        b_n = w_n[0][-1].to_pydatetime()
+        e_n = w_n[-1][-1].to_pydatetime()
+        c_n = b_n + (e_n - b_n) / 2
+        t.append(c_n)
+        op_g_.append(op_g[n])
+    t, op_g_ = np.array(t), np.array(op_g_)
+    return t, op_g_
 
 
 class OptimizationCalculator:
@@ -96,17 +129,7 @@ class OptimizationCalculator:
         return convolve_with_gaussian_kernel(self.optimization_data.predicted_op, sigma, m=m)
 
     def __compute_op_as_mid_times(self, op_g: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        t = []
-        op_g_ = []
-        for n in range(len(op_g)):
-            w_n = self.optimization_data.sliding_windows[n]
-            b_n = w_n[0][-1].to_pydatetime()
-            e_n = w_n[-1][-1].to_pydatetime()
-            c_n = b_n + (e_n - b_n) / 2
-            t.append(c_n)
-            op_g_.append(op_g[n])
-        t, op_g_ = np.array(t), np.array(op_g_)
-        return t, op_g_
+        return compute_op_as_mid_times(self.optimization_data.sliding_windows, op_g)
 
     def compute_f1score(self, sigma: int, m: int, h: float):
         delta_with_time_unit = get_timedelta(self.optimization_data.delta, self.optimization_data.time_unit)
