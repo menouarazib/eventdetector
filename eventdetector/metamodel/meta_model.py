@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from eventdetector import SELF_ATTENTION, FFN, GRU, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER, config_dict, \
-    CONFIG_FILE
+from eventdetector import SELF_ATTENTION, FFN, GRU, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER, \
+    config_dict, CONFIG_FILE
 from eventdetector.data.helpers import compute_middle_event, remove_close_events, \
     convert_events_to_intervals, get_union_times_events, get_dataset_within_events_times, \
     convert_dataframe_to_sliding_windows, op, check_time_unit, save_dict_to_json
@@ -51,8 +51,14 @@ class MetaModel:
                     with the lowest MSE values. The default value is 0.0002.
                 - pa (int): The patience for the early stopping algorithm. The default value is 5.
                 - t_r (float): The ratio threshold for the early stopping algorithm. The default value is 0.97.
-                - time_window Optional[int] = None: This parameter determines the amount of data to include in
-                    the dataset around each reference event, specified in units of time.
+                - time_window Optional[int] = None: The 'time_window' parameter is crucial for controlling the amount of 
+                    data used in the dataset. It should be specified as a number of units of time. By default, 
+                    it is set to None, which means that all available data will be used.
+                    However, if a value is provided, the dataset will only include a specific interval of data 
+                    around each reference event. This interval consists of data from both the left and right sides of 
+                    each event, with a duration equal to the specified 'time_window'. Setting a time_window can offer 
+                    several advantages, including speeding up the training process and improving the 
+                    neural networks' understanding for rare events.
                 - models (List[Union[str, Tuple[str, int]]]): Determines the type of deep learning models to use.
                     If a tuple is passed, it specifies both the model type and the number of instances to run.
                     The default value is [(model, 5) for model in [LSTM, SELF_ATTENTION, FFN]].
@@ -265,7 +271,9 @@ class MetaModel:
         logger_meta_model.info("Computes the middle date of events...")
         self.events = compute_middle_event(self.events)
         logger_meta_model.info("Removes events that occur too close together...")
+        temp: int = len(self.events)
         self.events = remove_close_events(self.events, self.w_s, self.time_unit)
+        logger_meta_model.warning(f"A total of {len(self.events) - temp} events were removed due to overlapping")
         logger_meta_model.info("Convert events to intervals...")
         intervals = convert_events_to_intervals(self.events, self.w_s, self.time_unit)
 
@@ -315,8 +323,8 @@ class MetaModel:
         logger_meta_model.info("Saving the best models...")
         self.model_trainer.save_best_models(output_dir=self.output_dir)
         predicted_y, loss, test_y = self.model_trainer.train_meta_model(type_training=self.type_training,
-                                                                        hyperparams_mm_network=
-                                                                        self.hyperparams_mm_network,
+                                                                        hyperparams_mm_network
+                                                                        =self.hyperparams_mm_network,
                                                                         output_dir=self.output_dir)
         self.optimization_data.set_predicted_op(predicted_op=predicted_y)
         logger_meta_model.info(f"The loss of the MetaModel is {loss:.4f}")
