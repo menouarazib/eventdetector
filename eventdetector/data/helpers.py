@@ -477,8 +477,6 @@ def check_time_unit(diff: timedelta) -> Tuple[int, TimeUnit]:
     Returns:
         Tuple[int, TimeUnit]: A tuple with the time value and its unit.
     """
-    t_s = 0
-    time_unit = None
 
     if diff.total_seconds() >= 31536000:  # 1 year in seconds
         years = int(diff.total_seconds() / 31536000)
