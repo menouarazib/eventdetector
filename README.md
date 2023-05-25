@@ -39,7 +39,6 @@ from datetime import datetime
 
 import pandas as pd
 
-from eventdetector import MIDDLE_EVENT_LABEL
 from eventdetector.metamodel.meta_model import MetaModel
 from eventdetector.prediction.prediction import predict
 from eventdetector.prediction.utils import plot_prediction
@@ -60,7 +59,7 @@ print(dataset_mex_learning)
 
 # Filtering events by using learning dates.
 events_learning = events[
-    (events[MIDDLE_EVENT_LABEL] >= start_date) & (events[MIDDLE_EVENT_LABEL] <= stop_date)]
+    (events['event'] >= start_date) & (events['event'] <= stop_date)]
 
 """
 The 'time_window' parameter is crucial for controlling the amount of data used in the dataset. It should be specified 

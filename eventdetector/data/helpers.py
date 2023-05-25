@@ -61,6 +61,8 @@ def convert_dataframe_to_sliding_windows(
     Returns:
         Numpy array of shape (nb_windows, width, nb_features), containing the created sliding windows.
     """
+
+    dataframe = dataframe.copy()
     dataframe.index = pd.to_datetime(dataframe.index)
     dataframe.loc[:, TIME_LABEL] = dataframe.index.to_pydatetime()
 
