@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 from sympy.testing import pytest
 
-from eventdetector.data.helpers import sliding_windows, convert_dataframe_to_sliding_windows, compute_middle_event
+from eventdetector.data.helpers import sliding_windows, convert_dataframe_to_sliding_windows, compute_middle_event, \
+    num_columns
 
 
 def test_sliding_windows():
@@ -15,8 +16,9 @@ def test_sliding_windows():
 
 
 class TestHelpers(unittest.TestCase):
+
     def setUp(self):
-        pass
+        self.n: int = 100
 
     def test_sliding_windows(self):
         # Test case 1: 1D input
@@ -44,19 +46,19 @@ class TestHelpers(unittest.TestCase):
 
     def test_convert_dataframe_to_sliding_windows(self):
         # Create a sample DataFrame with datetime index and real-valued features
-        n: int = 100
-        data = np.random.rand(n, 3)
-        index = pd.date_range(start='2022-01-01', periods=n, freq='D')
+
+        data = np.random.rand(self.n, 3)
+        index = pd.date_range(start='2022-01-01', periods=self.n, freq='D')
         df = pd.DataFrame(data=data, columns=['feat1', 'feat2', 'feat3'], index=index)
 
         # Test sliding window generation with default settings
         sw = convert_dataframe_to_sliding_windows(df, width=2, step=1)
-        expected_shape = ((n - 1, 2, 4))  # Number of windows, window width, number of features+time
+        expected_shape = (self.n - 1, 2, 4)  # Number of windows, window width, number of features+time
         self.assertEqual(sw.shape, expected_shape)
 
         # Test sliding window generation with custom settings
         sw = convert_dataframe_to_sliding_windows(df, width=14, step=7, fill_method='ffill')
-        expected_shape = ((13, 14, 4))  # Number of windows, window width, number of features+time
+        expected_shape = (13, 14, 4)  # Number of windows, window width, number of features+time
         self.assertEqual(sw.shape, expected_shape)
 
     def test_compute_middle_event(self):
@@ -88,7 +90,6 @@ class TestHelpers(unittest.TestCase):
         pd.testing.assert_frame_equal(expected_output, actual_output)
 
         # Test case 4: Pandas DataFrame with 1 column
-        events_df = pd.DataFrame({'Starting Date': ['2022-01-01', '2022-01-03']})
         expected_output = pd.DataFrame({"event": [datetime(2022, 1, 1), datetime(2022, 1, 3)]})
         # call function to get actual output
         actual_output = compute_middle_event(events_list)
@@ -110,6 +111,18 @@ class TestHelpers(unittest.TestCase):
         events_list = [[1, 2], [3, 4, 5]]
         with pytest.raises(ValueError):
             compute_middle_event(events_list)
+
+    def test_empty_list(self):
+        self.assertEqual(num_columns([]), 0)
+
+    def test_single_column_list(self):
+        self.assertEqual(num_columns([1, 2, 3]), 1)
+
+    def test_multi_column_list(self):
+        self.assertEqual(num_columns([[1, 2], [3, 4], [5, 6]]), 2)
+
+    def test_mixed_list(self):
+        self.assertEqual(num_columns([[1, 2], 3, 4]), 2)
 
 
 if __name__ == '__main__':
