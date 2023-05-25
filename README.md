@@ -78,8 +78,8 @@ meta_model.prepare_data_and_computing_op()
 meta_model.build_stacking_learning()
 # Run the Event Extraction Optimization process.
 meta_model.event_extraction_optimization()
-# Plot the results: true/predicted op, true/predicted events, deltat_t.
-meta_model.plot()
+# Plot the results: Losses, true/predicted op, true/predicted events, deltat_t.
+meta_model.plot_save(show_plots=True)
 ```
 
 5. Make Predictions

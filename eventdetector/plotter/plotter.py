@@ -1,5 +1,6 @@
 import csv
 import os
+from typing import Dict
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -21,7 +22,7 @@ class Plotter:
         predictive model against the actual observed values.
     """
 
-    def __init__(self, root_dir: str, time_unit: TimeUnit, w_s: int, show: bool = False) -> None:
+    def __init__(self, root_dir: str, time_unit: TimeUnit, w_s: int) -> None:
         """
         Initialize the Plotter object.
 
@@ -29,11 +30,16 @@ class Plotter:
             root_dir (str): The root directory for saving the plots.
             time_unit (TimeUnit): The unit time of the dataset
             w_s (int): The width of each event in time unit
-            show (bool, optional): Whether to display the plots or not. Defaults to False.
         """
+
+        self.val_losses = {}
+        self.train_losses = {}
+        self.val_loss_meta_model: list = []
+        self.train_loss_meta_model: list = []
         self.w_s = w_s
         self.time_unit = time_unit
-        self.show = show
+        # Whether to display the plots or not. Defaults to False.
+        self.show = True
         self.root_dir = root_dir
         self.predicted_y: np.ndarray = np.empty(shape=(0,))
         self.test_y: np.ndarray = np.empty(shape=(0,))
@@ -42,6 +48,17 @@ class Plotter:
         self.delta_t: list = []
         self.working_dir = os.path.join(root_dir, OUTPUT_DIR)
         os.makedirs(self.working_dir)
+
+    def set_show(self, show: bool) -> None:
+        """
+        Set show value
+        Args:
+            show (bool): Value to set for 'self.show'
+
+        Returns:
+            None
+        """
+        self.show = show
 
     def set_data_op(self, test_y: np.ndarray, predicted_y: np.ndarray) -> None:
         """
@@ -80,6 +97,23 @@ class Plotter:
             None
         """
         self.delta_t = delta_t
+
+    def set_losses(self, train_losses: Dict[str, list], val_losses: Dict[str, list],
+                   train_loss_meta_model: list, val_loss_meta_model: list) -> None:
+        """
+        Set losses of all trained models.
+        Args:
+            train_losses (Dict[str, list]): train losses.
+            val_losses (Dict[str, list]): val losses.
+            train_loss_meta_model (list): train loss for the metamodel.
+            val_loss_meta_model (list): val loss for the metamodel.
+        Returns:
+            None
+        """
+        self.train_losses = train_losses
+        self.val_losses = val_losses
+        self.train_loss_meta_model = train_loss_meta_model
+        self.val_loss_meta_model = val_loss_meta_model
 
     def plot_prediction(self) -> None:
         """
@@ -177,6 +211,50 @@ class Plotter:
         plt.title(f'Histogram std = {std:.2f}, mu = {mu:.2f}')
         # Save the plot to a file
         path = os.path.join(self.working_dir, "delta_t.png")
+        plt.savefig(path, dpi=300)
+        # Show the plot
+        if self.show:
+            plt.show()
+
+    def plot_losses(self):
+        """
+        Plot losses for all trained models.
+        Returns:
+            None
+        """
+        sns.set(style="ticks", palette="Set2")
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+        fig.set_size_inches((11, 8.5), forward=False)
+        y_label = 'Loss'
+        x_label = 'Epochs'
+        colors = sns.color_palette("Set2", len(self.val_losses))
+        lifestyle_val = '--'
+        lifestyle_train = '-'
+        for i, (model_name, val_loss) in enumerate(self.val_losses.items()):
+            epochs = range(1, len(val_loss) + 1)
+            train_loss = self.train_losses[model_name]
+            ax1.plot(epochs, train_loss, linestyle=lifestyle_train, color=colors[i],
+                     label='Training Loss - {}'.format(model_name))
+            ax1.plot(epochs, val_loss, linestyle=lifestyle_val, color=colors[i],
+                     label='Validation Loss - {}'.format(model_name))
+            ax1.set_ylabel(y_label)
+            ax1.set_xlabel(x_label)
+            ax1.legend()
+
+        if len(self.val_loss_meta_model) > 0:
+            epochs_meta = range(1, len(self.val_loss_meta_model) + 1)
+            ax2.plot(epochs_meta, self.train_loss_meta_model, linestyle=lifestyle_train, color='b',
+                     label='Training Loss - Meta Model')
+            ax2.plot(epochs_meta, self.val_loss_meta_model, linestyle=lifestyle_val, color='g',
+                     label='Validation Loss - Meta Model')
+            ax2.set_ylabel(y_label)
+            ax2.set_xlabel(x_label)
+            ax2.legend()
+
+        fig.suptitle('Training and Validation Losses')
+        plt.tight_layout()
+        # Save the plot to a file
+        path = os.path.join(self.working_dir, "losses.png")
         plt.savefig(path, dpi=300)
         # Show the plot
         if self.show:

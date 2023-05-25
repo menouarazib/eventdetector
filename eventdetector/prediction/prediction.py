@@ -158,12 +158,12 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
         predicted_op = np.mean(predictions, axis=1)
 
     sigma, m, h = config_data.get('best_combination')
-    logger.info(f"Applying Gaussian Filer with sigma = {sigma} and m = {m}")
+    logger.info(f"Applying Gaussian Filter with sigma = {sigma} and m = {m}")
     filtered_predicted_op = convolve_with_gaussian_kernel(predicted_op, sigma=sigma, m=m)
     logger.info("Computing filtered predictions as a function of the mid-times of the sliding windows")
     t, filtered_predicted_op = compute_op_as_mid_times(sliding_windows=dataset_as_sliding_windows,
                                                        op_g=filtered_predicted_op)
-    logger.info(f"Computing peaks with h = {h}")
+    logger.info(f"Computing peaks with h = {h:.2f}")
     s_peaks = get_peaks(h=h, t=t, op_g=filtered_predicted_op)
     predicted_events = []
     time_unit: TimeUnit = TimeUnit.__call__(config_data.get('time_unit'))

@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from eventdetector import SELF_ATTENTION, FFN, GRU, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER, \
+from eventdetector import FFN, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER, \
     config_dict, CONFIG_FILE
 from eventdetector.data.helpers import compute_middle_event, remove_close_events, \
     convert_events_to_intervals, get_union_times_events, get_dataset_within_events_times, \
@@ -35,8 +35,8 @@ class MetaModel:
         Initializes a new instance of the MetaModel class.
 
         Args:
-
-            output_dir (str): The name or path of the directory where all outputs will be saved. If output_dir is a
+            output_dir (str): The name or path of the directory where all outputs will be saved.
+            If output_dir is a
                 folder name, it will create the full path in the current directory.
             dataset (pd.DataFrame): The input dataset as pd.DataFrame.
             events (Union[list, pd.DataFrame]): The input events.
@@ -45,41 +45,54 @@ class MetaModel:
             kwargs (Dict): Optional keyword arguments:
                 - t_max (float): The maximum total time related to sigma. The default value is (3 * self.w_s) / 2).
                 - delta (int): The maximum time tolerance used to determine the correspondence between a predicted event
-                    and its actual counterpart in the true events. The default value is w_s.
+                    and its actual counterpart in the true events.
+                    The default value is w_s.
                 - s_h (float): A step parameter for the peak height threshold h. The default value is 0.05.
                 - epsilon (float): A small constant used to control the size of set which contains the top models
                     with the lowest MSE values. The default value is 0.0002.
                 - pa (int): The patience for the early stopping algorithm. The default value is 5.
-                - t_r (float): The ratio threshold for the early stopping algorithm. The default value is 0.97.
+                - t_r (float): The ratio threshold for the early stopping algorithm.
+                    The default value is 0.97.
                 - time_window Optional[int] = None: The 'time_window' parameter is crucial for controlling the amount of 
-                    data used in the dataset. It should be specified as a number of units of time. By default, 
-                    it is set to None, which means that all available data will be used.
+                    data used in the dataset.
+                    It should be specified as a number of units of time.
+                    By default, it is set to None, which means that all available data will be used.
                     However, if a value is provided, the dataset will only include a specific interval of data 
-                    around each reference event. This interval consists of data from both the left and right sides of 
-                    each event, with a duration equal to the specified 'time_window'. Setting a time_window can offer 
+                    around each reference event.
+                    This interval consists of data from both the left and right sides of 
+                    each event, with a duration equal to the specified 'time_window'.
+                    Setting a time_window can offer 
                     several advantages, including speeding up the training process and improving the 
                     neural networks' understanding for rare events.
                 - models (List[Union[str, Tuple[str, int]]]): Determines the type of deep learning models to use.
                     If a tuple is passed, it specifies both the model type and the number of instances to run.
-                    The default value is [(model, 5) for model in [LSTM, SELF_ATTENTION, FFN]].
+                    The default value is [(model, 5) for model in [FFN]].
                 - hyperparams_ffn (Tuple[int, int, int]): Specify for the FFN the maximum number of layers,
-                    the minimum and the maximum number of neurons per layer. The default value is (3, 64, 256).
+                    the minimum and the maximum number of neurons per layer.
+                    The default value is (3, 64, 256).
                 - hyperparams_cnn (Tuple[int, int, int, int, int]): Specify for the CNN the minimum, maximum number
                     of filters, the minimum, the maximum kernel size, and maximum number of pooling layers.
                     The default value is (16, 64, 3, 8 , 2).
                 - hyperparams_rnn (Tuple[int, int, int]): Specify for the RNN the maximum number of RNN layers
-                    the minimum and the maximum number of hidden units. The default value is (1, 16, 128).
+                    the minimum and the maximum number of hidden units.
+                    The default value is (1, 16, 128).
                 - hyperparams_mm_network (Tuple[int, int]): Specify for the MetaModel network the number
-                    of layers and the number of neurons per layer. The default value is (1, 32).
+                    of layers and the number of neurons per layer.
+                    The default value is (1, 32).
                 - epochs (int): The number of epochs to train different models. The default value is False 256.
-                - batch_size (int): The number of samples per gradient update. The default value is 32.
+                - batch_size (int): The number of samples per gradient update.
+                    The default value is 32.
                 - fill_nan (str): Specifies the method to use for filling NaN values in the dataset.
-                    Supported methods are 'zeros', 'ffill', 'bfill', and 'median'. The default is 'zeros'
+                    Supported methods are 'zeros', 'ffill', 'bfill', and 'median'.
+                    The default is 'zeros'.
                 - type_training (str):Specifies the type of training technique to use for the MetaModel.
-                    Supported techniques are 'average' and 'ffn'. The default is 'average'.
-                - scaler (str): The type of scaler to use for preprocessing the data. Possible values are
-                    "MinMaxScaler", "StandardScaler", and "RobustScaler". Default is "StandardScaler"
-                - use_kfold (bool): Whether to use k-fold cross-validation technique or not. The default value is False.
+                    Supported techniques are 'average' and 'ffn'.
+                    The default is 'average'.
+                - scaler (str): The type of scaler to use for preprocessing the data.
+                    Possible values are "MinMaxScaler", "StandardScaler", and "RobustScaler".
+                    Default is "StandardScaler"
+                - use_kfold (bool): Whether to use k-fold cross-validation technique or not.
+                The default value is False.
                 - test_size (float): The proportion of the dataset to include in the test split.
                     Should be a value between 0 and 1. Default is 0.2.
                 - val_size (float): The proportion of the training set to use for validation.
@@ -126,7 +139,7 @@ class MetaModel:
                                                                     output_dir=self.output_dir,
                                                                     time_unit=self.time_unit)
         # The Plotter class is responsible for generating and saving plots.
-        self.plotter: Plotter = Plotter(root_dir=self.output_dir, time_unit=self.time_unit, w_s=self.w_s, show=True)
+        self.plotter: Plotter = Plotter(root_dir=self.output_dir, time_unit=self.time_unit, w_s=self.w_s)
 
     def __create_output_dir(self) -> None:
         """
@@ -170,7 +183,7 @@ class MetaModel:
         self.pa = self.kwargs.get('pa', 5)
         self.t_r = self.kwargs.get('t_r', 0.97)
         self.time_window = self.kwargs.get('time_window', None)
-        self.models = self.kwargs.get('models', [(model, 5) for model in [GRU, SELF_ATTENTION, FFN]])
+        self.models = self.kwargs.get('models', [(model, 5) for model in [FFN]])
         for i, model in enumerate(self.models):
             if isinstance(model, str):
                 self.models[i] = (model, 5)
@@ -273,12 +286,12 @@ class MetaModel:
         logger_meta_model.info("Removes events that occur too close together...")
         temp: int = len(self.events)
         self.events = remove_close_events(self.events, self.w_s, self.time_unit)
-        logger_meta_model.warning(f"A total of {len(self.events) - temp} events were removed due to overlapping")
+        logger_meta_model.warning(f"A total of {temp - len(self.events)}/{temp} events were removed due to overlapping")
         logger_meta_model.info("Convert events to intervals...")
         intervals = convert_events_to_intervals(self.events, self.w_s, self.time_unit)
 
         if self.time_window is not None:
-            logger_meta_model.warning(f"time_window is provided = {self.time_window} {self.time_unit}")
+            logger_meta_model.warning(f"time_window is provided = {self.time_window} {self.time_unit}s")
             events_times = get_union_times_events(self.events, self.time_window, self.time_unit)
             logger_meta_model.warning(
                 "Extracts the data from the dataset that fall within the events intervals using time_window")
@@ -329,6 +342,10 @@ class MetaModel:
         self.optimization_data.set_predicted_op(predicted_op=predicted_y)
         logger_meta_model.info(f"The loss of the MetaModel is {loss:.4f}")
         self.plotter.set_data_op(test_y=test_y, predicted_y=predicted_y)
+        self.plotter.set_losses(train_losses=self.model_trainer.train_losses,
+                                val_losses=self.model_trainer.val_losses, train_loss_meta_model=
+                                self.model_trainer.train_loss_meta_model,
+                                val_loss_meta_model=self.model_trainer.val_loss_meta_model)
 
     def event_extraction_optimization(self) -> None:
         """
@@ -345,13 +362,18 @@ class MetaModel:
         self.plotter.set_data_events(predicted_events=predicted_events, true_events=self.optimization_data.true_events)
         self.plotter.set_delta_t(delta_t=delta_t)
 
-    def plot(self) -> None:
+    def plot_save(self, show_plots: bool = True) -> None:
         """
-        Plot the results: true/predicted op, true/predicted events, deltat_t.
+        Plot the results: losses, true/predicted op, true/predicted events, deltat_t.
 
+        Args:
+            show_plots (bool): whether to show the plots or not.
+            
         Returns:
             None
         """
+        self.plotter.set_show(show=show_plots)
+        self.plotter.plot_losses()
         self.plotter.plot_prediction()
         self.plotter.plot_predicted_events()
         self.plotter.plot_delta_t(bins=10)

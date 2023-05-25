@@ -33,8 +33,10 @@ class ModelTrainer:
         save_models_as_dot_format (bool): Whether to save the models as a dot format file.
                 The default value is False. If set to True, then you should have graphviz software
                 to be installed on your machine.
-        train_losses (Dict[str, list]): A dictionary containing the training losses for each model.
-        val_losses (Dict[str, list]): A dictionary containing the validation losses for each model.
+        train_losses (Dict[str, np.ndarray]): A dictionary containing the training losses for each model.
+        val_losses (Dict[str, np.ndarray]): A dictionary containing the validation losses for each model.
+        val_loss_meta_model (np.ndarray): val loss for the meta_model.
+        train_loss_meta_model (np.ndarray): train loss for the meta_model
     """
 
     def __init__(self, data_splitter: DataSplitter, epochs: int,
@@ -59,13 +61,15 @@ class ModelTrainer:
                 to be installed on your machine.
         """
 
+        self.val_loss_meta_model: list = []
+        self.train_loss_meta_model: list = []
         self.save_models_as_dot_format = save_models_as_dot_format
         self.best_models: Dict[str, tf.keras.Model] = {}
-        self.train_losses = {}
-        self.val_losses = {}
-        self.data_splitter = data_splitter
-        self.epochs = epochs
-        self.batch_size = batch_size
+        self.train_losses: Dict[str, list] = {}
+        self.val_losses: Dict[str, list] = {}
+        self.data_splitter: DataSplitter = data_splitter
+        self.epochs: int = epochs
+        self.batch_size: int = batch_size
         self.pa = pa
         self.t_r = t_r
         self.use_kfold = use_kfold
@@ -184,14 +188,12 @@ class ModelTrainer:
             train_x, test_x, train_y, test_y = train_test_split(x, self.data_splitter.test_y,
                                                                 test_size=self.data_splitter.test_size,
                                                                 shuffle=False)
-
             scaler = StandardScaler()
             train_x = scaler.fit_transform(train_x)
             test_x = scaler.transform(test_x)
             scalers_dir = os.path.join(output_dir, SCALERS_DIR)
             scaler_path = os.path.join(scalers_dir, f"{META_MODEL_SCALER}.joblib")
             joblib.dump(scaler, scaler_path)
-
             # Build the FFN model
             inputs = tf.keras.Input(shape=(train_x.shape[1],), name="Input")
             layers, units = hyperparams_mm_network
@@ -205,13 +207,15 @@ class ModelTrainer:
                                               save_models_as_dot_format=self.save_models_as_dot_format)
             # Train the model
             logger_models.info("Fitting the MetaModel network...")
-            keras_model.fit(train_x, train_y, epochs=self.epochs, batch_size=self.batch_size, verbose=1,
-                            validation_data=(test_x, test_y))
+            history = keras_model.fit(train_x, train_y, epochs=self.epochs, batch_size=self.batch_size, verbose=1,
+                                      validation_data=(test_x, test_y))
 
             path = os.path.join(output_dir, MODELS_DIR)
             model_path = os.path.join(path, META_MODEL_NETWORK)
             keras_model.save(model_path)
             logger_models.info("MetaModel network saved successfully.")
+            self.train_loss_meta_model = history.history['loss']
+            self.val_loss_meta_model = history.history['val_loss']
 
             # final_prediction: np.ndarray = keras_model.predict(self.data_splitter.test_x, batch_size=self.batch_size,
             #                                                   use_multiprocessing=True)
