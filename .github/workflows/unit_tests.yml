@@ -37,5 +37,6 @@ jobs:
       - name: Upload coverage report
         uses: actions/upload-artifact@v2
         with:
+          node-version: '16'
           name: coverage-report
           path: coverage.xml
