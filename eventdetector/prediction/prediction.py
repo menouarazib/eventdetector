@@ -137,7 +137,7 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
     models: List[tf.keras.Model] = load_models(model_keys=model_keys, output_dir=config_data.get('output_dir'))
     batch_size: int = config_data.get("batch_size")
     predictions = []
-    logger.info("Making predictions")
+    logger.info("Making prediction from the trained models")
     for model in models:
         # Make predictions using each model
         predicted_y: np.ndarray = model.predict(x, batch_size=batch_size,
@@ -145,16 +145,18 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
         predicted_y = predicted_y.flatten()
         predictions.append(predicted_y)
 
-    logger.info("Making predictions from the MetaModel")
     type_training: str = config_data.get('type_training')
     # Convert a list of 1D NumPy arrays to 2D NumPy array
     predictions = np.stack(predictions, axis=1)
     if type_training == TYPE_TRAINING_FFN:
+        logger.info("Loading the MetaModel and its Scaler")
         model, scaler = load_meta_model(output_dir=config_data.get('output_dir'))
         predictions = scaler.transform(predictions)
+        logger.info("Make a final prediction using the network of the MetaModel")
         predicted_op = model.predict(predictions, batch_size=batch_size)
         predicted_op = predicted_op.flatten()
     else:
+        logger.info("Make a final prediction by averaging")
         predicted_op = np.mean(predictions, axis=1)
 
     sigma, m, h = config_data.get('best_combination')

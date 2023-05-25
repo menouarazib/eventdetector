@@ -1,4 +1,5 @@
 import multiprocessing as mp
+from datetime import timedelta
 from math import ceil
 from typing import Tuple
 
@@ -131,14 +132,20 @@ class OptimizationCalculator:
     def __compute_op_as_mid_times(self, op_g: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         return compute_op_as_mid_times(self.optimization_data.sliding_windows, op_g)
 
-    def compute_f1score(self, sigma: int, m: int, h: float):
-        delta_with_time_unit = get_timedelta(self.optimization_data.delta, self.optimization_data.time_unit)
-        op_g: np.ndarray = self.apply_gaussian_filter(sigma=sigma, m=m)
-        t, op_g = self.__compute_op_as_mid_times(op_g=op_g)
-        s_peaks = get_peaks(h=h, t=t, op_g=op_g)
-        tp, fp, fn = 0, 0, 0
-        delta_t = []
+    def __util_method(self, s_peaks: np.ndarray, delta_with_time_unit: timedelta) -> Tuple[int, int, int, list]:
+        """
+        Useful method for compute_f1score method.
+        Args:
+            s_peaks (np.ndarray): peaks of op.
+            delta_with_time_unit (timedelta): delta as number in unit time.
+
+        Returns:
+            tp, fp, fn, delta_t
+        """
         e_t = self.optimization_data.true_events.copy()
+        fp: int = 0
+        tp: int = 0
+        delta_t: list = []
         for m_p in s_peaks:
             signed_delta = delta_with_time_unit
             t_t = None
@@ -155,7 +162,16 @@ class OptimizationCalculator:
                 delta_t.append(get_total_units(timedelta_=signed_delta, unit=self.optimization_data.time_unit))
             else:
                 fp += 1
-        fn = fn + len(e_t)
+        fn: int = len(e_t)
+        return tp, fp, fn, delta_t
+
+    def compute_f1score(self, sigma: int, m: int, h: float):
+        delta_with_time_unit = get_timedelta(self.optimization_data.delta, self.optimization_data.time_unit)
+        op_g: np.ndarray = self.apply_gaussian_filter(sigma=sigma, m=m)
+        t, op_g = self.__compute_op_as_mid_times(op_g=op_g)
+        s_peaks = get_peaks(h=h, t=t, op_g=op_g)
+        tp, fp, fn, delta_t = self.__util_method(s_peaks=s_peaks, delta_with_time_unit=delta_with_time_unit)
+
         if tp + fp == 0 or tp + fn == 0:
             return 0.0, 0.0, 0.0, [], []
 
@@ -169,9 +185,8 @@ class OptimizationCalculator:
         sigma, m, h = combination
         f1_score, precision, recall, peaks, delta_t = self.compute_f1score(sigma, m, h)
         formatted_combination = ', '.join(f'{item:.2f}' for item in combination)
-        logger.info(
-            f"Evaluated Combination [sigma, m, h] : [{formatted_combination}] => [F1 Score: {f1_score:.4f}, "
-            f"Precision: {precision:.4f}, Recall: {recall:.4f}]")
+        logger.info(f"Evaluated Combination [sigma, m, h] : [{formatted_combination}] => [F1 Score: {f1_score:.4f}, "
+                    f"Precision: {precision:.4f}, Recall: {recall:.4f}]")
         return f1_score, precision, recall, peaks, delta_t
 
 

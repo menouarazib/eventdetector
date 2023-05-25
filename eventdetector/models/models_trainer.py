@@ -195,7 +195,7 @@ class ModelTrainer:
             scaler_path = os.path.join(scalers_dir, f"{META_MODEL_SCALER}.joblib")
             joblib.dump(scaler, scaler_path)
             # Build the FFN model
-            inputs = tf.keras.Input(shape=(train_x.shape[1],), name="Input")
+            inputs = tf.keras.Input(shape=(train_x.shape[1],), name="input")
             layers, units = hyperparams_mm_network
             model_builder: ModelBuilder = ModelBuilder(inputs=inputs)
 

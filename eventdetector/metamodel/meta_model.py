@@ -66,7 +66,7 @@ class MetaModel:
                     neural networks' understanding for rare events.
                 - models (List[Union[str, Tuple[str, int]]]): Determines the type of deep learning models to use.
                     If a tuple is passed, it specifies both the model type and the number of instances to run.
-                    The default value is [(model, 5) for model in [FFN]].
+                    The default value is [(model, 2) for model in [FFN]].
                 - hyperparams_ffn (Tuple[int, int, int]): Specify for the FFN the maximum number of layers,
                     the minimum and the maximum number of neurons per layer.
                     The default value is (3, 64, 256).
@@ -183,12 +183,12 @@ class MetaModel:
         self.pa = self.kwargs.get('pa', 5)
         self.t_r = self.kwargs.get('t_r', 0.97)
         self.time_window = self.kwargs.get('time_window', None)
-        self.models = self.kwargs.get('models', [(model, 5) for model in [FFN]])
+        self.models = self.kwargs.get('models', [(model, 2) for model in [FFN]])
         for i, model in enumerate(self.models):
             if isinstance(model, str):
-                self.models[i] = (model, 5)
+                self.models[i] = (model, 2)
             elif isinstance(model, tuple) and len(model) == 1:
-                self.models[i] = (model[0], 5)
+                self.models[i] = (model[0], 2)
 
         self.hyperparams_ffn = self.kwargs.get('hyperparams_ffn', (3, 64, 256))
         self.hyperparams_cnn = self.kwargs.get('hyperparams_cnn', (16, 64, 3, 8, 2))
@@ -254,8 +254,9 @@ class MetaModel:
             # Calculate the time difference between the first two index values
             diff = b - a
             # Check the units of the time difference
-            logger_meta_model.info("Compute the time unit of the dataset")
+            logger_meta_model.info("Computing the time sampling and time unit of the dataset")
             self.t_s, self.time_unit = check_time_unit(diff=diff)
+            logger_meta_model.warning(f"The time sampling t_s is {self.t_s} {self.time_unit}s")
             self.w_s = self.t_s * self.width
             self.s_s = self.t_s * self.step
             config_dict['time_unit'] = self.time_unit.__str__()
@@ -293,8 +294,6 @@ class MetaModel:
         if self.time_window is not None:
             logger_meta_model.warning(f"time_window is provided = {self.time_window} {self.time_unit}s")
             events_times = get_union_times_events(self.events, self.time_window, self.time_unit)
-            logger_meta_model.warning(
-                "Extracts the data from the dataset that fall within the events intervals using time_window")
             self.dataset = get_dataset_within_events_times(self.dataset, events_times)
 
         logger_meta_model.info("Computing sliding windows...")
@@ -303,7 +302,6 @@ class MetaModel:
 
         logger_meta_model.info("Computing op...")
         self.x, self.y = op(dataset_as_sliding_windows=sliding_windows, events_as_intervals=intervals)
-
         # Convert x and y arrays to float32 for consistency
         self.x = np.asarray(self.x).astype('float32')
         self.y = np.asarray(self.y).astype('float32')
@@ -322,7 +320,7 @@ class MetaModel:
         # Get the number of time steps and features from the x data
         n_time_steps, n_features = self.x.shape[1], self.x.shape[2]
         config_dict['n_time_steps'] = n_time_steps
-        inputs = tf.keras.Input(shape=(n_time_steps, n_features), name="Input")
+        inputs = tf.keras.Input(shape=(n_time_steps, n_features), name="input")
         # Call the `create_models` method to create the models
         logger_meta_model.info(f"Create the following models: {list(map(lambda x: x[0], self.models))}")
         self.model_creator.create_models(inputs=inputs)

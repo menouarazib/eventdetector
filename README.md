@@ -39,63 +39,72 @@ from datetime import datetime
 
 import pandas as pd
 
-from eventdetector import MIDDLE_EVENT_LABEL, FFN
-
+from eventdetector import MIDDLE_EVENT_LABEL
 from eventdetector.metamodel.meta_model import MetaModel
 from eventdetector.prediction.prediction import predict
 from eventdetector.prediction.utils import plot_prediction
 
 # Get the dataset.
 dataset_mex: pd.DataFrame = pd.read_pickle("mex_dataset_2012.pkl")
+
+# Get events.
+events: pd.DataFrame = pd.read_pickle("mex_events.pkl")
+
+# Select dates for learning phase.
 start_date = datetime(2012, 1, 1)
-stop_date = datetime(2012, 2, 1)
-# Filtering dataset by giving a starting date and an ending date.
+stop_date = datetime(2012, 10, 1)
+
+# Filtering dataset using learning dates.
 dataset_mex_learning = dataset_mex[(dataset_mex.index >= start_date) & (dataset_mex.index <= stop_date)]
 print(dataset_mex_learning)
-# Get the events.
-mex_bow_shocks: pd.DataFrame = pd.read_pickle("mex_events.pkl")
-# Filtering events by giving a starting date and an ending date.
-mex_bow_shocks = mex_bow_shocks[
-    (mex_bow_shocks[MIDDLE_EVENT_LABEL] >= start_date) & (mex_bow_shocks[MIDDLE_EVENT_LABEL] <= stop_date)]
+
+# Filtering events by using learning dates.
+events_learning = events[
+    (events[MIDDLE_EVENT_LABEL] >= start_date) & (events[MIDDLE_EVENT_LABEL] <= stop_date)]
 
 """
 The 'time_window' parameter is crucial for controlling the amount of data used in the dataset. It should be specified 
 as a number of units of time. By default, it is set to None, which means that all available data will be used.
 However, if a value is provided, the dataset will only include a specific interval of data around each reference event.
 This interval consists of data from both the left and right sides of each event, with a duration equal to the specified 
-'time_window'. Setting a time_window can offer several advantages, including speeding up the training process and 
+time_window. Setting a time_window can offer several advantages, including speeding up the training process and 
 improving the neural networks' understanding for rare events.
 """
 time_window: int = 5400
 
-# Create the MetaModel
-meta_model = MetaModel(output_dir="mex_bow_shocks", dataset=dataset_mex_learning, events=mex_bow_shocks,
-                       width=45, step=1, time_window=time_window, batch_size=3000, models=[(FFN, 1)])
+# Create the MetaModel.
+meta_model = MetaModel(output_dir="mex_bow_shocks", dataset=dataset_mex_learning, events=events_learning,
+                       width=45, step=1, time_window=time_window, batch_size=3000)
 
 # Prepare the events and dataset for computing op.
 meta_model.prepare_data_and_computing_op()
+
 # Builds a stacking learning pipeline using the provided models and hyperparameters.
 meta_model.build_stacking_learning()
+
 # Run the Event Extraction Optimization process.
 meta_model.event_extraction_optimization()
+
 # Plot the results: Losses, true/predicted op, true/predicted events, deltat_t.
 meta_model.plot_save(show_plots=True)
-```
 
-5. Make Predictions
+# Make Predictions:
 
-```python
-# Make Predictions
+# Select dates for predictions.
 start_date_prediction = datetime(2012, 10, 1)
 stop_date_prediction = datetime(2013, 1, 1)
 
+# Filtering dataset using prediction dates.
 dataset_mex_prediction = dataset_mex[
     (dataset_mex.index >= start_date_prediction) & (dataset_mex.index <= stop_date_prediction)]
 print(dataset_mex_prediction)
 
+# Provide the absolute path for the folder created by the MetaModel.
+path: str = '/home/.../mex_bow_shocks/'
+
 # Call the 'predict' method
-predicted_events, predicted_op, filtered_predicted_op = predict(dataset=dataset_mex_prediction,
-                                                                path='path/mex_bow_shocks/')
+predicted_events, predicted_op, filtered_predicted_op = predict(dataset=dataset_mex_prediction, path=path)
+
 # Plot the predicted Op
 plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predicted_op)
 ```
