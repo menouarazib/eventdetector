@@ -53,8 +53,8 @@ class MetaModel:
                 - pa (int): The patience for the early stopping algorithm. The default value is 5.
                 - t_r (float): The ratio threshold for the early stopping algorithm.
                     The default value is 0.97.
-                - time_window Optional[int] = None: The 'time_window' parameter is crucial for controlling the amount of 
-                    data used in the dataset.
+                - time_window Optional[int] = None: The 'time_window' parameter is crucial for controlling the amount 
+                    of data used in the dataset.
                     It should be specified as a number of units of time.
                     By default, it is set to None, which means that all available data will be used.
                     However, if a value is provided, the dataset will only include a specific interval of data 
