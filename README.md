@@ -118,19 +118,12 @@ plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predic
    step | The step size between two successive windows.
    kwargs | Optional keyword arguments:
    t_max | The maximum total time related to sigma. Default: `(3 * self.w_s) / 2)`.
-   delta | The maximum time tolerance used to determine the correspondence between a predicted event and its actual
-   counterpart. Default: `w_s`.
+   delta | The maximum time tolerance used to determine the correspondence between a predicted event and its actual counterpart. Default: `w_s`.
    s_h | A step parameter for the peak height threshold `h`. Default: `0.05`.
-   epsilon | A small constant used to control the size of the set containing top models with the lowest MSE values.
-   Default: `0.0002`.
+   epsilon | A small constant used to control the size of the set containing top models with the lowest MSE values. Default: `0.0002`.
    pa | The patience for the early stopping algorithm. Default: `5`.
    t_r | The ratio threshold for the early stopping algorithm. Default: `0.97`.
-   time_window | The 'time_window' parameter is crucial for controlling the amount of data used in the dataset. It
-   should be specified as a number of units of time. By default, it is set to None, which means that all available data
-   will be used. However, if a value is provided, the dataset will only include a specific interval of data around each
-   reference event. This interval consists of data from both the left and right sides of each event, with a duration
-   equal to the specified 'time_window'. Setting a time_window can offer several advantages, including speeding up the
-   training process and improving the neural networks' understanding for rare events.
+   time_window | The 'time_window' parameter is crucial for controlling the amount of data used in the dataset. It should be specified as a number of units of time. By default, it is set to None, which means that all available data will be used. However, if a value is provided, the dataset will only include a specific interval of data around each reference event. This interval consists of data from both the left and right sides of each event, with a duration equal to the specified 'time_window'. Setting a time_window can offer several advantages, including speeding up the training process and improving the neural networks' understanding for rare events.
    models | Determines the type of deep learning models to use. Default: `[(model, 2) for model in [FFN]]`.
    hyperparams_ffn | Specify for the FFN the maximum number of layers, the minimum and the maximum number of neurons per
    layer. Default: `(3, 64, 256)`.
