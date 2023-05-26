@@ -131,8 +131,8 @@ Argument | Description
    hyperparams_mm_network | Specify for the MetaModel network the number of layers and the number of neurons per layer. Default: `(1, 32)`.
    epochs | The number of epochs to train different models. Default: `256`.
    batch_size | The number of samples per gradient update. Default: `32`.
-   fill_nan | Specifies the method to use for filling NaN values in the dataset. Supported methods are 'zeros', 'ffill', 'bfill', and 'median'. Default: `zeros`.
-   type_training | Specify the type of training technique to use for the MetaModel. Supported techniques are 'average' and 'ffn'. Default: 'average'.
+   fill_nan | Specifies the method to use for filling `NaN` values in the dataset. Supported methods are 'zeros', 'ffill', 'bfill', and 'median'. Default: `"zeros"`.
+   type_training | Specify the type of training technique to use for the MetaModel. Supported techniques are 'average' and 'ffn'. Default: `"average"`.
    scaler | The type of scaler to use for preprocessing the data. Possible values are "MinMaxScaler", "StandardScaler", and "RobustScaler". Default: `"StandardScaler"`.
    use_kfold | Whether to use k-fold cross-validation technique or not. Default: `False`.
    test_size | The proportion of the dataset to include in the test split. Should be between 0 and 1. Default is `0.2`.
