@@ -111,8 +111,7 @@ plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predic
 5. Agrs for the MetaModel:
    Argument | Description
    ---------------------------- | --------------------------------------------------------------
-   output_dir | The name or path of the directory where all outputs will be saved. If `output_dir` is a folder name, it
-   will create the full path.
+   output_dir | The name or path of the directory where all outputs will be saved. If `output_dir` is a folder name, it will create the full path.
    dataset | The input dataset as `pd.DataFrame`.
    events | The input events as a list or `pd.DataFrame`.
    width | The width to be used for creating sliding windows.
