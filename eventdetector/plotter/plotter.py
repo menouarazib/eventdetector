@@ -11,7 +11,7 @@ from matplotlib.patches import Patch
 
 from eventdetector import OUTPUT_DIR, TimeUnit, MIDDLE_EVENT_LABEL
 from eventdetector.data.helpers import get_timedelta
-from eventdetector.plotter import logger, COLOR_TRUE, COLOR_PREDICTED, STYLE_PREDICTED, STYLE_TRUE
+from eventdetector.plotter import logger, COLOR_TRUE, COLOR_PREDICTED, STYLE_PREDICTED, STYLE_TRUE, FIG_SIZE, PALETTE
 from eventdetector.plotter.helpers import event_to_rectangle
 
 
@@ -126,8 +126,8 @@ class Plotter:
         logger.info("Plotting and saving the figure displaying the true and the predicted op")
         # Create the plot using Seaborn
         # Set the ggplot style
-        sns.set(style="ticks", palette="Set2")
-        plt.figure(figsize=(8, 6))  # Set the figure size
+        sns.set(style="ticks", palette=PALETTE)
+        plt.figure(figsize=FIG_SIZE)  # Set the figure size
         # Plot the true and predicted values using Seaborn
         n = len(self.test_y)
         sns.lineplot(x=np.arange(n), y=self.test_y, color=COLOR_TRUE, label='True Op')
@@ -155,8 +155,8 @@ class Plotter:
         """
 
         logger.info("Plotting and saving the figure displaying the true events and the predicted events")
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.set(style="ticks", palette="Set2")
+        fig, ax = plt.subplots(figsize=FIG_SIZE)
+        sns.set(style="ticks", palette=PALETTE)
 
         for i, predicted_event in enumerate(self.predicted_events):
             rect1 = event_to_rectangle(event=predicted_event, w_s=self.w_s, time_unit=self.time_unit,
@@ -201,8 +201,8 @@ class Plotter:
         Returns:
               None
         """
-        sns.set(style="ticks", palette="Set2")
-        plt.figure(figsize=(8, 6))
+        sns.set(style="ticks", palette=PALETTE)
+        plt.figure(figsize=FIG_SIZE)
         plt.hist(self.delta_t, bins=bins)
         plt.xlabel(f'delta ({self.time_unit})')
         plt.ylabel('Number of events')
@@ -222,12 +222,17 @@ class Plotter:
         Returns:
             None
         """
-        sns.set(style="ticks", palette="Set2")
-        fig, (ax1, ax2) = plt.subplots(1, 2)
-        fig.set_size_inches((11, 8.5), forward=False)
+        meta_model_was_used: bool = len(self.val_loss_meta_model) > 0
+
+        sns.set(style="ticks", palette=PALETTE)
+        if meta_model_was_used:
+            fig, (ax1, ax2) = plt.subplots(1, 2)
+            fig.set_size_inches((11, 8.5), forward=False)
+        else:
+            fig, ax1 = plt.subplots(figsize=FIG_SIZE)
         y_label = 'Loss'
         x_label = 'Epochs'
-        colors = sns.color_palette("Set2", len(self.val_losses))
+        colors = sns.color_palette(PALETTE, len(self.val_losses))
         lifestyle_val = '--'
         lifestyle_train = '-'
         for i, (model_name, val_loss) in enumerate(self.val_losses.items()):
