@@ -109,6 +109,7 @@ plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predic
 ```
 
 5. MetaModel Arguments:
+
 Argument | Description
    ---------------------------- | --------------------------------------------------------------
    output_dir | The name or path of the directory where all outputs will be saved. If `output_dir` is a folder name, it will create the full path.
