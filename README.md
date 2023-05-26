@@ -157,5 +157,4 @@ plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predic
    use_multiprocessing | Whether to use multiprocessing or not for the event exctraction optimization. The default value
    is `False`.
    save_models_as_dot_format | Whether to save the models as a dot format file. The default value is False. If set to
-   True, then you should have `
-   graphviz` software to be installed on your machine.
+   True, then you should have `graphviz` software to be installed on your machine.
