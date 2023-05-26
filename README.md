@@ -135,4 +135,7 @@ plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predic
    type_training | Specifies the type of training technique to use for the MetaModel. Supported techniques are 'average' and 'ffn'. Default: 'average'.
    scaler | The type of scaler to use for preprocessing the data. Possible values are "MinMaxScaler", "StandardScaler", and "RobustScaler". Default: "StandardScaler".
    use_kfold | Whether to use k-fold cross-validation technique or not. Default: False.
-   test_size | The proportion of the dataset to include in the test split. Should be
+   test_size | The proportion of the dataset to include in the test split. Should be between 0 and 1. Default is 0.2.
+   val_size |The proportion of the training set to use for validation. Should be a value between 0 and 1. Default is 0.2.
+   use_multiprocessing | Whether to use multiprocessing or not for the event exctraction optimization. The default value is False.
+   save_models_as_dot_format | Whether to save the models as a dot format file. The default value is False. If set to True, then you should have `graphviz` software to be installed on your machine.
