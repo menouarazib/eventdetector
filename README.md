@@ -123,7 +123,7 @@ Argument | Description
    epsilon | A small constant used to control the size of the set containing top models with the lowest MSE values. Default: `0.0002`.
    pa | The patience for the early stopping algorithm. Default: `5`.
    t_r | The ratio threshold for the early stopping algorithm. Default: `0.97`.
-   time_window | The 'time_window' parameter is crucial for controlling the amount of data used in the dataset. It should be specified as a number of units of time. By default, it is set to None, which means that all available data will be used. However, if a value is provided, the dataset will only include a specific interval of data around each reference event. This interval consists of data from both the left and right sides of each event, with a duration equal to the specified 'time_window'. Setting a time_window can offer several advantages, including speeding up the training process and improving the neural networks' understanding for rare events.
+   time_window | The 'time_window' parameter is crucial for controlling the amount of data used in the dataset. It should be specified as a number of units of time. By default, it is set to `None`, which means that all available data will be used. However, if a value is provided, the dataset will only include a specific interval of data around each reference event. This interval consists of data from both the left and right sides of each event, with a duration equal to the specified `time_window`. Setting a time_window can offer several advantages, including speeding up the training process and improving the neural networks' understanding for rare events.
    models | Determine the type of deep learning models and the number of instances to use. Default: `[(model, 2) for model in [FFN]]`.
    hyperparams_ffn | Specify for the FFN the maximum number of layers, the minimum and the maximum number of neurons per layer. Default: `(3, 64, 256)`.
    hyperparams_cnn | Specify for the CNN the minimum and maximum number of filters, the minimum, the maximum kernel size, and maximum number of pooling layers. Default: `(16, 64, 3, 8 , 2)`.
@@ -138,4 +138,4 @@ Argument | Description
    test_size | The proportion of the dataset to include in the test split. Should be between 0 and 1. Default is `0.2`.
    val_size |The proportion of the training set to use for validation. Should be a value between 0 and 1. Default is `0.2`.
    use_multiprocessing | Whether to use multiprocessing or not for the event exctraction optimization. The default value is `False`.
-   save_models_as_dot_format | Whether to save the models as a dot format file. The default value is False. If set to True, then you should have `graphviz` software to be installed on your machine.
+   save_models_as_dot_format | Whether to save the models as a dot format file. The default value is `False`. If set to True, then you should have `graphviz` software to be installed on your machine.
