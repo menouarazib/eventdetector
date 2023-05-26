@@ -117,7 +117,7 @@ Argument | Description
    width | The width to be used for creating sliding windows.
    step | The step size between two successive windows.
    kwargs | Optional keyword arguments:
-   t_max | The maximum total time related to sigma. Default: `(3 * self.w_s) / 2)`.
+   t_max | The maximum total time related to sigma. Default: `(3 * w_s) / 2)`.
    delta | The maximum time tolerance used to determine the correspondence between a predicted event and its actual counterpart. Default: `w_s`.
    s_h | A step parameter for the peak height threshold `h`. Default: `0.05`.
    epsilon | A small constant used to control the size of the set containing top models with the lowest MSE values. Default: `0.0002`.
