@@ -195,6 +195,7 @@ def compute_middle_event(events: Union[list, pd.DataFrame]) -> pd.DataFrame:
 
     df[MIDDLE_EVENT_LABEL] = df[MIDDLE_EVENT_LABEL].apply(lambda x: datetime.fromtimestamp(x))
     df = df[[MIDDLE_EVENT_LABEL]]
+    df = df.sort_values(by=MIDDLE_EVENT_LABEL)
     return df
 
 
