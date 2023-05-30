@@ -12,7 +12,7 @@ from eventdetector import FFN, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_S
     config_dict, CONFIG_FILE
 from eventdetector.data.helpers import compute_middle_event, remove_close_events, \
     convert_events_to_intervals, get_union_times_events, get_dataset_within_events_times, \
-    convert_dataframe_to_sliding_windows, op, check_time_unit, save_dict_to_json
+    convert_dataframe_to_sliding_windows, op, check_time_unit, save_dict_to_json, convert_dataset_index_to_datetime
 from eventdetector.metamodel import logger_meta_model
 from eventdetector.metamodel.utils import DataSplitter, validate_args
 from eventdetector.models.models_builder import ModelCreator
@@ -248,6 +248,8 @@ class MetaModel:
             TypeError: If the index of the dataset is not in datetime format.
         """
         try:
+            logger_meta_model.info("checks if the index of the dataset is already in the datetime format.")
+            convert_dataset_index_to_datetime(self.dataset)
             # Get the first two index values of the dataset
             a = self.dataset.index[0]
             b = self.dataset.index[1]

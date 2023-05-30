@@ -8,6 +8,7 @@ import pandas as pd
 from dateutil.parser import parser
 # noinspection PyUnresolvedReferences
 from numpy.lib.stride_tricks import as_strided
+from pandas.core.dtypes.common import is_datetime64_any_dtype
 
 from eventdetector import TIME_LABEL, FILL_NAN_ZEROS, FILL_NAN_FFILL, FILL_NAN_BFILL, FILL_NAN_MEDIAN, \
     MIDDLE_EVENT_LABEL, TimeUnit
@@ -521,3 +522,18 @@ def save_dict_to_json(path: str, data: Dict):
     """
     with open(path, 'w') as f:
         json.dump(data, f)
+
+
+def convert_dataset_index_to_datetime(dataset: pd.DataFrame) -> None:
+    """
+    Check if the index of the DataFrame dataset is already in the datetime format. If the index is not in datetime 
+    format, dataset.index = pd.to_datetime(dataset.index) statement is executed to convert it. 
+    
+    Args: 
+        dataset (pd.DataFrame): A dataset as pandas DataFrame
+
+    Returns:
+        None
+    """
+    if not is_datetime64_any_dtype(dataset.index):
+        dataset.index = pd.to_datetime(dataset.index)
