@@ -12,7 +12,8 @@ from eventdetector import FFN, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_S
     config_dict, CONFIG_FILE
 from eventdetector.data.helpers import compute_middle_event, remove_close_events, \
     convert_events_to_intervals, get_union_times_events, get_dataset_within_events_times, \
-    convert_dataframe_to_sliding_windows, op, check_time_unit, save_dict_to_json, convert_dataset_index_to_datetime
+    convert_dataframe_to_overlapping_partitions, op, check_time_unit, save_dict_to_json, \
+    convert_dataset_index_to_datetime
 from eventdetector.metamodel import logger_meta_model
 from eventdetector.metamodel.utils import DataSplitter, validate_args
 from eventdetector.models.models_builder import ModelCreator
@@ -40,8 +41,8 @@ class MetaModel:
                 folder name, it will create the full path in the current directory.
             dataset (pd.DataFrame): The input dataset as pd.DataFrame.
             events (Union[list, pd.DataFrame]): The input events.
-            width (int): The width to be used for creating sliding windows.
-            step (int): The step size between two successive windows.
+            width (int): The width to be used for creating overlapping partitions.
+            step (int): The step size between two successive partitions.
             kwargs (Dict): Optional keyword arguments:
                 - t_max (float): The maximum total time related to sigma. The default value is (3 * self.w_s) / 2).
                 - delta (int): The maximum time tolerance used to determine the correspondence between a predicted event
@@ -257,6 +258,8 @@ class MetaModel:
             diff = b - a
             # Check the units of the time difference
             logger_meta_model.info("Computing the time sampling and time unit of the dataset")
+            print(f"diff= {diff}")
+            print(type(diff), diff.total_seconds())
             self.t_s, self.time_unit = check_time_unit(diff=diff)
             logger_meta_model.warning(f"The time sampling t_s is {self.t_s} {self.time_unit}s")
             self.w_s = self.t_s * self.width
@@ -271,13 +274,13 @@ class MetaModel:
         """
         Prepare the events and dataset for computing op.
         This method will compute the middle event of the given events, remove any close events based on the self.w_s,
-            and convert the remaining events to intervals. If a time window is specified, it will get the union of
+            and convert the remaining events to intervals. If a time partition is specified, it will get the union of
             event times and extract the corresponding portion of the dataset.
 
-        The dataset will then be converted to sliding windows using the specified width and step size, and the $op$
-            (overlapping parameter) values will be computed for each window based on the given intervals.
+        The dataset will then be converted to overlapping partitions using the specified width and step size, and the $op$
+            (overlapping parameter) values will be computed for each partition based on the given intervals.
 
-        Finally, the learning data (sliding windows and corresponding $op$ values) will be stored in
+        Finally, the learning data (overlapping partitions and corresponding $op$ values) will be stored in
             the instance variables x and y.
 
         Returns:
@@ -298,17 +301,18 @@ class MetaModel:
             events_times = get_union_times_events(self.events, self.time_window, self.time_unit)
             self.dataset = get_dataset_within_events_times(self.dataset, events_times)
 
-        logger_meta_model.info("Computing sliding windows...")
-        sliding_windows = convert_dataframe_to_sliding_windows(self.dataset, width=self.width, step=self.step,
-                                                               fill_method=self.fill_nan)
+        logger_meta_model.info("Computing overlapping partitions...")
+        overlapping_partitions = convert_dataframe_to_overlapping_partitions(self.dataset, width=self.width,
+                                                                             step=self.step,
+                                                                             fill_method=self.fill_nan)
 
         logger_meta_model.info("Computing op...")
-        self.x, self.y = op(dataset_as_sliding_windows=sliding_windows, events_as_intervals=intervals)
+        self.x, self.y = op(dataset_as_overlapping_partitions=overlapping_partitions, events_as_intervals=intervals)
         # Convert x and y arrays to float32 for consistency
         self.x = np.asarray(self.x).astype('float32')
         self.y = np.asarray(self.y).astype('float32')
-
-        self.optimization_data.set_sliding_windows(sliding_windows)
+        
+        self.optimization_data.set_overlapping_partitions(overlapping_partitions)
         self.optimization_data.set_true_events(self.events)
 
     def build_stacking_learning(self) -> None:

@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 from sympy.testing import pytest
 
-from eventdetector.data.helpers import sliding_windows, convert_dataframe_to_sliding_windows, compute_middle_event, \
+from eventdetector.data.helpers import overlapping_partitions, compute_middle_event, \
     num_columns
 
 
-def test_sliding_windows():
+def test_overlapping_partitions():
     data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
     expected_output = np.array([[[1, 2, 3], [4, 5, 6]], [[4, 5, 6], [7, 8, 9]], [[7, 8, 9], [10, 11, 12]]])
-    assert np.array_equal(sliding_windows(data, width=2, step=1), expected_output)
+    assert np.array_equal(overlapping_partitions(data, width=2, step=1), expected_output)
 
 
 class TestHelpers(unittest.TestCase):
@@ -20,45 +20,45 @@ class TestHelpers(unittest.TestCase):
     def setUp(self):
         self.n: int = 100
 
-    def test_sliding_windows(self):
+    def test_overlapping_partitions(self):
         # Test case 1: 1D input
         data1 = np.array([1, 2, 3, 4, 5])
-        result1 = sliding_windows(data1, width=3, step=1)
+        result1 = overlapping_partitions(data1, width=3, step=1)
         expected1 = np.array([[1, 2, 3], [2, 3, 4], [3, 4, 5]])
         self.assertTrue(np.array_equal(result1, expected1))
 
-        # Test case 2: window width greater than the size of the input data
+        # Test case 2: partition width greater than the size of the input data
         data2 = np.array([1, 2, 3, 4, 5])
         with pytest.raises(ValueError):
-            sliding_windows(data2, width=6, step=1)
+            overlapping_partitions(data2, width=6, step=1)
 
         # Test case 3: 2D input
         data3 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        result3 = sliding_windows(data3, width=2, step=1)
+        result3 = overlapping_partitions(data3, width=2, step=1)
         expected3 = np.array([[[1, 2, 3], [4, 5, 6]], [[4, 5, 6], [7, 8, 9]]])
         assert np.array_equal(result3, expected3)
 
         # Test case 4: 2D input
         data4 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        result4 = sliding_windows(data4, width=2, step=2)
+        result4 = overlapping_partitions(data4, width=2, step=2)
         expected4 = np.array([[[1, 2, 3], [4, 5, 6]]])
         assert np.array_equal(result4, expected4)
 
-    def test_convert_dataframe_to_sliding_windows(self):
+    def test_convert_dataframe_to_overlapping_partitions(self):
         # Create a sample DataFrame with datetime index and real-valued features
 
         data = np.random.rand(self.n, 3)
         index = pd.date_range(start='2022-01-01', periods=self.n, freq='D')
         df = pd.DataFrame(data=data, columns=['feat1', 'feat2', 'feat3'], index=index)
 
-        # Test sliding window generation with default settings
-        sw = convert_dataframe_to_sliding_windows(df, width=2, step=1)
-        expected_shape = (self.n - 1, 2, 4)  # Number of windows, window width, number of features+time
+        # Test overalapping partition generation with default settings
+        sw = convert_dataframe_to_overlapping_partitions(df, width=2, step=1)
+        expected_shape = (self.n - 1, 2, 4)  # Number of partitions, partition width, number of features+time
         self.assertEqual(sw.shape, expected_shape)
 
-        # Test sliding window generation with custom settings
-        sw = convert_dataframe_to_sliding_windows(df, width=14, step=7, fill_method='ffill')
-        expected_shape = (13, 14, 4)  # Number of windows, window width, number of features+time
+        # Test overalapping partition generation with custom settings
+        sw = convert_dataframe_to_overlapping_partitions(df, width=14, step=7, fill_method='ffill')
+        expected_shape = (13, 14, 4)  # Number of partitions, partition width, number of features+time
         self.assertEqual(sw.shape, expected_shape)
 
     def test_compute_middle_event(self):

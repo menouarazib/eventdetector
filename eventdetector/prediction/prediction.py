@@ -9,7 +9,7 @@ import tensorflow as tf
 
 from eventdetector import CONFIG_FILE, SCALERS_DIR, TYPE_TRAINING_FFN, TimeUnit, MODELS_DIR, META_MODEL_NETWORK, \
     META_MODEL_SCALER
-from eventdetector.data.helpers import convert_dataframe_to_sliding_windows, get_timedelta
+from eventdetector.data.helpers import convert_dataframe_to_overlapping_partitions, get_timedelta
 from eventdetector.optimization.algorithms import convolve_with_gaussian_kernel
 from eventdetector.optimization.event_extraction_pipeline import get_peaks, compute_op_as_mid_times
 from eventdetector.prediction import logger
@@ -122,14 +122,16 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
     config_data: Dict = load_config_file(path=path)
     config_data['output_dir'] = path
     logger.info(f"Config dict: {config_data}")
-    logger.info("Converting the dataset to sliding windows.")
-    dataset_as_sliding_windows: np.ndarray = convert_dataframe_to_sliding_windows(dataset,
-                                                                                  width=config_data.get("width"),
-                                                                                  step=config_data.get("step"),
-                                                                                  fill_method=config_data.get(
-                                                                                      'fill_nan'))
-    # Remove the column containing the timestamps from the sliding windows
-    x: np.ndarray = np.delete(dataset_as_sliding_windows, -1, axis=2)
+    logger.info("Converting the dataset to overalapping partitions.")
+    dataset_as_overlapping_partitions: np.ndarray = convert_dataframe_to_overlapping_partitions(dataset,
+                                                                                                width=config_data.get(
+                                                                                                    "width"),
+                                                                                                step=config_data.get(
+                                                                                                    "step"),
+                                                                                                fill_method=config_data.get(
+                                                                                                    'fill_nan'))
+    # Remove the column containing the timestamps from the overalapping partitions
+    x: np.ndarray = np.delete(dataset_as_overlapping_partitions, -1, axis=2)
     logger.info(f"The shape of the input data: {x.shape}")
     x = apply_scaling(x=x, config_data=config_data)
     model_keys: List[str] = config_data.get('models')
@@ -162,8 +164,8 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
     sigma, m, h = config_data.get('best_combination')
     logger.info(f"Applying Gaussian Filter with sigma = {sigma} and m = {m}")
     filtered_predicted_op = convolve_with_gaussian_kernel(predicted_op, sigma=sigma, m=m)
-    logger.info("Computing filtered predictions as a function of the mid-times of the sliding windows")
-    t, filtered_predicted_op = compute_op_as_mid_times(sliding_windows=dataset_as_sliding_windows,
+    logger.info("Computing filtered predictions as a function of the mid-times of the overalapping partitions")
+    t, filtered_predicted_op = compute_op_as_mid_times(overlapping_partitions=dataset_as_overlapping_partitions,
                                                        op_g=filtered_predicted_op)
     logger.info(f"Computing peaks with h = {h:.2f}")
     s_peaks = get_peaks(h=h, t=t, op_g=filtered_predicted_op)

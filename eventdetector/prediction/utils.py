@@ -24,7 +24,7 @@ def plot_prediction(predicted_op: np.ndarray, filtered_predicted_op: np.ndarray)
     sns.lineplot(x=np.arange(n), y=filtered_predicted_op, color=COLOR_PREDICTED, label='Filtered Predicted Op')
 
     # Add labels and title to the plot
-    plt.xlabel('Windows')
+    plt.xlabel('partitions')
     plt.ylabel('Op')
     plt.title('Predicted Op')
     # Add legend

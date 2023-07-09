@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 class Interval:
     """
-    Represents a time interval between two datetime objects. This class is used to model an event or window in
+    Represents a time interval between two datetime objects. This class is used to model an event or partition in
     time-series.
     """
 

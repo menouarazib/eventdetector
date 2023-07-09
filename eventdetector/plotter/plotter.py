@@ -133,7 +133,7 @@ class Plotter:
         sns.lineplot(x=np.arange(n), y=self.test_y, color=COLOR_TRUE, label='True Op')
         sns.lineplot(x=np.arange(n), y=self.predicted_y, color=COLOR_PREDICTED, label='Predicted Op')
         # Add labels and title to the plot
-        plt.xlabel('Windows')
+        plt.xlabel('Partitions')
         plt.ylabel('Op')
         plt.title('True Op vs Predicted Op')
         # Add legend
@@ -191,7 +191,7 @@ class Plotter:
             plt.show()
         self.__save_events()
 
-    def plot_delta_t(self, bins=10) -> None:
+    def plot_delta_t(self, bins=30) -> None:
         """
         Plots a histogram for delta t.
 
@@ -203,11 +203,15 @@ class Plotter:
         """
         sns.set(style="ticks", palette=PALETTE)
         plt.figure(figsize=FIG_SIZE)
-        plt.hist(self.delta_t, bins=bins)
+
+        sns.histplot(self.delta_t, bins=bins, binrange=(-self.w_s, self.w_s))
+
         plt.xlabel(f'delta ({self.time_unit})')
         plt.ylabel('Number of events')
+
         std = np.std(self.delta_t)
         mu = np.mean(self.delta_t)
+        print(std, mu)
         plt.title(f'Histogram std = {std:.2f}, mu = {mu:.2f}')
         # Save the plot to a file
         path = os.path.join(self.working_dir, "delta_t.png")
@@ -278,6 +282,7 @@ class Plotter:
             writer = csv.writer(f, delimiter=' ')
             for i in range(len(self.predicted_events)):
                 predicted_event = self.predicted_events[i]
+                print("predicted_event", predicted_event)
                 start_time = predicted_event - radius
                 end_time = predicted_event + radius
                 writer.writerow([start_time.isoformat(), end_time.isoformat()])
@@ -286,6 +291,7 @@ class Plotter:
         with open(path, 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f, delimiter=' ')
             for _, test_date in enumerate(self.true_events[MIDDLE_EVENT_LABEL]):
+                print("test_date", test_date)
                 start_time = test_date - radius
                 end_time = test_date + radius
                 writer.writerow([start_time.isoformat(), end_time.isoformat()])

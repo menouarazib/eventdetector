@@ -11,6 +11,41 @@ from eventdetector.models import logger_models
 from eventdetector.models.helpers import SelfAttention
 
 
+class DtwLoss(tf.keras.losses.Loss):
+    def __init__(self, batch_size: int = 32):
+        super(DtwLoss, self).__init__()
+        self.batch_size = batch_size
+
+    def call(self, y_true, y_pred):
+        tmp = []
+        for item in range(self.batch_size):
+            s = y_true[item, :]
+            t = y_pred[item, :]
+            n, m = len(s), len(t)
+            dtw_matrix = []
+            for i in range(n + 1):
+                line = []
+                for j in range(m + 1):
+                    if i == 0 and j == 0:
+                        line.append(0)
+                    else:
+                        line.append(np.inf)
+                dtw_matrix.append(line)
+
+            for i in range(1, n + 1):
+                for j in range(1, m + 1):
+                    cost = tf.abs(s[i - 1] - t[j - 1])
+                    last_min = tf.reduce_min([dtw_matrix[i - 1][j], dtw_matrix[i][j - 1], dtw_matrix[i - 1][j - 1]])
+                    dtw_matrix[i][j] = tf.cast(cost, dtype=tf.float32) + tf.cast(last_min, dtype=tf.float32)
+
+            temp = []
+            for i in range(len(dtw_matrix)):
+                temp.append(tf.stack(dtw_matrix[i]))
+
+            tmp.append(tf.stack(temp)[n, m])
+        return tf.reduce_mean(tmp)
+
+
 class ModelBuilder:
     """
     Helper class for building TensorFlow Keras models.
@@ -237,7 +272,7 @@ class ModelBuilder:
 
         Args:
             filters (int): Number of output filters in the convolution.
-            kernel_size (int): Size of the 1D convolutional window.
+            kernel_size (int): Size of the 1D convolutional partition.
             activation (str): Activation function to use. Defaults to 'tanh'.
             strides (int): Stride length of the convolution. Default to 1.
             padding (str): Type of padding to use. Defaults to 'same'.
@@ -270,7 +305,7 @@ class ModelBuilder:
         Adds a 1D max pooling layer to the model.
 
         Args:
-            pool_size (int): Size of the max pooling windows.
+            pool_size (int): Size of the max pooling partitions.
             strides (int, optional): Factor by which to downscale. Defaults to None.
 
         Returns:
@@ -482,7 +517,7 @@ class ModelCreator:
         Returns:
             None
         """
-        filters_max, filters_min, kernel_size_min, kernel_size_max, max_layers = self.hyperparams_cnn
+        filters_min, filters_max, kernel_size_min, kernel_size_max, max_layers = self.hyperparams_cnn
         num_instances = self.__get_instances(CNN)
 
         if num_instances > 0:
@@ -606,7 +641,7 @@ class ModelCreator:
                 self.created_models[name] = keras_model
 
     def __create_conv_lstm1d(self):
-        filters_max, filters_min, kernel_size_min, kernel_size_max, max_layers = self.hyperparams_cnn
+        filters_min, filters_max, kernel_size_min, kernel_size_max, max_layers = self.hyperparams_cnn
         num_instances = self.__get_instances(CONV_LSTM1D)
         if num_instances > 0:
             for i in range(num_instances):

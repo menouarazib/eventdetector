@@ -24,12 +24,12 @@ class OptimizationData:
         - delta (int): The maximum time tolerance used to determine the correspondence between a predicted event
                     and its actual counterpart in the true events.
         - s_h (float): A step parameter for the peak height threshold h.
-        - s_s (int): Step size in time unit for sliding the window.
-        - w_s (int): Size in time unit of the sliding window.
+        - s_s (int): Step size in time unit for overalapping the partition.
+        - w_s (int): Size in time unit of the overalapping partition.
         - t_max (float): The maximum total time related to sigma.
         - output_dir (str): The parent directory.
         - big_sigma (int): Value calculated based on t_max, w_s, and s_s.
-        - sliding_windows (np.ndarray): Array to store sliding windows.
+        - overlapping_partitions (np.ndarray): Array to store overalapping partitions.
 
     """
 
@@ -42,8 +42,8 @@ class OptimizationData:
 
         Args:
             t_max (float): The maximum total time related to sigma.
-            w_s (int): Size in time unit of the sliding window.
-            s_s (int): Step size in time unit for sliding the window.
+            w_s (int): Size in time unit of the overalapping partition.
+            s_s (int): Step size in time unit for overalapping the partition.
             s_h (float): A step parameter for the peak height threshold h.
             delta (int): The maximum time tolerance used to determine the correspondence between a predicted event
                     and its actual counterpart in the true events.
@@ -60,22 +60,22 @@ class OptimizationData:
         self.t_max = t_max
         self.output_dir = output_dir
         self.big_sigma = 1 + ceil((self.t_max - self.w_s) / self.s_s)
-        self.sliding_windows: np.ndarray = np.empty(shape=(0,))
+        self.overlapping_partitions: np.ndarray = np.empty(shape=(0,))
 
     def set_true_events(self, true_events: pd.DataFrame) -> None:
         self.true_events = true_events
 
-    def set_sliding_windows(self, sliding_windows: np.ndarray):
-        self.sliding_windows = sliding_windows
+    def set_overlapping_partitions(self, overlapping_partitions: np.ndarray):
+        self.overlapping_partitions = overlapping_partitions
 
     def set_predicted_op(self, predicted_op: np.ndarray):
         self.predicted_op = predicted_op
-        sliding_windows_test = self.sliding_windows[-len(predicted_op):]
-        self.sliding_windows = sliding_windows_test
-        first_window_test_data = self.sliding_windows[0]
-        last_window_test_data = self.sliding_windows[-1]
-        start_date_test_data = first_window_test_data[0][-1].to_pydatetime()
-        end_date_test_data = last_window_test_data[0][-1].to_pydatetime()
+        overlapping_partitions_test = self.overlapping_partitions[-len(predicted_op):]
+        self.overlapping_partitions = overlapping_partitions_test
+        first_partition_test_data = self.overlapping_partitions[0]
+        last_partition_test_data = self.overlapping_partitions[-1]
+        start_date_test_data = first_partition_test_data[0][-1].to_pydatetime()
+        end_date_test_data = last_partition_test_data[0][-1].to_pydatetime()
         logger.info(
             f"Starting and ending dates of test data are respectively {start_date_test_data} --> {end_date_test_data}")
 
@@ -86,10 +86,10 @@ class OptimizationData:
 
 def get_peaks(h: float, t: np.ndarray, op_g: np.ndarray) -> np.ndarray:
     """
-    Compute peaks for given mid_times of windows, op values and threshold h. 
+    Compute peaks for given mid_times of partitions, op values and threshold h. 
     Args:
         h (float): Threshold for peaks.
-        t (np.ndarray): mid_times of windows
+        t (np.ndarray): mid_times of partitions
         op_g (np.ndarray): op values
 
     Returns:
@@ -99,20 +99,20 @@ def get_peaks(h: float, t: np.ndarray, op_g: np.ndarray) -> np.ndarray:
     return t[peaks]
 
 
-def compute_op_as_mid_times(sliding_windows: np.ndarray, op_g: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def compute_op_as_mid_times(overlapping_partitions: np.ndarray, op_g: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute op as a function of mid-times of windows instead of window's index.
+    Compute op as a function of mid-times of partitions instead of partition's index.
     Args:
-        sliding_windows (np.ndarray): Sliding windows
+        overlapping_partitions (np.ndarray): overalapping partitions
         op_g (np.ndarray): Op array
 
     Returns:
-        Tuple[np.ndarray, np.ndarray]: mid-times of windows, op as a function of mid-times of windows
+        Tuple[np.ndarray, np.ndarray]: mid-times of partitions, op as a function of mid-times of partitions
     """
     t = []
     op_g_ = []
     for n in range(len(op_g)):
-        w_n = sliding_windows[n]
+        w_n = overlapping_partitions[n]
         b_n = w_n[0][-1].to_pydatetime()
         e_n = w_n[-1][-1].to_pydatetime()
         c_n = b_n + (e_n - b_n) / 2
@@ -130,7 +130,7 @@ class OptimizationCalculator:
         return convolve_with_gaussian_kernel(self.optimization_data.predicted_op, sigma, m=m)
 
     def __compute_op_as_mid_times(self, op_g: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        return compute_op_as_mid_times(self.optimization_data.sliding_windows, op_g)
+        return compute_op_as_mid_times(self.optimization_data.overlapping_partitions, op_g)
 
     def __util_method(self, s_peaks: np.ndarray, delta_with_time_unit: timedelta) -> Tuple[int, int, int, list]:
         """
@@ -143,6 +143,9 @@ class OptimizationCalculator:
             tp, fp, fn, delta_t
         """
         e_t = self.optimization_data.true_events.copy()
+        # print(e_t)
+        # print(s_peaks)
+
         fp: int = 0
         tp: int = 0
         delta_t: list = []
@@ -152,14 +155,18 @@ class OptimizationCalculator:
             for i, t_e in enumerate(e_t[MIDDLE_EVENT_LABEL]):
                 m_t = t_e
                 diff = m_p - m_t
+
                 if abs(diff) <= delta_with_time_unit:
                     if t_t is None or abs(m_p - t_t) > abs(diff):
                         t_t = m_t
                         signed_delta = diff
+                        # print("diff= ", diff, m_p, t_t)
             if t_t is not None:
                 tp += 1
                 e_t = e_t.drop(e_t[e_t[MIDDLE_EVENT_LABEL] == t_t].index)
-                delta_t.append(get_total_units(timedelta_=signed_delta, unit=self.optimization_data.time_unit))
+                diff = get_total_units(timedelta_=signed_delta, unit=self.optimization_data.time_unit)
+
+                delta_t.append(diff)
             else:
                 fp += 1
         fn: int = len(e_t)
@@ -167,6 +174,7 @@ class OptimizationCalculator:
 
     def compute_f1score(self, sigma: int, m: int, h: float):
         delta_with_time_unit = get_timedelta(self.optimization_data.delta, self.optimization_data.time_unit)
+        # print("delta_with_time_unit ", delta_with_time_unit)
         op_g: np.ndarray = self.apply_gaussian_filter(sigma=sigma, m=m)
         t, op_g = self.__compute_op_as_mid_times(op_g=op_g)
         s_peaks = get_peaks(h=h, t=t, op_g=op_g)

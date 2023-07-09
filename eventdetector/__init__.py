@@ -1,6 +1,11 @@
+import os
 from enum import Enum
 from logging import config
-from typing import Dict
+from typing import Dict, Optional
+from urllib.request import urlretrieve
+
+import pandas as pd
+from tqdm import tqdm
 
 TIME_LABEL = "time"
 MIDDLE_EVENT_LABEL = "event"
@@ -102,3 +107,79 @@ LOGGING_CONFIG = {
 }
 
 config.dictConfig(LOGGING_CONFIG)
+
+
+def load_dataset(file_path: str, name: str, url=None, index_col: Optional[int] = 0) -> pd.DataFrame:
+    """
+    Load a dataset from a file. If the file is not found, it will be downloaded from the given URL.
+
+    Args:
+        name: Name of the file to load
+        index_col: the same value as pandas index_col
+        file_path (str): The path to the dataset file.
+        url (str): The URL from which to download the dataset (optional).
+
+    Returns:
+        pandas.DataFrame: The loaded dataset.
+    """
+
+    file_extension = os.path.splitext(file_path)[1].lower()
+
+    if not os.path.isfile(file_path) and url:
+        # Dataset file isn't found, download it
+        print(f"Downloading data from {url}")
+        urlretrieve(url, file_path)
+        print("Download completed.")
+
+    with tqdm(total=100, desc=f'Loading {name} ...', bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}') as pbar:
+        if file_extension == ".csv":
+            # Read CSV file
+            dataset = pd.read_csv(file_path, index_col=index_col)
+        elif file_extension == ".pkl":
+            # Read Pickle file
+            dataset = pd.read_pickle(file_path)
+        else:
+            raise ValueError(f"Unsupported file format: {file_extension}")
+
+        # Update progress bar to 50% after reading the file
+        pbar.update(100)
+
+        # Return the loaded dataset
+        return dataset
+
+
+def load_martian_bow_shock():
+    """
+        Load the Martian bow shock dataset and events, for more information check this link:  http://amda.cdpp.eu/
+
+        Returns:
+            A dataset and events as pd.DataFrame
+
+        """
+    url_dataset = "https://onedrive.live.com/download?resid=4258578D3874B519%21151&authkey=!AGic2wBEAfnuBYg"
+    url_events = "https://onedrive.live.com/download?resid=4258578D3874B519%21150&authkey=!ACMf4jI2uwvVoec"
+    data_set = load_dataset(file_path="martian_bow_shock_dataset.pkl", name="Martian Bow Shock data set",
+                            url=url_dataset)
+    events = load_dataset(file_path="martian_bow_shock_events.csv", name="Martian Bow Shock events", index_col=None,
+                          url=url_events)
+
+    return data_set, events
+
+
+def load_credit_card_fraud():
+    """
+    Load the credit card fraud dataset and events, for more information check this link: https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
+    
+    Returns:
+        A dataset and events as pd.DataFrame
+
+    """
+    url_dataset = "https://onedrive.live.com/download?resid=4258578D3874B519%21129&authkey=!ANgPyE0DphR9gTM"
+    url_events = "https://onedrive.live.com/download?resid=4258578D3874B519%21147&authkey=!AIANbQqstMFG_zs"
+
+    data_set = load_dataset(file_path="credit_card_fraud_dataset.csv", name="Credit Card Fraud data set",
+                            url=url_dataset)
+    events = load_dataset(file_path="credit_card_fraud_events.csv", name="Credit Card Fraud events", index_col=None,
+                          url=url_events)
+
+    return data_set, events

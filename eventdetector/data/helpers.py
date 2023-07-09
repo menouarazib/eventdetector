@@ -15,52 +15,52 @@ from eventdetector import TIME_LABEL, FILL_NAN_ZEROS, FILL_NAN_FFILL, FILL_NAN_B
 from eventdetector.data.interval import Interval
 
 
-def sliding_windows(data: np.ndarray, width: int, step: int = 1):
+def overlapping_partitions(data: np.ndarray, width: int, step: int = 1):
     """
-    Splits an input numpy array into a set of sliding windows.
+    Splits an input numpy array into a set of overlapping partitions.
 
     Args:
-        data: Input numpy array to be split into windows
-        width: Width of each sliding window
-        step: The step size between successive windows (default=1)
+        data: Input numpy array to be split into overlapping partitions
+        width: Width of each overlapping partition
+        step: The step size between successive partitions (default=1)
 
     Returns:
-        Numpy array of shape (nb_windows, width, data.ndim), containing the created sliding windows.
+        Numpy array of shape (nb_partitions, width, data.ndim), containing the created overlapping partitions.
     """
     if width > data.shape[0]:
-        raise ValueError("Window size cannot be greater than the size of the input data")
+        raise ValueError("Partition size cannot be greater than the size of the input data")
     if step > width:
-        raise ValueError("Step size cannot be greater than window size")
+        raise ValueError("Step size cannot be greater than partition size")
 
-    # Compute the parameters for creating the sliding windows
-    nb_windows = (data.shape[0] - width) // step + 1
-    shape = (nb_windows, width) + data.shape[1:]
+    # Compute the parameters for creating the overlapping partitions
+    np_partitions = (data.shape[0] - width) // step + 1
+    shape = (np_partitions, width) + data.shape[1:]
     strides = (step * data.strides[0],) + data.strides
 
-    # Use as_strided to create the sliding windows
-    windowed_array = as_strided(data, shape=shape, strides=strides)
+    # Use as_strided to create the overlapping partitions
+    partitioned_array = as_strided(data, shape=shape, strides=strides)
 
-    return windowed_array
+    return partitioned_array
 
 
-def convert_dataframe_to_sliding_windows(
+def convert_dataframe_to_overlapping_partitions(
         dataframe: pd.DataFrame,
         width: int,
         step: int,
         fill_method: Optional[str] = None
 ) -> np.ndarray:
     """
-    Converts a given DataFrame to sliding windows.
+    Converts a given DataFrame to overlapping partitions.
 
     Args:
         dataframe: Input DataFrame of features
-        width: Width of each sliding window
-        step: The step size between successive windows
+        width: Width of each overlapping partition
+        step: The step size between successive partitions
         fill_method: The method to use for filling NaNs. Supported methods are 'zeros', 'ffill', 'bfill', and 'median'.
             If None, NaNs are left as-is. (default=None)
 
     Returns:
-        Numpy array of shape (nb_windows, width, nb_features), containing the created sliding windows.
+        Numpy array of shape (np_partitions, width, nb_features), containing the created overlapping partitions.
     """
 
     dataframe = dataframe.copy()
@@ -78,7 +78,7 @@ def convert_dataframe_to_sliding_windows(
     elif fill_method is not None:
         raise ValueError(f"Unsupported fill method: {fill_method}")
 
-    sw = sliding_windows(dataframe.to_numpy(), width=width, step=step)
+    sw = overlapping_partitions(dataframe.to_numpy(), width=width, step=step)
     return sw
 
 
@@ -248,7 +248,7 @@ def convert_events_to_intervals(events_df: pd.DataFrame, w_s: int, unit: TimeUni
 
     Args:
         events_df (pd.DataFrame): DataFrame containing the events' data.
-        w_s (int): The sliding window size in unit time.
+        w_s (int): The overlapping partition size in unit time.
         unit: The unit time
 
     Returns:
@@ -263,7 +263,7 @@ def convert_events_to_intervals(events_df: pd.DataFrame, w_s: int, unit: TimeUni
         # Get the middle event time
         mid_time = events_df.iloc[i][MIDDLE_EVENT_LABEL]
 
-        # Compute the radius of the interval based on the sliding window size
+        # Compute the radius of the interval based on the overlapping partition size
         radius = get_timedelta(delta_unit_time=w_s // 2, unit=unit)
 
         # Create an interval with the middle event time at the center
@@ -276,15 +276,15 @@ def convert_events_to_intervals(events_df: pd.DataFrame, w_s: int, unit: TimeUni
     return events_intervals
 
 
-def get_union_times_events(events_df: pd.DataFrame, window_size: int, unit_time: TimeUnit) -> pd.DatetimeIndex:
+def get_union_times_events(events_df: pd.DataFrame, partition_size: int, unit_time: TimeUnit) -> pd.DatetimeIndex:
     """
-    Given a DataFrame of events and a time window size in unit time, computes a DatetimeIndex of all times during which
+    Given a DataFrame of events and a time partition size in unit time, computes a DatetimeIndex of all times during which
     at least one event was taking place.
 
     Args:
         events_df (pd.DataFrame): A DataFrame containing at least a MIDDLE_EVENT_LABEL column with the datetime
             of each event.
-        window_size (int): The size of the time window to consider before and after each event.
+        partition_size (int): The size of the time partition to consider before and after each event.
         unit_time (TimeUnit): The unit time
 
     Returns:
@@ -294,8 +294,8 @@ def get_union_times_events(events_df: pd.DataFrame, window_size: int, unit_time:
     times_during_events = []
     previous_range = None
     for i, event_time in enumerate(events_df[MIDDLE_EVENT_LABEL]):
-        start_time = event_time - get_timedelta(window_size, unit=unit_time)
-        end_time = event_time + get_timedelta(window_size, unit=unit_time)
+        start_time = event_time - get_timedelta(partition_size, unit=unit_time)
+        end_time = event_time + get_timedelta(partition_size, unit=unit_time)
         # Generate a list of dates between start_time and end_time with a frequency of exactly (end_time - start_time).
         # This ensures that the last date is exactly equal to end_time (useful when we generate overlapping ranges).
         dates_between = pd.date_range(start=start_time, end=end_time, freq=end_time - start_time)
@@ -340,11 +340,11 @@ def get_dataset_within_events_times(data_set: pd.DataFrame, events_times: pd.Dat
 
     # Iterate through the event times by pairs
     for i in range(0, len(events_times) - 1, 2):
-        window_start_time = events_times[i]
-        window_end_time = events_times[i + 1]
+        partition_start_time = events_times[i]
+        partition_end_time = events_times[i + 1]
 
         # Extract the data within the event time
-        data_within_event_time = data_set.loc[window_start_time: window_end_time]
+        data_within_event_time = data_set.loc[partition_start_time: partition_end_time]
 
         dataset_within_events_times.append(data_within_event_time)
 
@@ -352,40 +352,40 @@ def get_dataset_within_events_times(data_set: pd.DataFrame, events_times: pd.Dat
     return pd.concat(dataset_within_events_times)
 
 
-def op(dataset_as_sliding_windows: np.ndarray, events_as_intervals: list[Interval]) -> \
+def op(dataset_as_overlapping_partitions: np.ndarray, events_as_intervals: list[Interval]) -> \
         tuple[np.ndarray, np.ndarray]:
     """
-    Calculates the "op" value for each sliding window in the dataset, based on the overlapping parameter between the
-    window and a set of events.
+    Calculates the "op" value for each overlapping partition in the dataset, based on the overlapping parameter between the
+    partition and a set of events.
 
     Args:
-        dataset_as_sliding_windows: A numpy ndarray containing the sliding windows for the dataset, where each sliding
-            window is a 2D numpy ndarray containing the data points for the window and their timestamps.
+        dataset_as_overlapping_partitions: A numpy ndarray containing the overlapping partitions for the dataset, where each overlapping
+            partition is a 2D numpy ndarray containing the data points for the partition and their timestamps.
         events_as_intervals: A list of Interval objects representing the events in the dataset.
 
     Returns:
         A tuple containing two values:
-            - A numpy ndarray containing the sliding windows for the dataset, with the timestamp column removed.
+            - A numpy ndarray containing the overlapping partitions for the dataset, with the timestamp column removed.
             - A numpy ndarray of floating-point values representing the "op" value
-                for each sliding window in the dataset.
+                for each overlapping partition in the dataset.
     """
 
     # The index of the first event that hasn't been checked yet
     starting_event_index = 0
 
-    # List to store the calculated op values for each sliding window
+    # List to store the calculated op values for each overlapping partition
     op_values = []
 
-    # Iterate through each sliding window in the dataset
-    for window in dataset_as_sliding_windows:
-        # Get the start and end times of the current sliding window
-        window_start_time = window[0][-1].to_pydatetime()
-        window_end_time = window[-1][-1].to_pydatetime()
+    # Iterate through each overlapping partition in the dataset
+    for partition in dataset_as_overlapping_partitions:
+        # Get the start and end times of the current overlapping partition
+        partition_start_time = partition[0][-1].to_pydatetime()
+        partition_end_time = partition[-1][-1].to_pydatetime()
 
-        # Create an Interval object to represent the current sliding window
-        window_interval = Interval(window_start_time, window_end_time)
+        # Create an Interval object to represent the current overlapping partition
+        partition_interval = Interval(partition_start_time, partition_end_time)
 
-        # Initialize the op value for the current sliding window to 0
+        # Initialize the op value for the current overlapping partition to 0
         current_op_value = 0
 
         # Iterate through each event that hasn't been checked yet
@@ -393,32 +393,32 @@ def op(dataset_as_sliding_windows: np.ndarray, events_as_intervals: list[Interva
             # Get the Interval object for the current event
             current_event_interval = events_as_intervals[event_index]
 
-            # If the start time of the current window is greater than or equal to the end time of the current event,
-            # we can skip this event since it doesn't overlap with the current window
-            if window_interval.start_time >= current_event_interval.end_time:
+            # If the start time of the current partition is greater than or equal to the end time of the current event,
+            # we can skip this event since it doesn't overlap with the current partition
+            if partition_interval.start_time >= current_event_interval.end_time:
                 starting_event_index = event_index + 1
                 continue
 
-            # Calculate the overlapping parameter between the current window and the current event
-            overlapping_parameter = window_interval.overlapping_parameter(current_event_interval)
+            # Calculate the overlapping parameter between the current partition and the current event
+            overlapping_parameter = partition_interval.overlapping_parameter(current_event_interval)
 
-            # If the overlapping parameter is 0, there is no overlap between the current window and the current event
+            # If the overlapping parameter is 0, there is no overlap between the current partition and the current event
             if overlapping_parameter == 0:
                 break
 
-            # Update the op value for the current window if the overlapping parameter is greater than the current op
+            # Update the op value for the current partition if the overlapping parameter is greater than the current op
             # value
             if overlapping_parameter > current_op_value:
                 current_op_value = overlapping_parameter
 
-        # Add the op value for the current window to the list of op values
+        # Add the op value for the current partition to the list of op values
         op_values.append(current_op_value)
 
-    # Remove the column containing the timestamps from the sliding windows
-    dataset_as_sliding_windows = np.delete(dataset_as_sliding_windows, -1, axis=2)
+    # Remove the column containing the timestamps from the overlapping partitions
+    dataset_as_overlapping_partitions = np.delete(dataset_as_overlapping_partitions, -1, axis=2)
 
-    # Return the updated sliding windows and the op values
-    return dataset_as_sliding_windows, np.array(op_values)
+    # Return the updated overlapping partitions and the op values
+    return dataset_as_overlapping_partitions, np.array(op_values)
 
 
 def get_timedelta(delta_unit_time: int, unit: TimeUnit) -> timedelta:

@@ -13,8 +13,8 @@ def event_to_rectangle(event, w_s, time_unit: TimeUnit, color, height=1, style="
     
     Args:
     event (datetime or other): The event timestamp or object.
-    w_s (int): The window size in time units.
-    time_unit (TimeUnit): The time unit of the window size.
+    w_s (int): The partition size in time units.
+    time_unit (TimeUnit): The time unit of the partition size.
     color (str): The color of the rectangle.
     height (int): The height of the rectangle.
     style (str): The linestyle of the rectangle.

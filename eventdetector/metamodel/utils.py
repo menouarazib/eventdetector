@@ -123,7 +123,7 @@ def validate_args(meta_model) -> None:
         raise InvalidArgumentError("dataset should be a pandas DataFrame.")
 
     if len(meta_model.dataset) < meta_model.width:
-        raise InvalidArgumentError("Dataset length is smaller than the given window width.")
+        raise InvalidArgumentError("Dataset length is smaller than the given partition width.")
 
     if meta_model.events is None or (isinstance(meta_model.events, pd.DataFrame) and meta_model.events.empty) or \
             (isinstance(meta_model.events, list) and len(meta_model.events) == 0):
@@ -146,7 +146,10 @@ def validate_args(meta_model) -> None:
     if not isinstance(meta_model.batch_size, int) or meta_model.batch_size <= 0:
         raise InvalidArgumentError("batch_size should be a positive integer.")
 
-    if not isinstance(meta_model.t_max, float) or meta_model.t_max <= meta_model.w_s:
+    if not isinstance(meta_model.t_max, float) and not isinstance(meta_model.t_max, int):
+        raise InvalidArgumentError("t_max should be float/int.")
+
+    if meta_model.t_max <= meta_model.w_s:
         raise InvalidArgumentError(f"t_max should be greater than w_s {meta_model.w_s}.")
 
     if not isinstance(meta_model.delta, int) or meta_model.delta <= 0:
