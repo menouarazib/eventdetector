@@ -275,8 +275,8 @@ class MetaModel:
             and convert the remaining events to intervals. If a time partition is specified, it will get the union of
             event times and extract the corresponding portion of the dataset.
 
-        The dataset will then be converted to overlapping partitions using the specified width and step size, and the $op$
-            (overlapping parameter) values will be computed for each partition based on the given intervals.
+        The dataset will then be converted to overlapping partitions using the specified width and step size, 
+        and the $op$ (overlapping parameter) values will be computed for each partition based on the given intervals.
 
         Finally, the learning data (overlapping partitions and corresponding $op$ values) will be stored in
             the instance variables x and y.

@@ -355,13 +355,12 @@ def get_dataset_within_events_times(data_set: pd.DataFrame, events_times: pd.Dat
 def op(dataset_as_overlapping_partitions: np.ndarray, events_as_intervals: list[Interval]) -> \
         tuple[np.ndarray, np.ndarray]:
     """
-    Calculates the "op" value for each overlapping partition in the dataset, based on the overlapping parameter between the
-    partition and a set of events.
+    Calculates the "op" value for each overlapping partition in the dataset, based on the overlapping parameter 
+    between the partition and a set of events.
 
-    Args:
-        dataset_as_overlapping_partitions: A numpy ndarray containing the overlapping partitions for the dataset, where each overlapping
-            partition is a 2D numpy ndarray containing the data points for the partition and their timestamps.
-        events_as_intervals: A list of Interval objects representing the events in the dataset.
+    Args: dataset_as_overlapping_partitions: A numpy ndarray containing the overlapping partitions for the dataset, 
+    where each overlapping partition is a 2D numpy ndarray containing the data points for the partition and their 
+    timestamps. events_as_intervals: A list of Interval objects representing the events in the dataset.
 
     Returns:
         A tuple containing two values:
