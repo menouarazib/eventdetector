@@ -211,7 +211,7 @@ class Plotter:
 
         std = np.std(self.delta_t)
         mu = np.mean(self.delta_t)
-        print(std, mu)
+
         plt.title(f'Histogram std = {std:.2f}, mu = {mu:.2f}')
         # Save the plot to a file
         path = os.path.join(self.working_dir, "delta_t.png")
@@ -282,7 +282,6 @@ class Plotter:
             writer = csv.writer(f, delimiter=' ')
             for i in range(len(self.predicted_events)):
                 predicted_event = self.predicted_events[i]
-                print("predicted_event", predicted_event)
                 start_time = predicted_event - radius
                 end_time = predicted_event + radius
                 writer.writerow([start_time.isoformat(), end_time.isoformat()])
@@ -291,7 +290,6 @@ class Plotter:
         with open(path, 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f, delimiter=' ')
             for _, test_date in enumerate(self.true_events[MIDDLE_EVENT_LABEL]):
-                print("test_date", test_date)
                 start_time = test_date - radius
                 end_time = test_date + radius
                 writer.writerow([start_time.isoformat(), end_time.isoformat()])

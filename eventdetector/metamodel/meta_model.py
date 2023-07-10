@@ -258,8 +258,6 @@ class MetaModel:
             diff = b - a
             # Check the units of the time difference
             logger_meta_model.info("Computing the time sampling and time unit of the dataset")
-            print(f"diff= {diff}")
-            print(type(diff), diff.total_seconds())
             self.t_s, self.time_unit = check_time_unit(diff=diff)
             logger_meta_model.warning(f"The time sampling t_s is {self.t_s} {self.time_unit}s")
             self.w_s = self.t_s * self.width
@@ -311,7 +309,7 @@ class MetaModel:
         # Convert x and y arrays to float32 for consistency
         self.x = np.asarray(self.x).astype('float32')
         self.y = np.asarray(self.y).astype('float32')
-        
+
         self.optimization_data.set_overlapping_partitions(overlapping_partitions)
         self.optimization_data.set_true_events(self.events)
 

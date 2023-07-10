@@ -143,8 +143,6 @@ class OptimizationCalculator:
             tp, fp, fn, delta_t
         """
         e_t = self.optimization_data.true_events.copy()
-        # print(e_t)
-        # print(s_peaks)
 
         fp: int = 0
         tp: int = 0
@@ -160,7 +158,7 @@ class OptimizationCalculator:
                     if t_t is None or abs(m_p - t_t) > abs(diff):
                         t_t = m_t
                         signed_delta = diff
-                        # print("diff= ", diff, m_p, t_t)
+
             if t_t is not None:
                 tp += 1
                 e_t = e_t.drop(e_t[e_t[MIDDLE_EVENT_LABEL] == t_t].index)
@@ -174,7 +172,6 @@ class OptimizationCalculator:
 
     def compute_f1score(self, sigma: int, m: int, h: float):
         delta_with_time_unit = get_timedelta(self.optimization_data.delta, self.optimization_data.time_unit)
-        # print("delta_with_time_unit ", delta_with_time_unit)
         op_g: np.ndarray = self.apply_gaussian_filter(sigma=sigma, m=m)
         t, op_g = self.__compute_op_as_mid_times(op_g=op_g)
         s_peaks = get_peaks(h=h, t=t, op_g=op_g)

@@ -6,7 +6,7 @@ import pandas as pd
 from sympy.testing import pytest
 
 from eventdetector.data.helpers import overlapping_partitions, compute_middle_event, \
-    num_columns
+    num_columns, convert_dataframe_to_overlapping_partitions
 
 
 def test_overlapping_partitions():
@@ -51,12 +51,12 @@ class TestHelpers(unittest.TestCase):
         index = pd.date_range(start='2022-01-01', periods=self.n, freq='D')
         df = pd.DataFrame(data=data, columns=['feat1', 'feat2', 'feat3'], index=index)
 
-        # Test overalapping partition generation with default settings
+        # Test overlapping partition generation with default settings
         sw = convert_dataframe_to_overlapping_partitions(df, width=2, step=1)
         expected_shape = (self.n - 1, 2, 4)  # Number of partitions, partition width, number of features+time
         self.assertEqual(sw.shape, expected_shape)
 
-        # Test overalapping partition generation with custom settings
+        # Test overlapping partition generation with custom settings
         sw = convert_dataframe_to_overlapping_partitions(df, width=14, step=7, fill_method='ffill')
         expected_shape = (13, 14, 4)  # Number of partitions, partition width, number of features+time
         self.assertEqual(sw.shape, expected_shape)
