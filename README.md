@@ -1,4 +1,4 @@
-Universal Event Detection in Time Series
+Universal Event Detection in Time Series: Submitted to JMLR (July 2023)
 ==========================================================
 
 Welcome to **Event Detector**, a Python package for detecting events in time series data. The emphasis of this package
