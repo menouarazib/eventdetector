@@ -110,8 +110,7 @@ Argument | Description
 ## How to credit our package
 
 If you use our package, please cite the following paper:
-**Copy and paste citation:**
-
+```python
 @misc{azib_renard_garnier_génot_andré_2023,
 title={Universal Event Detection in Time Series},
 url={osf.io/uabjg},
@@ -120,13 +119,5 @@ author={Azib, Menouar and Renard, Benjamin and Garnier, Philippe and Génot, Vin
 year={2023},
 month={Jul}
 }
-
-@misc{azib_renard_garnier_génot_andré_2023,
-title={Universal Event Detection in Time Series},
-url={osf.io/uabjg},
-publisher={OSF Preprints},
-author={Azib, Menouar and Renard, Benjamin and Garnier, Philippe and Génot, Vincent and André, Nicolas},
-year={2023},
-month={Jul}
-}
+```
 
