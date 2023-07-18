@@ -107,9 +107,9 @@ Argument | Description
    use_multiprocessing | Whether to use multiprocessing or not for the event exctraction optimization. The default value is `False`.
    save_models_as_dot_format | Whether to save the models as a dot format file. The default value is `False`. If set to True, then you should have `graphviz` software to be installed on your machine.
    
-## How to credit our work
+## How to credit our package
 
-If you use our work, please cite the following paper:
+If you use our package, please cite the following paper:
 
 @misc{azib_renard_garnier_génot_andré_2023,
 title={Universal Event Detection in Time Series},
