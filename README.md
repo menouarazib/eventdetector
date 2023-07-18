@@ -1,4 +1,4 @@
-Universal Event Detection in Time Series: Submitted to JMLR (July 2023)
+Universal Event Detection in Time Series
 ==========================================================
 
 Welcome to **Event Detector**, a Python package for detecting events in time series data. The emphasis of this package
@@ -106,3 +106,17 @@ Argument | Description
    val_size |The proportion of the training set to use for validation. Should be a value between 0 and 1. Default is `0.2`.
    use_multiprocessing | Whether to use multiprocessing or not for the event exctraction optimization. The default value is `False`.
    save_models_as_dot_format | Whether to save the models as a dot format file. The default value is `False`. If set to True, then you should have `graphviz` software to be installed on your machine.
+   
+## How to credit our work
+
+If you use our work, please cite the following paper:
+
+@misc{azib_renard_garnier_génot_andré_2023,
+title={Universal Event Detection in Time Series},
+url={osf.io/uabjg},
+publisher={OSF Preprints},
+author={Azib, Menouar and Renard, Benjamin and Garnier, Philippe and Génot, Vincent and André, Nicolas},
+year={2023},
+month={Jul}
+}
+
