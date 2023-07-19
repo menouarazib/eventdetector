@@ -112,12 +112,13 @@ Argument | Description
 If you use our package, please cite the following paper:
 ```python
 @misc{azib_renard_garnier_génot_andré_2023,
-title={Universal Event Detection in Time Series},
-url={osf.io/uabjg},
-publisher={OSF Preprints},
-author={Azib, Menouar and Renard, Benjamin and Garnier, Philippe and Génot, Vincent and André, Nicolas},
-year={2023},
-month={Jul}
+ title={Universal Event Detection in Time Series},
+ url={osf.io/uabjg},
+ DOI={10.31219/osf.io/uabjg},
+ publisher={OSF Preprints},
+ author={Azib, Menouar and Renard, Benjamin and Garnier, Philippe and Génot, Vincent and André, Nicolas},
+ year={2023},
+ month={Jul}
 }
 ```
 
