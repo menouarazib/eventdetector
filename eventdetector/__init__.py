@@ -156,8 +156,8 @@ def load_martian_bow_shock():
             A dataset and events as pd.DataFrame
 
         """
-    url_dataset = "https://onedrive.live.com/download?resid=4258578D3874B519%21151&authkey=!AGic2wBEAfnuBYg"
-    url_events = "https://onedrive.live.com/download?resid=4258578D3874B519%21150&authkey=!ACMf4jI2uwvVoec"
+    url_dataset = "https://archive.org/download/martian_bow_shock_dataset/martian_bow_shock_dataset.pkl"
+    url_events = "https://archive.org/download/martian_bow_shock_events/martian_bow_shock_events.csv"
     data_set = load_dataset(file_path="martian_bow_shock_dataset.pkl", name="Martian Bow Shock data set",
                             url=url_dataset)
     events = load_dataset(file_path="martian_bow_shock_events.csv", name="Martian Bow Shock events", index_col=None,
@@ -174,8 +174,8 @@ def load_credit_card_fraud():
         A dataset and events as pd.DataFrame
 
     """
-    url_dataset = "https://onedrive.live.com/download?resid=4258578D3874B519%21129&authkey=!ANgPyE0DphR9gTM"
-    url_events = "https://onedrive.live.com/download?resid=4258578D3874B519%21147&authkey=!AIANbQqstMFG_zs"
+    url_dataset = "https://archive.org/download/credit_card_fraud_dataset/credit_card_fraud_dataset.csv"
+    url_events = "https://archive.org/download/credit_card_fraud_events/credit_card_fraud_events.csv"
 
     data_set = load_dataset(file_path="credit_card_fraud_dataset.csv", name="Credit Card Fraud data set",
                             url=url_dataset)

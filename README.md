@@ -32,11 +32,11 @@ To quickly get started with the Event Detection in Time Series package, follow t
 
 - You can either download the datasets and event catalogs manually or use the built-in methods for the desired application:
   - Martian Bow Shock: `eventdetector.load_martian_bow_shock()`
-      - [bow_shock_dataset](https://onedrive.live.com/download?resid=4258578D3874B519%21151&authkey=!AGic2wBEAfnuBYg)
-      - [bow_shock_events](https://onedrive.live.com/download?resid=4258578D3874B519%21150&authkey=!ACMf4jI2uwvVoec)
+      - [bow_shock_dataset](https://archive.org/download/martian_bow_shock_dataset/martian_bow_shock_dataset.pkl)
+      - [bow_shock_events](https://archive.org/download/martian_bow_shock_events/martian_bow_shock_events.csv)
   - Credit Card Fraud: `eventdetector.load_credit_card_fraud()`
-      - [credit_card_dataset](https://onedrive.live.com/download?resid=4258578D3874B519%21129&authkey=!ANgPyE0DphR9gTM)
-      - [credit_card_events](https://onedrive.live.com/download?resid=4258578D3874B519%21147&authkey=!AIANbQqstMFG_zs)
+      - [credit_card_dataset](https://archive.org/download/credit_card_fraud_dataset/credit_card_fraud_dataset.csv)
+      - [credit_card_events](https://archive.org/download/credit_card_fraud_events/credit_card_fraud_events.csv)
 - Code Implementations:
   - Credit Card Fraud:
     ```python
