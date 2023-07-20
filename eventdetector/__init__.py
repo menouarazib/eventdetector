@@ -109,6 +109,36 @@ LOGGING_CONFIG = {
 config.dictConfig(LOGGING_CONFIG)
 
 
+def my_hook(t):
+    """
+    Wraps tqdm instance. Don't forget to close() or __exit__()
+    the tqdm instance once you're done with it (easiest using `with` syntax).
+  
+    Example
+    -------
+  
+    
+  
+    """
+    last_b = [0]
+
+    def inner(b=1, bsize=1, t_size=None):
+        """
+        b  : int, optional
+            Number of blocks just transferred [default: 1].
+        bsize  : int, optional
+            Size of each block (in tqdm units) [default: 1].
+        t_size  : int, optional
+            Total size (in tqdm units). If [default: None] remains unchanged.
+        """
+        if t_size is not None:
+            t.total = t_size
+        t.update((b - last_b[0]) * bsize)
+        last_b[0] = b
+
+    return inner
+
+
 def load_dataset(file_path: str, name: str, url=None, index_col: Optional[int] = 0) -> pd.DataFrame:
     """
     Load a dataset from a file. If the file is not found, it will be downloaded from the given URL.
@@ -127,25 +157,22 @@ def load_dataset(file_path: str, name: str, url=None, index_col: Optional[int] =
 
     if not os.path.isfile(file_path) and url:
         # Dataset file isn't found, download it
-        print(f"Downloading data from {url}")
-        urlretrieve(url, file_path)
-        print("Download completed.")
+        with tqdm(unit='B', unit_scale=True, leave=True, miniters=1,
+                  desc=f"Downloading {name}") as t:  # all optional kwargs
+            urlretrieve(url, filename=file_path,
+                        reporthook=my_hook(t), data=None)
 
-    with tqdm(total=100, desc=f'Loading {name} ...', bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}') as pbar:
-        if file_extension == ".csv":
-            # Read CSV file
-            dataset = pd.read_csv(file_path, index_col=index_col)
-        elif file_extension == ".pkl":
-            # Read Pickle file
-            dataset = pd.read_pickle(file_path)
-        else:
-            raise ValueError(f"Unsupported file format: {file_extension}")
+    if file_extension == ".csv":
+        # Read CSV file
+        dataset = pd.read_csv(file_path, index_col=index_col)
+    elif file_extension == ".pkl":
+        # Read Pickle file
+        dataset = pd.read_pickle(file_path)
+    else:
+        raise ValueError(f"Unsupported file format: {file_extension}")
 
-        # Update progress bar to 50% after reading the file
-        pbar.update(100)
-
-        # Return the loaded dataset
-        return dataset
+    # Return the loaded dataset
+    return dataset
 
 
 def load_martian_bow_shock():
