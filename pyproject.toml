@@ -1,2 +1,27 @@
 [tool.ruff]
 line-length = 120
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "EventDetector"
+version = "1.0.0"
+description = "This package provides an easy-to-use and efficient solution for event detection in time series data. It includes various functionalities and tools that enable users to apply our framework to their own data sets and customize the detection process according to their specific needs."
+keywords = ["Event Detection", "Time Series", "Universal Approximation Theory", "Deep Learning", "Stacking Ensemble Learning"]
+authors = [
+    { name = "Menouar Azib", email = "menouar.azib@akkodis.com" }
+]
+
+maintainers = [
+    { name = "Menouar Azib", email = "menouar.azib@akkodis.com" }
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = "MIT"
+classifiers = ["License :: OSI Approved :: MIT License", "Programming Language :: Python :: 3"]
+
+dependencies = ["joblib", "keras", "matplotlib", "numpy", "pandas", "python_dateutil", "scikit_learn", "scipy", "seaborn", "sympy", "tensorflow", "colorlog", "pydot", "pyqt5", "tqdm"]
+
+[project.urls]
+homepage = "https://github.com/menouarazib/eventdetector"
