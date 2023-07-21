@@ -2,7 +2,7 @@ import numpy as np
 import seaborn as sns
 from matplotlib import pyplot as plt
 
-from eventdetector.plotter import COLOR_PREDICTED, COLOR_TRUE
+from eventdetector_ts.plotter import COLOR_PREDICTED, COLOR_TRUE
 
 
 def plot_prediction(predicted_op: np.ndarray, filtered_predicted_op: np.ndarray) -> None:

@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from eventdetector.optimization.algorithms import convolve_with_gaussian_kernel
+from eventdetector_ts.optimization.algorithms import convolve_with_gaussian_kernel
 
 
 def convolution_with_gaussian(signal, sigma, m):

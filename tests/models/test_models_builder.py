@@ -3,8 +3,8 @@ import unittest
 import tensorflow as tf
 from sympy.testing import pytest
 
-from eventdetector import RNN_ENCODER_DECODER, FFN, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D, LSTM, SELF_ATTENTION
-from eventdetector.models.models_builder import ModelBuilder, ModelCreator
+from eventdetector_ts import RNN_ENCODER_DECODER, FFN, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D, LSTM, SELF_ATTENTION
+from eventdetector_ts.models.models_builder import ModelBuilder, ModelCreator
 
 
 class TestModelsBuilder(unittest.TestCase):

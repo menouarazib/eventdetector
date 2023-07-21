@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, timedelta
 
-from eventdetector.data.interval import Interval
+from eventdetector_ts.data.interval import Interval
 
 
 class TestInterval(unittest.TestCase):

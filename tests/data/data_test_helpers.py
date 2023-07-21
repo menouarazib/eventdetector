@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from sympy.testing import pytest
 
-from eventdetector.data.helpers import overlapping_partitions, compute_middle_event, \
+from eventdetector_ts.data.helpers import overlapping_partitions, compute_middle_event, \
     num_columns, convert_dataframe_to_overlapping_partitions
 
 

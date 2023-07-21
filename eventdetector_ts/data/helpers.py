@@ -10,9 +10,9 @@ from dateutil.parser import parser
 from numpy.lib.stride_tricks import as_strided
 from pandas.core.dtypes.common import is_datetime64_any_dtype
 
-from eventdetector import TIME_LABEL, FILL_NAN_ZEROS, FILL_NAN_FFILL, FILL_NAN_BFILL, FILL_NAN_MEDIAN, \
+from eventdetector_ts import TIME_LABEL, FILL_NAN_ZEROS, FILL_NAN_FFILL, FILL_NAN_BFILL, FILL_NAN_MEDIAN, \
     MIDDLE_EVENT_LABEL, TimeUnit
-from eventdetector.data.interval import Interval
+from eventdetector_ts.data.interval import Interval
 
 
 def overlapping_partitions(data: np.ndarray, width: int, step: int = 1):

@@ -39,8 +39,8 @@ To quickly get started with the Event Detection in Time Series package, follow t
 ### Code Implementations:
   - Credit Card Fraud:
     ```python
-    from eventdetector import load_credit_card_fraud
-    from eventdetector.metamodel.meta_model import MetaModel
+    from eventdetector_ts import load_credit_card_fraud
+    from eventdetector_ts.metamodel.meta_model import MetaModel
     
     dataset, events = load_credit_card_fraud()
     meta_model = MetaModel(dataset=dataset, events=events, width=3, step=1, output_dir='fraud', batch_size=3000)
@@ -56,8 +56,8 @@ To quickly get started with the Event Detection in Time Series package, follow t
 
   - Martian Bow Shock:
     ```python
-    from eventdetector import load_martian_bow_shock
-    from eventdetector.metamodel.meta_model import MetaModel
+    from eventdetector_ts import load_martian_bow_shock
+    from eventdetector_ts.metamodel.meta_model import MetaModel
     
     dataset, events = load_martian_bow_shock()
     

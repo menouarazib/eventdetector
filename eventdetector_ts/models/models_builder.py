@@ -5,10 +5,10 @@ from typing import Optional, Tuple, Dict, List
 import numpy as np
 import tensorflow as tf
 
-from eventdetector import LSTM, GRU, CNN, RNN_BIDIRECTIONAL, RNN_ENCODER_DECODER, CNN_RNN, FFN, CONV_LSTM1D, \
+from eventdetector_ts import LSTM, GRU, CNN, RNN_BIDIRECTIONAL, RNN_ENCODER_DECODER, CNN_RNN, FFN, CONV_LSTM1D, \
     SELF_ATTENTION, MODELS_DIR
-from eventdetector.models import logger_models
-from eventdetector.models.helpers import SelfAttention
+from eventdetector_ts.models import logger_models
+from eventdetector_ts.models.helpers import SelfAttention
 
 
 class DtwLoss(tf.keras.losses.Loss):

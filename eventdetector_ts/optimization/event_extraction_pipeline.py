@@ -7,10 +7,10 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
 
-from eventdetector import MIDDLE_EVENT_LABEL, TimeUnit, config_dict
-from eventdetector.data.helpers import get_timedelta, get_total_units
-from eventdetector.optimization import logger
-from eventdetector.optimization.algorithms import convolve_with_gaussian_kernel
+from eventdetector_ts import MIDDLE_EVENT_LABEL, TimeUnit, config_dict
+from eventdetector_ts.data.helpers import get_timedelta, get_total_units
+from eventdetector_ts.optimization import logger
+from eventdetector_ts.optimization.algorithms import convolve_with_gaussian_kernel
 
 
 class OptimizationData:

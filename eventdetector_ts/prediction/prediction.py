@@ -7,12 +7,12 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from eventdetector import CONFIG_FILE, SCALERS_DIR, TYPE_TRAINING_FFN, TimeUnit, MODELS_DIR, META_MODEL_NETWORK, \
+from eventdetector_ts import CONFIG_FILE, SCALERS_DIR, TYPE_TRAINING_FFN, TimeUnit, MODELS_DIR, META_MODEL_NETWORK, \
     META_MODEL_SCALER
-from eventdetector.data.helpers import convert_dataframe_to_overlapping_partitions, get_timedelta
-from eventdetector.optimization.algorithms import convolve_with_gaussian_kernel
-from eventdetector.optimization.event_extraction_pipeline import get_peaks, compute_op_as_mid_times
-from eventdetector.prediction import logger
+from eventdetector_ts.data.helpers import convert_dataframe_to_overlapping_partitions, get_timedelta
+from eventdetector_ts.optimization.algorithms import convolve_with_gaussian_kernel
+from eventdetector_ts.optimization.event_extraction_pipeline import get_peaks, compute_op_as_mid_times
+from eventdetector_ts.prediction import logger
 
 
 def load_config_file(path: str) -> Dict:

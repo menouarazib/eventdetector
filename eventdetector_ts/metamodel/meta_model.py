@@ -8,18 +8,18 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from eventdetector import FFN, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER, \
+from eventdetector_ts import FFN, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER, \
     config_dict, CONFIG_FILE
-from eventdetector.data.helpers import compute_middle_event, remove_close_events, \
+from eventdetector_ts.data.helpers import compute_middle_event, remove_close_events, \
     convert_events_to_intervals, get_union_times_events, get_dataset_within_events_times, \
     convert_dataframe_to_overlapping_partitions, op, check_time_unit, save_dict_to_json, \
     convert_dataset_index_to_datetime
-from eventdetector.metamodel import logger_meta_model
-from eventdetector.metamodel.utils import DataSplitter, validate_args
-from eventdetector.models.models_builder import ModelCreator
-from eventdetector.models.models_trainer import ModelTrainer
-from eventdetector.optimization.event_extraction_pipeline import OptimizationData, EventOptimization
-from eventdetector.plotter.plotter import Plotter
+from eventdetector_ts.metamodel import logger_meta_model
+from eventdetector_ts.metamodel.utils import DataSplitter, validate_args
+from eventdetector_ts.models.models_builder import ModelCreator
+from eventdetector_ts.models.models_trainer import ModelTrainer
+from eventdetector_ts.optimization.event_extraction_pipeline import OptimizationData, EventOptimization
+from eventdetector_ts.plotter.plotter import Plotter
 
 
 class MetaModel:
