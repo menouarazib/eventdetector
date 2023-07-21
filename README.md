@@ -7,8 +7,8 @@ time series, training on large datasets, ensemble models, and providing rich sup
 series.
 ## Installation
 ### Pypi installation
-<pre>
-pip install eventdetector-ts
+<pre><code>
+pip install eventdetector-ts</code>
 </pre>
 ### Manual installation
 To get started using **Event Detector**, simply follow the instructions below to install the required packages and
