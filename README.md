@@ -88,12 +88,12 @@ Table below presents the performance metrics for precision, recall, and F1-Score
 
 The Figure below showcases the training loss and validation loss of the stacked models during the training process on the Martian bow shock and credit card fraud cases. The stacked models used in this evaluation consist of two feedforward neural networks (`FFN_0`, `FFN_1`) with distinct configurations of hyperparameters. The low losses observed in both cases indicate that the meta model has successfully learned the underlying patterns, justifying the obtained good metrics.
 
-![Training and validation losses](images/losses_mex_ccf.png)
+![Training and validation losses](https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/losses_mex_ccf.png)
 
 #### Comparison of Predicted `op` and True `op`
 The Figure below illustrates the comparison between the predicted $op$ values and the true $op$ values on the Martian bow shock (`delta = 180` seconds) and credit card fraud (`delta = 3` seconds) datasets.
 
-![Comparison of predicted `op` and true `op`](images/op_mex_ccf.png)
+![Comparison of predicted `op` and true `op`](https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_mex_ccf.png)
 
 ## MetaModel Arguments:
 
