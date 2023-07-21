@@ -30,10 +30,10 @@ env\Scripts\activate.bat  # for partitions
 To quickly get started with the Event Detection in Time Series package, follow the steps below:
 
 - You can either download the datasets and event catalogs manually or use the built-in methods for the desired application:
-  - Martian Bow Shock: `eventdetector.load_martian_bow_shock()`
+  - Martian Bow Shock: `eventdetector_ts.load_martian_bow_shock()`
       - [bow_shock_dataset](https://archive.org/download/martian_bow_shock_dataset/martian_bow_shock_dataset.pkl)
       - [bow_shock_events](https://archive.org/download/martian_bow_shock_events/martian_bow_shock_events.csv)
-  - Credit Card Fraud: `eventdetector.load_credit_card_fraud()`
+  - Credit Card Fraud: `eventdetector_ts.load_credit_card_fraud()`
       - [credit_card_dataset](https://archive.org/download/credit_card_fraud_dataset/credit_card_fraud_dataset.csv)
       - [credit_card_events](https://archive.org/download/credit_card_fraud_events/credit_card_fraud_events.csv)
 ### Code Implementations:
