@@ -118,7 +118,7 @@ def convert_time_to_datetime(date: Union[str, pd.Timestamp, float, int], to_time
         raise ValueError(f"Invalid date format {date}. Supported formats are str, pd.Timestamp, float, and int.")
 
     if to_timestamp:
-        return dt.timestamp()
+        return (dt - datetime(1970, 1, 1)).total_seconds()
     return dt
 
 
@@ -165,6 +165,7 @@ def compute_middle_event(events: Union[list, pd.DataFrame]) -> pd.DataFrame:
             df = pd.DataFrame(events, columns=[column1, column2])
         elif nb_columns == 1:
             df = pd.DataFrame(events, columns=[column1])
+
             is2d = False
         else:
             raise ValueError(
@@ -193,7 +194,7 @@ def compute_middle_event(events: Union[list, pd.DataFrame]) -> pd.DataFrame:
     else:
         df[MIDDLE_EVENT_LABEL] = df[column1].apply(lambda x: convert_time_to_datetime(x))
 
-    df[MIDDLE_EVENT_LABEL] = df[MIDDLE_EVENT_LABEL].apply(lambda x: datetime.fromtimestamp(x))
+    df[MIDDLE_EVENT_LABEL] = df[MIDDLE_EVENT_LABEL].apply(lambda x: datetime.utcfromtimestamp(x))
     df = df[[MIDDLE_EVENT_LABEL]]
     df = df.sort_values(by=MIDDLE_EVENT_LABEL)
     return df

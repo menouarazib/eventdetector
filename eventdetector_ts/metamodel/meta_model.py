@@ -287,9 +287,11 @@ class MetaModel:
 
         logger_meta_model.info("Computes the middle date of events...")
         self.events = compute_middle_event(self.events)
+
         logger_meta_model.info("Removes events that occur too close together...")
         temp: int = len(self.events)
         self.events = remove_close_events(self.events, self.w_s, self.time_unit)
+
         logger_meta_model.warning(f"A total of {temp - len(self.events)}/{temp} events were removed due to overlapping")
         logger_meta_model.info("Convert events to intervals...")
         intervals = convert_events_to_intervals(self.events, self.w_s, self.time_unit)
@@ -306,6 +308,7 @@ class MetaModel:
 
         logger_meta_model.info("Computing op...")
         self.x, self.y = op(dataset_as_overlapping_partitions=overlapping_partitions, events_as_intervals=intervals)
+
         # Convert x and y arrays to float32 for consistency
         self.x = np.asarray(self.x).astype('float32')
         self.y = np.asarray(self.y).astype('float32')
