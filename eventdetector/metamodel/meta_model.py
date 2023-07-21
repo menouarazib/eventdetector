@@ -67,7 +67,7 @@ class MetaModel:
                     neural networks' understanding for rare events.
                 - models (List[Union[str, Tuple[str, int]]]): Determines the type of deep learning models to use.
                     If a tuple is passed, it specifies both the model type and the number of instances to run.
-                    The default value is [(model, 3) for model in [FFN]].
+                    The default value is [(model, 2) for model in [FFN]].
                 - hyperparams_ffn (Tuple[int, int, int]): Specify for the FFN the maximum number of layers,
                     the minimum and the maximum number of neurons per layer.
                     The default value is (3, 64, 256).
