@@ -6,22 +6,27 @@ is on offering useful machine learning functionalities, such as customizing and 
 time series, training on large datasets, ensemble models, and providing rich support for event detection in time
 series.
 ## Installation
+### Pypi installation
+<pre>
+pip install eventdetector-ts
+</pre>
+### Manual installation
 To get started using **Event Detector**, simply follow the instructions below to install the required packages and
 dependencies.
-### Clone the repository:
+#### Clone the repository:
 
 <pre><code>git clone https://github.com/menouarazib/eventdetector.git
 cd eventdetector
 </code></pre>
 
-### Create a virtual environment:
+#### Create a virtual environment:
 
 <pre><code>python -m venv env
 source env/bin/activate  # for Linux/MacOS
-env\Scripts\activate.bat  # for partitions
+env\Scripts\activate.bat  # for Windows
 </code></pre>
 
-### Install the required packages:
+#### Install the required packages:
 
 <pre><code>pip install -r requirements.txt</code></pre>
 
