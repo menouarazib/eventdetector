@@ -278,8 +278,8 @@ def convert_events_to_intervals(events_df: pd.DataFrame, w_s: int, unit: TimeUni
 
 def get_union_times_events(events_df: pd.DataFrame, partition_size: int, unit_time: TimeUnit) -> pd.DatetimeIndex:
     """
-    Given a DataFrame of events and a time partition size in unit time, computes a DatetimeIndex of all times during which
-    at least one event was taking place.
+    Given a DataFrame of events and a time partition size in unit time, computes a DatetimeIndex of all times during 
+    which at least one event was taking place.
 
     Args:
         events_df (pd.DataFrame): A DataFrame containing at least a MIDDLE_EVENT_LABEL column with the datetime
