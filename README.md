@@ -5,29 +5,28 @@ Welcome to **Event Detector**, a Python package for detecting events in time ser
 is on offering useful machine learning functionalities, such as customizing and fitting the model on multidimensional
 time series, training on large datasets, ensemble models, and providing rich support for event detection in time
 series.
-
+## Installation
 To get started using **Event Detector**, simply follow the instructions below to install the required packages and
 dependencies.
-
-1. Clone the repository:
+### Clone the repository:
 
 <pre><code>git clone https://github.com/menouarazib/eventdetector.git
 cd eventdetector
 </code></pre>
 
-2. Create a virtual environment:
+### Create a virtual environment:
 
 <pre><code>python -m venv env
 source env/bin/activate  # for Linux/MacOS
 env\Scripts\activate.bat  # for partitions
 </code></pre>
 
-3. Install the required packages:
+### Install the required packages:
 
 <pre><code>pip install -r requirements.txt</code></pre>
 
-4. Quickstart Example
-
+## Quickstart Example
+### Data sets
 To quickly get started with the Event Detection in Time Series package, follow the steps below:
 
 - You can either download the datasets and event catalogs manually or use the built-in methods for the desired application:
@@ -37,7 +36,7 @@ To quickly get started with the Event Detection in Time Series package, follow t
   - Credit Card Fraud: `eventdetector.load_credit_card_fraud()`
       - [credit_card_dataset](https://archive.org/download/credit_card_fraud_dataset/credit_card_fraud_dataset.csv)
       - [credit_card_events](https://archive.org/download/credit_card_fraud_events/credit_card_fraud_events.csv)
-- Code Implementations:
+### Code Implementations:
   - Credit Card Fraud:
     ```python
     from eventdetector import load_credit_card_fraud
@@ -54,6 +53,7 @@ To quickly get started with the Event Detection in Time Series package, follow t
     # Plot the results: Losses, true/predicted op, true/predicted events, deltat_t.
     meta_model.plot_save(show_plots=True)
     ```
+
   - Martian Bow Shock:
     ```python
     from eventdetector import load_martian_bow_shock
@@ -73,8 +73,29 @@ To quickly get started with the Event Detection in Time Series package, follow t
     # Plot the results: Losses, true/predicted op, true/predicted events, deltat_t.
     meta_model.plot_save(show_plots=True)
     ```
-    
-5. MetaModel Arguments:
+### Results and Performance Evaluation
+
+#### Performance Metrics
+
+Table below presents the performance metrics for precision, recall, and F1-Score, providing a quantitative assessment of the framework's accuracy and effectiveness in the two data sets.
+
+| Data set          | F1-Score | Precision | Recall   |
+|-------------------|----------|-----------|----------|
+| Martian bow shock | 0.9021   | 0.9455    | 0.8626   |
+| Credit card fraud | 0.8372   | 0.9643    | 0.7397   |
+
+#### Training and Validation Losses
+
+The Figure below showcases the training loss and validation loss of the stacked models during the training process on the Martian bow shock and credit card fraud cases. The stacked models used in this evaluation consist of two feedforward neural networks (`FFN_0`, `FFN_1`) with distinct configurations of hyperparameters. The low losses observed in both cases indicate that the meta model has successfully learned the underlying patterns, justifying the obtained good metrics.
+
+![Training and validation losses](images/losses_mex_ccf.png)
+
+#### Comparison of Predicted `op` and True `op`
+The Figure below illustrates the comparison between the predicted $op$ values and the true $op$ values on the Martian bow shock (`delta = 180` seconds) and credit card fraud (`delta = 3` seconds) datasets.
+
+![Comparison of predicted `op` and true `op`](images/op_mex_ccf.png)
+
+## MetaModel Arguments:
 
 Argument | Description
    ---------------------------- | --------------------------------------------------------------
