@@ -1,3 +1,8 @@
+<h1 align="center">
+<img src="https://raw.githubusercontent.com/menouarazib/eventdetector/22774d1710666cffcd00b55761fa6ffcf3686b5f/images/logo_eventdetector.svg
+" width="300">
+</h1><br>
+
 Universal Event Detection in Time Series
 ==========================================================
 
