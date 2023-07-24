@@ -2,6 +2,11 @@
 <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/a4d7e137f88a4a476ba6d07f43337ec39543a522/images/logo_eventdetector.svg" width="400">
 </h1><br>
 
+[![PyPI version](https://img.shields.io/pypi/v/pygod.svg?color=brightgreen)](https://pypi.org/project/eventdetector-ts/)
+![Unit Tests and Lint](https://github.com/menouarazib/eventdetector/actions/workflows/unit_tests.yml/badge.svg)
+[![License](https://img.shields.io/github/license/menouarazib/eventdetector)](https://github.com/menouarazib/eventdetector/blob/master/LICENSE)
+
+
 Universal Event Detection in Time Series
 ==========================================================
 
