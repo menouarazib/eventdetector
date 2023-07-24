@@ -7,6 +7,7 @@
 [![License](https://img.shields.io/github/license/menouarazib/eventdetector)](https://github.com/menouarazib/eventdetector/blob/master/LICENSE)
 [![Coverage Status](https://coveralls.io/repos/github/menouarazib/eventdetector/badge.svg)](https://coveralls.io/github/menouarazib/eventdetector)
 [![DOI](https://zenodo.org/badge/DOI/10.31219/osf.io/uabjg.svg)](https://doi.org/10.31219/osf.io/uabjg)
+[![Coverage Status](./coverage.svg)](./coverage.svg)
 
 
 Universal Event Detection in Time Series
