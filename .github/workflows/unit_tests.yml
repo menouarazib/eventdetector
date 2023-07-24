@@ -40,7 +40,10 @@ jobs:
           name: coverage-report
           path: coverage.xml
       - name: Generate Coverage Badge
+        env: # Add the env section with GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: action-badges/cobertura-coverage-xml-badges@0.2.1
         with:
           coverage-file-name: coverage.xml
-          badge-path: coverage.svg
+          file-name: coverage.svg
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
