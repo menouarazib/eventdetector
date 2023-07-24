@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 115 50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <linearGradient id="color-2-0" gradientUnits="userSpaceOnUse" x1="67.585" y1="3.135" x2="67.585" y2="41.39" xlink:href="#color-2"/>
+    <linearGradient id="color-2" bx:pinned="true">
+      <stop style="stop-color: #00f260;" offset="0"/>
+      <stop style="stop-color: #0575e6;" offset="1"/>
+    </linearGradient>
+    <linearGradient id="color-2-5" gradientUnits="userSpaceOnUse" x1="110.267" y1="65.31" x2="110.267" y2="87.296" xlink:href="#color-2"/>
+    <linearGradient id="color-2-6" gradientUnits="userSpaceOnUse" x1="117.883" y1="72.893" x2="117.883" y2="95.047" xlink:href="#color-2"/>
+    <linearGradient id="color-1-0" gradientUnits="userSpaceOnUse" x1="78.657" y1="17.691" x2="78.657" y2="26.333" xlink:href="#color-1"/>
+    <linearGradient id="color-1" bx:pinned="true">
+      <stop style="stop-color: #0099f7;" offset="0"/>
+      <stop style="stop-color: #f11712;" offset="1"/>
+    </linearGradient>
+    <linearGradient id="color-2-1" gradientUnits="userSpaceOnUse" x1="81.594" y1="14.367" x2="81.594" y2="27.396" xlink:href="#color-2"/>
+    <linearGradient id="color-2-2" gradientUnits="userSpaceOnUse" x1="81.594" y1="14.367" x2="81.594" y2="27.396" xlink:href="#color-2"/>
+    <linearGradient id="color-2-3" gradientUnits="userSpaceOnUse" x1="81.594" y1="14.367" x2="81.594" y2="27.396" xlink:href="#color-2"/>
+    <linearGradient id="color-2-4" gradientUnits="userSpaceOnUse" x1="81.594" y1="14.367" x2="81.594" y2="27.396" xlink:href="#color-2"/>
+    <style bx:fonts="Aclonica">@import url(https://fonts.googleapis.com/css2?family=Aclonica%3Aital%2Cwght%400%2C400&amp;display=swap);</style>
+  </defs>
+  <g id="layer3" transform="matrix(1.0385899543762207, 0, 0, 1.1946170330047607, -9.112472534179688, -1.3413230180740356)" style="">
+    <path style="stroke-width: 4; stroke-linecap: butt; stroke-linejoin: miter; stroke-dasharray: none; stroke-opacity: 1; fill: none; stroke: url(#color-2-0);" d="M 23.66 41.39 C 42.496 -43.82 62.207 41.546 111.51 30.427" id="path586-7-5"/>
+  </g>
+  <g id="layer2" transform="matrix(1, 0, 0, 1, 0, -4.440892098500626e-16)">
+    <circle style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.334049;stroke-dasharray:none;stroke-opacity:1" id="path1132" cx="39.693039" cy="20.862146" r="7.5795751"/>
+  </g>
+  <g id="layer1" transform="matrix(1, 0, 0, 1, -9.173410415649414, 4.653179168701172)">
+    <g id="g16950" transform="matrix(0.458857, 0, 0, 0.458857, -12.722214, -15.87053)" style="display:inline">
+      <path style="fill-opacity: 1; stroke-width: 0.264583; fill: url(#color-2-5);" d="m 113.91105,65.310547 c -1.21276,0.0056 -2.37092,0.109066 -3.38998,0.289388 -3.00202,0.530359 -3.54707,1.640444 -3.54707,3.68763 v 2.703711 h 7.09414 v 0.901237 h -7.09414 -2.66237 c -2.06175,0 -3.86708,1.239234 -4.431767,3.59668 -0.651356,2.70218 -0.680247,4.388385 0,7.209896 0.504277,2.100223 1.708557,3.596679 3.770317,3.596679 h 2.43912 v -3.241146 c 0,-2.341536 2.02596,-4.406965 4.43177,-4.406966 h 7.08588 c 1.97245,0 3.54707,-1.624056 3.54707,-3.604948 v -6.755143 c 0,-1.922552 -1.62189,-3.366764 -3.54707,-3.68763 -1.21867,-0.202862 -2.48314,-0.295023 -3.6959,-0.289388 z m -3.83646,2.174545 c 0.73278,0 1.33118,0.608183 1.33118,1.355989 0,0.745156 -0.5984,1.347721 -1.33118,1.347721 -0.7354,0 -1.33119,-0.602566 -1.33119,-1.347721 0,-0.747806 0.59579,-1.355989 1.33119,-1.355989 z" id="path1948"/>
+      <path style="fill-opacity: 1; stroke-width: 0.264583; fill: url(#color-2-6);" d="m 122.03872,72.892513 v 3.150195 c 0,2.442304 -2.0706,4.497917 -4.43177,4.497917 h -7.08588 c -1.94094,0 -3.54707,1.661182 -3.54707,3.604948 v 6.755142 c 0,1.922554 1.6718,3.053378 3.54707,3.604949 2.24561,0.660297 4.39903,0.779629 7.08588,0 1.78597,-0.517099 3.54707,-1.557763 3.54707,-3.604949 v -2.70371 h -7.08588 v -0.901237 h 7.08588 3.54707 c 2.06175,0 2.83005,-1.438118 3.54707,-3.596679 0.74065,-2.222206 0.70914,-4.359216 0,-7.209896 -0.50953,-2.05249 -1.48269,-3.59668 -3.54707,-3.59668 z m -3.98529,17.106966 c 0.7354,1e-6 1.33119,0.602567 1.33119,1.347721 0,0.747806 -0.59579,1.35599 -1.33119,1.35599 -0.73278,0 -1.33118,-0.608184 -1.33118,-1.35599 0,-0.745154 0.5984,-1.347721 1.33118,-1.347721 z" id="path1950-4"/>
+    </g>
+    <text style="fill: url(#color-1-0); font-family: Aclonica; font-size: 8px; white-space: pre;"><tspan style="fill: url(#color-2-1); font-size: 12px;" x="47.509" y="24.272">E</tspan><tspan style="fill: url(#color-2-2);">vent</tspan><tspan style="fill: url(#color-2-3); font-size: 12px;">D</tspan><tspan style="fill: url(#color-2-4);">etector</tspan></text>
+  </g>
+</svg>
