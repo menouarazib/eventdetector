@@ -40,7 +40,7 @@ jobs:
           name: coverage-report
           path: coverage.xml
       - name: Generate Coverage Badge
-        uses: action-badges/cobertura-coverage-xml-badges
+        uses: action-badges/cobertura-coverage-xml-badges@0.2.1
         with:
           coverage-xml-file: coverage.xml
           badge-path: coverage.svg
