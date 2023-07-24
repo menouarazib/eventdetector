@@ -41,4 +41,6 @@ jobs:
           name: coverage-report
           path: coverage.xml
       - name: Coveralls
+        env: # Add the env section with GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls  # Run the coveralls command to send coverage data to Coveralls

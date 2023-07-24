@@ -5,6 +5,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/pygod.svg?color=brightgreen)](https://pypi.org/project/eventdetector-ts/)
 ![Unit Tests and Lint](https://github.com/menouarazib/eventdetector/actions/workflows/unit_tests.yml/badge.svg)
 [![License](https://img.shields.io/github/license/menouarazib/eventdetector)](https://github.com/menouarazib/eventdetector/blob/master/LICENSE)
+[![Coverage Status](https://coveralls.io/repos/github/menouarazib/eventdetector/badge.svg)](https://coveralls.io/github/menouarazib/eventdetector)
 
 
 Universal Event Detection in Time Series
