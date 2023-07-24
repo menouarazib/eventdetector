@@ -1,5 +1,5 @@
 <h1 align="center">
-<img src="https://raw.githubusercontent.com/menouarazib/eventdetector/3750827e6cc842058fdb2dc911dd49f98afae2a3/images/logo_eventdetector.svg" width="400">
+<img src="https://raw.githubusercontent.com/menouarazib/eventdetector/a4d7e137f88a4a476ba6d07f43337ec39543a522/images/logo_eventdetector.svg" width="400">
 </h1><br>
 
 Universal Event Detection in Time Series
