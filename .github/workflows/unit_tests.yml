@@ -42,5 +42,5 @@ jobs:
       - name: Generate Coverage Badge
         uses: action-badges/cobertura-coverage-xml-badges@0.2.1
         with:
-          coverage-xml-file: coverage.xml
+          coverage-file-name: coverage.xml
           badge-path: coverage.svg
