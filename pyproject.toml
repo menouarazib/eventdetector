@@ -3,6 +3,9 @@ line-length = 120
 [build-system]
 requires = ["flit_core>=3.4"]
 build-backend = "flit_core.buildapi"
+[tool.pytest]
+# Add pytest options specific to your project here.
+addopts = "--cov=eventdetector --cov-report=xml"
 
 [project]
 name = "eventdetector_ts"
