@@ -39,11 +39,8 @@ jobs:
         with:
           name: coverage-report
           path: coverage.xml
-  generate-badge:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: action-badges/cobertura-coverage-xml-badges@v1
+      - name: Generate Coverage Badge
+        uses: action-badges/cobertura-coverage-xml-badges@v1
         with:
           coverage-xml-file: coverage.xml
           badge-path: coverage.svg
