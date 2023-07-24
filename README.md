@@ -4,6 +4,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/pygod.svg?color=brightgreen)](https://pypi.org/project/eventdetector-ts/)
 ![Unit Tests and Lint](https://github.com/menouarazib/eventdetector/actions/workflows/unit_tests.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/menouarazib/eventdetector/badge.svg?branch=master)](https://coveralls.io/github/menouarazib/eventdetector?branch=master)
 [![License](https://img.shields.io/github/license/menouarazib/eventdetector)](https://github.com/menouarazib/eventdetector/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.31219/osf.io/uabjg.svg)](https://doi.org/10.31219/osf.io/uabjg)
 
