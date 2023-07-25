@@ -1,5 +1,15 @@
 [tool.ruff]
 line-length = 120
+
+[tool.coverage.run]
+omit = [
+    "eventdetector_ts/plotter"
+]
+source = "eventdetector_ts"
+
+
+
+
 [build-system]
 requires = ["flit_core>=3.4"]
 build-backend = "flit_core.buildapi"

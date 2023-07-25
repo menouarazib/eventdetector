@@ -34,7 +34,7 @@ jobs:
         env: # Add the env section with GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 -m pytest --cov=eventdetector_ts --cov-report=xml --cov-ignore=eventdetector_ts/plotter tests/
+          python3 -m pytest --cov-report=xml tests/
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
