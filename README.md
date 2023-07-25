@@ -15,6 +15,7 @@ Welcome to **Event Detector**, a Python package for detecting events in time ser
 is on offering useful machine learning functionalities, such as customizing and fitting the model on multidimensional
 time series, training on large datasets, ensemble models, and providing rich support for event detection in time
 series.
+
 ## Installation
 ### Pypi installation
 <pre><code>
@@ -110,7 +111,24 @@ The Figure below illustrates the comparison between the predicted $op$ values an
 
 ![Comparison of predicted `op` and true `op`](https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_mex_ccf.png)
 
-## MetaModel Arguments:
+## Make Prediction
+```python
+from eventdetector_ts.prediction.prediction import predict
+from eventdetector_ts.prediction.utils import plot_prediction
+
+dataset_for_prediction = ...
+
+# Call the 'predict' method
+predicted_events, predicted_op, filtered_predicted_op = predict(dataset=dataset_for_prediction,
+                                                                path='path to output_dir')
+# Plot the predictions
+plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predicted_op)
+```
+ 
+
+## Documentation
+
+### MetaModel Arguments
 
 Argument | Description
    ---------------------------- | --------------------------------------------------------------

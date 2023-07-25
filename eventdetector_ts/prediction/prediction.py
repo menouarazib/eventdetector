@@ -130,7 +130,7 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
                                                                                                     "step"),
                                                                                                 fill_method=config_data.get(
                                                                                                     'fill_nan'))
-    # Remove the column containing the timestamps from the overalapping partitions
+    # Remove the column containing the timestamps from the overlapping partitions
     x: np.ndarray = np.delete(dataset_as_overlapping_partitions, -1, axis=2)
     logger.info(f"The shape of the input data: {x.shape}")
     x = apply_scaling(x=x, config_data=config_data)
