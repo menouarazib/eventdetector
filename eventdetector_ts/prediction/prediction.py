@@ -73,6 +73,7 @@ def apply_scaling(x: np.ndarray, config_data: Dict) -> np.ndarray:
             # Print progress
             print("\rLoading and applying scalers...{}/{}".format(i + 1, n_time_steps), end="")
             # Load the scaler from disk
+            print(scaler_i_path)
             scaler = joblib.load(scaler_i_path)
             x[:, i, :] = scaler.transform(x[:, i, :])
     except ValueError as e:
@@ -122,7 +123,7 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
     config_data: Dict = load_config_file(path=path)
     config_data['output_dir'] = path
     logger.info(f"Config dict: {config_data}")
-    logger.info("Converting the dataset to overalapping partitions.")
+    logger.info("Converting the dataset to overlapping partitions.")
     dataset_as_overlapping_partitions: np.ndarray = convert_dataframe_to_overlapping_partitions(dataset,
                                                                                                 width=config_data.get(
                                                                                                     "width"),
@@ -164,7 +165,7 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
     sigma, m, h = config_data.get('best_combination')
     logger.info(f"Applying Gaussian Filter with sigma = {sigma} and m = {m}")
     filtered_predicted_op = convolve_with_gaussian_kernel(predicted_op, sigma=sigma, m=m)
-    logger.info("Computing filtered predictions as a function of the mid-times of the overalapping partitions")
+    logger.info("Computing filtered predictions as a function of the mid-times of the overlapping partitions")
     t, filtered_predicted_op = compute_op_as_mid_times(overlapping_partitions=dataset_as_overlapping_partitions,
                                                        op_g=filtered_predicted_op)
     logger.info(f"Computing peaks with h = {h:.2f}")
