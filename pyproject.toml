@@ -5,7 +5,9 @@ line-length = 120
 omit = [
     "eventdetector_ts/plotter/*",
     "eventdetector_ts/prediction/*",
-    "eventdetector_ts/metamodel/*"
+    "eventdetector_ts/metamodel/*",
+    "eventdetector_ts/optimization/event_extraction_pipeline.py",
+    "eventdetector_ts/models/models_trainer.py"
 ]
 source = ["eventdetector_ts"]
 
