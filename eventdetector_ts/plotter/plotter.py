@@ -10,7 +10,7 @@ import seaborn as sns
 from matplotlib.patches import Patch
 
 from eventdetector_ts import OUTPUT_DIR, TimeUnit, MIDDLE_EVENT_LABEL
-from eventdetector_ts.data.helpers import get_timedelta
+from eventdetector_ts.data.helpers_data import get_timedelta
 from eventdetector_ts.plotter import logger, COLOR_TRUE, COLOR_PREDICTED, STYLE_PREDICTED, STYLE_TRUE, FIG_SIZE, PALETTE
 from eventdetector_ts.plotter.helpers import event_to_rectangle
 

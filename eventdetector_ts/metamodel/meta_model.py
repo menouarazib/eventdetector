@@ -10,7 +10,7 @@ import tensorflow as tf
 
 from eventdetector_ts import FFN, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDARD_SCALER, \
     config_dict, CONFIG_FILE
-from eventdetector_ts.data.helpers import compute_middle_event, remove_close_events, \
+from eventdetector_ts.data.helpers_data import compute_middle_event, remove_close_events, \
     convert_events_to_intervals, get_union_times_events, get_dataset_within_events_times, \
     convert_dataframe_to_overlapping_partitions, op, check_time_unit, save_dict_to_json, \
     convert_dataset_index_to_datetime

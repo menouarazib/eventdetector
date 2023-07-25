@@ -8,7 +8,7 @@ import pandas as pd
 from scipy.signal import find_peaks
 
 from eventdetector_ts import MIDDLE_EVENT_LABEL, TimeUnit, config_dict
-from eventdetector_ts.data.helpers import get_timedelta, get_total_units
+from eventdetector_ts.data.helpers_data import get_timedelta, get_total_units
 from eventdetector_ts.optimization import logger
 from eventdetector_ts.optimization.algorithms import convolve_with_gaussian_kernel
 

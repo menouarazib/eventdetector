@@ -4,7 +4,7 @@ import matplotlib.dates as mdates
 from matplotlib.patches import Rectangle
 
 from eventdetector_ts import TimeUnit
-from eventdetector_ts.data.helpers import convert_time_to_datetime, get_timedelta
+from eventdetector_ts.data.helpers_data import convert_time_to_datetime, get_timedelta
 
 
 def event_to_rectangle(event, w_s, time_unit: TimeUnit, color, height=1, style="solid"):

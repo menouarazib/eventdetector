@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
 from eventdetector_ts import MIN_MAX_SCALER, ROBUST_SCALER, SCALERS_DIR, FILL_NAN_ZEROS, FILL_NAN_FFILL, \
     FILL_NAN_BFILL, FILL_NAN_MEDIAN, RNN_BIDIRECTIONAL, CONV_LSTM1D, RNN_ENCODER_DECODER, FFN, CNN_RNN, \
     GRU, CNN, SELF_ATTENTION, LSTM, TYPE_TRAINING_AVERAGE, TYPE_TRAINING_FFN, STANDARD_SCALER
-from eventdetector_ts.data.helpers import InvalidArgumentError
+from eventdetector_ts.data.helpers_data import InvalidArgumentError
 
 
 class DataSplitter:
