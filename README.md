@@ -27,7 +27,7 @@ time series, training on large datasets, ensemble models, and providing rich sup
 series.
 
 ## Installation
-### Pypi installation
+### PyPi installation
 <pre><code>
 pip install eventdetector-ts</code>
 </pre>
