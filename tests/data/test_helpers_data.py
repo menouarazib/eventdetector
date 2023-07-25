@@ -3,11 +3,13 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
+from pandas.core.dtypes.common import is_datetime64_any_dtype
 from sympy.testing import pytest
 
 from eventdetector_ts import TimeUnit
 from eventdetector_ts.data.helpers_data import overlapping_partitions, compute_middle_event, \
-    num_columns, convert_dataframe_to_overlapping_partitions, get_timedelta, get_total_units
+    num_columns, convert_dataframe_to_overlapping_partitions, get_timedelta, get_total_units, check_time_unit, \
+    convert_dataset_index_to_datetime
 
 
 def test_overlapping_partitions():
@@ -189,6 +191,82 @@ class TestHelpers(unittest.TestCase):
         td = timedelta(seconds=123)
         with self.assertRaises(ValueError):
             get_total_units(td, "invalid_unit")
+
+    def test_year__(self):
+        diff = timedelta(days=365)
+        expected_result = (1, TimeUnit.YEAR)
+        self.assertEqual(check_time_unit(diff), expected_result)
+
+    def test_day__(self):
+        diff = timedelta(days=2)
+        expected_result = (2, TimeUnit.DAY)
+        self.assertEqual(check_time_unit(diff), expected_result)
+
+    def test_hour__(self):
+        diff = timedelta(hours=1)
+        expected_result = (1, TimeUnit.HOUR)
+        self.assertEqual(check_time_unit(diff), expected_result)
+
+    def test_minute__(self):
+        diff = timedelta(minutes=2)
+        expected_result = (2, TimeUnit.MINUTE)
+        self.assertEqual(check_time_unit(diff), expected_result)
+
+    def test_second__(self):
+        diff = timedelta(seconds=30)
+        expected_result = (30, TimeUnit.SECOND)
+        self.assertEqual(check_time_unit(diff), expected_result)
+
+    def test_millisecond__(self):
+        diff = timedelta(milliseconds=500)
+        expected_result = (500, TimeUnit.MILLISECOND)
+        self.assertEqual(check_time_unit(diff), expected_result)
+
+    def test_microsecond__(self):
+        diff = timedelta(microseconds=200)
+        expected_result = (200, TimeUnit.MICROSECOND)
+        self.assertEqual(check_time_unit(diff), expected_result)
+
+    def test_invalid_time(self):
+        diff = timedelta(microseconds=0)
+        with self.assertRaises(ValueError):
+            check_time_unit(diff)
+
+    def test_convert_datetime_index(self):
+        # Create a DataFrame with a datetime index
+        data = {'value': [1, 2, 3, 4, 5]}
+        index = pd.date_range(start='2023-01-01', periods=5)
+        dataset = pd.DataFrame(data, index=index)
+
+        # Call the function to convert the index to datetime
+        convert_dataset_index_to_datetime(dataset)
+
+        # Check if the index is in datetime format
+        self.assertTrue(is_datetime64_any_dtype(dataset.index))
+
+    def test_already_datetime_index(self):
+        # Create a DataFrame with an already datetime index
+        data = {'value': [1, 2, 3, 4, 5]}
+        index = pd.date_range(start='2023-01-01', periods=5)
+        dataset = pd.DataFrame(data, index=index)
+
+        # Call the function on the DataFrame with datetime index
+        convert_dataset_index_to_datetime(dataset)
+
+        # Check if the index remains in datetime format
+        self.assertTrue(is_datetime64_any_dtype(dataset.index))
+
+    def test_non_datetime_index(self):
+        # Create a DataFrame with a non-datetime index
+        data = {'value': [1, 2, 3, 4, 5]}
+        index = ['2023-01-01', '2023-01-02', '2023-01-03', '2023-01-04', '2023-01-05']
+        dataset = pd.DataFrame(data, index=index)
+
+        # Call the function to convert the index to datetime
+        convert_dataset_index_to_datetime(dataset)
+
+        # Check if the index is converted to datetime format
+        self.assertTrue(is_datetime64_any_dtype(dataset.index))
 
 
 if __name__ == '__main__':
