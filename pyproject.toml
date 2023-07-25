@@ -5,7 +5,7 @@ line-length = 120
 omit = [
     "eventdetector_ts/plotter"
 ]
-source = "eventdetector_ts"
+source = ["eventdetector_ts"]
 
 
 
