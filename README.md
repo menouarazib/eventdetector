@@ -11,8 +11,17 @@
 
 Universal Event Detection in Time Series
 ==========================================================
+## Table of Contents
 
-Welcome to **Event Detector**, a Python package for detecting events in time series data. The emphasis of this package
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Quickstart](#Quickstart)
+- [Make Prediction](#Make Prediction)
+- [Documentation](#documentation)
+- [How to credit our package](#How to credit our package)
+
+## Introduction
+Welcome to **EventDetector**, a Python package for detecting events in time series data. The emphasis of this package
 is on offering useful machine learning functionalities, such as customizing and fitting the model on multidimensional
 time series, training on large datasets, ensemble models, and providing rich support for event detection in time
 series.

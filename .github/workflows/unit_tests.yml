@@ -42,7 +42,8 @@ jobs:
         with:
           name: coverage-report
           path: coverage.xml
-      - name: Coveralls
+      - name: Coveralls (Run only on Linux and macOS)
+        if: ${{ matrix.os != 'windows-latest' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: coverallsapp/github-action@v2
