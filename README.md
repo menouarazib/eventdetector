@@ -2,7 +2,7 @@
 <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/a4d7e137f88a4a476ba6d07f43337ec39543a522/images/logo_eventdetector.svg" width="400">
 </h1><br>
 
-[![PyPI version](https://img.shields.io/pypi/v/pygod.svg?color=brightgreen)](https://pypi.org/project/eventdetector-ts/)
+[![PyPI version](https://img.shields.io/pypi/v/eventdetector-ts.svg?color=brightgreen)](https://pypi.org/project/eventdetector-ts/)
 ![Unit Tests and Lint](https://github.com/menouarazib/eventdetector/actions/workflows/unit_tests.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/menouarazib/eventdetector/badge.svg?branch=master)](https://coveralls.io/github/menouarazib/eventdetector?branch=master)
 [![License](https://img.shields.io/github/license/menouarazib/eventdetector)](https://github.com/menouarazib/eventdetector/blob/master/LICENSE)
