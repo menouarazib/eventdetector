@@ -4,12 +4,10 @@ line-length = 120
 [tool.coverage.run]
 omit = [
     "eventdetector_ts/plotter/*",
-    "eventdetector_ts/prediction/*"
+    "eventdetector_ts/prediction/*",
+    "eventdetector_ts/metamodel/*"
 ]
 source = ["eventdetector_ts"]
-
-
-
 
 [build-system]
 requires = ["flit_core>=3.4"]
