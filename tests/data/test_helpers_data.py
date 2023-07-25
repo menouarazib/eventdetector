@@ -7,7 +7,7 @@ from sympy.testing import pytest
 
 from eventdetector_ts import TimeUnit
 from eventdetector_ts.data.helpers_data import overlapping_partitions, compute_middle_event, \
-    num_columns, convert_dataframe_to_overlapping_partitions, get_timedelta
+    num_columns, convert_dataframe_to_overlapping_partitions, get_timedelta, get_total_units
 
 
 def test_overlapping_partitions():
@@ -155,7 +155,40 @@ class TestHelpers(unittest.TestCase):
 
     def test_invalid_unit(self):
         with self.assertRaises(ValueError):
-            get_timedelta(10, "invalid_unit")
+            get_timedelta(10, None)
+
+    def test_microsecond_(self):
+        td = timedelta(microseconds=123456789)
+        self.assertEqual(get_total_units(td, TimeUnit.MICROSECOND), 123456789)
+
+    def test_millisecond_(self):
+        td = timedelta(milliseconds=123456)
+        self.assertEqual(get_total_units(td, TimeUnit.MILLISECOND), 123456)
+
+    def test_second_(self):
+        td = timedelta(seconds=123)
+        self.assertEqual(get_total_units(td, TimeUnit.SECOND), 123)
+
+    def test_minute_(self):
+        td = timedelta(minutes=2)
+        self.assertEqual(get_total_units(td, TimeUnit.MINUTE), 2)
+
+    def test_hour_(self):
+        td = timedelta(hours=1)
+        self.assertEqual(get_total_units(td, TimeUnit.HOUR), 1)
+
+    def test_day_(self):
+        td = timedelta(days=3)
+        self.assertEqual(get_total_units(td, TimeUnit.DAY), 3)
+
+    def test_year_(self):
+        td = timedelta(days=365.25)
+        self.assertAlmostEqual(get_total_units(td, TimeUnit.YEAR), 1.0, places=2)
+
+    def test_invalid_unit_(self):
+        td = timedelta(seconds=123)
+        with self.assertRaises(ValueError):
+            get_total_units(td, "invalid_unit")
 
 
 if __name__ == '__main__':

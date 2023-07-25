@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import tensorflow as tf
 
-from eventdetector_ts.models.helpers import CustomEarlyStopping
+from eventdetector_ts.models.helpers_models import CustomEarlyStopping
 
 
 class TestHelpers(unittest.TestCase):

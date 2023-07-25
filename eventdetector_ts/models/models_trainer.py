@@ -12,7 +12,7 @@ from eventdetector_ts import MODELS_DIR, META_MODEL_NETWORK, config_dict, TYPE_T
     META_MODEL_SCALER
 from eventdetector_ts.metamodel.utils import DataSplitter
 from eventdetector_ts.models import logger_models
-from eventdetector_ts.models.helpers import CustomEarlyStopping, custom_cross_val_score
+from eventdetector_ts.models.helpers_models import CustomEarlyStopping, custom_cross_val_score
 from eventdetector_ts.models.models_builder import ModelBuilder
 
 
