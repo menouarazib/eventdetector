@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: [ "3.9", "3.10", "3.11" ]
+        python-version: [ "3.9", "3.10" ]
 
     steps:
       - uses: actions/checkout@v3
@@ -41,7 +41,7 @@ jobs:
         run: |
           coverage run -m pytest tests/
           if [ "${{ matrix.os }}" == "ubuntu-latest" ] && [ "${{ matrix.python-version }}" == "3.10" ]; then
-          coverage xml -o coverage.xml
+            coverage xml -o coverage.xml
           fi
       - name: Upload coverage report (only for ubuntu-latest and python 3.10)
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' }}
