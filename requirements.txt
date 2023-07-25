@@ -1,5 +1,5 @@
 joblib==1.2.0
-keras==2.9.0
+keras==2.12
 matplotlib==3.5.3
 numpy==1.23.2
 pandas==1.4.3
