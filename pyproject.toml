@@ -3,7 +3,7 @@ line-length = 120
 
 [tool.coverage.run]
 omit = [
-    "eventdetector_ts/plotter.py"
+    "eventdetector_ts/plotter/plotter.py"
 ]
 source = ["eventdetector_ts"]
 
