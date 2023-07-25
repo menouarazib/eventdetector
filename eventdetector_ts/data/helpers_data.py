@@ -277,7 +277,7 @@ def convert_events_to_intervals(events_df: pd.DataFrame, w_s: int, unit: TimeUni
     return events_intervals
 
 
-def get_union_times_events(events_df: pd.DataFrame, partition_size: int, unit_time: TimeUnit) -> pd.DatetimeIndex:
+def get_union_times_events(events_df: pd.DataFrame, time_window: int, unit_time: TimeUnit) -> pd.DatetimeIndex:
     """
     Given a DataFrame of events and a time partition size in unit time, computes a DatetimeIndex of all times during 
     which at least one event was taking place.
@@ -285,7 +285,7 @@ def get_union_times_events(events_df: pd.DataFrame, partition_size: int, unit_ti
     Args:
         events_df (pd.DataFrame): A DataFrame containing at least a MIDDLE_EVENT_LABEL column with the datetime
             of each event.
-        partition_size (int): The size of the time partition to consider before and after each event.
+        time_window (int): The size of the time window to consider before and after each event.
         unit_time (TimeUnit): The unit time
 
     Returns:
@@ -295,8 +295,8 @@ def get_union_times_events(events_df: pd.DataFrame, partition_size: int, unit_ti
     times_during_events = []
     previous_range = None
     for i, event_time in enumerate(events_df[MIDDLE_EVENT_LABEL]):
-        start_time = event_time - get_timedelta(partition_size, unit=unit_time)
-        end_time = event_time + get_timedelta(partition_size, unit=unit_time)
+        start_time = event_time - get_timedelta(time_window, unit=unit_time)
+        end_time = event_time + get_timedelta(time_window, unit=unit_time)
         # Generate a list of dates between start_time and end_time with a frequency of exactly (end_time - start_time).
         # This ensures that the last date is exactly equal to end_time (useful when we generate overlapping ranges).
         dates_between = pd.date_range(start=start_time, end=end_time, freq=end_time - start_time)

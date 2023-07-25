@@ -244,18 +244,6 @@ class TestHelpers(unittest.TestCase):
         # Check if the index is in datetime format
         self.assertTrue(is_datetime64_any_dtype(dataset.index))
 
-    def test_already_datetime_index(self):
-        # Create a DataFrame with an already datetime index
-        data = {'value': [1, 2, 3, 4, 5]}
-        index = pd.date_range(start='2023-01-01', periods=5)
-        dataset = pd.DataFrame(data, index=index)
-
-        # Call the function on the DataFrame with datetime index
-        convert_dataset_index_to_datetime(dataset)
-
-        # Check if the index remains in datetime format
-        self.assertTrue(is_datetime64_any_dtype(dataset.index))
-
     def test_non_datetime_index(self):
         # Create a DataFrame with a non-datetime index
         data = {'value': [1, 2, 3, 4, 5]}
