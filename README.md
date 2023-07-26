@@ -137,9 +137,14 @@ plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predic
  
 
 ## Documentation
+### Meta Model
+The first thing to do is to instantiate the `MetaModel` object with the required args:
+<pre><code>
+meta_model = MetaModel(output_dir=..., dataset=..., events=events, width=..., step=...)
+</code></pre>
+For a complete description of the required and optional arguments, please refer to the following table:
 
-### MetaModel Arguments
-
+#### Arguments
 Argument | Description
    ---------------------------- | --------------------------------------------------------------
    output_dir | The name or path of the directory where all outputs will be saved. If `output_dir` is a folder name, it will create the full path.
@@ -170,7 +175,28 @@ Argument | Description
    val_size |The proportion of the training set to use for validation. Should be a value between 0 and 1. Default is `0.2`.
    use_multiprocessing | Whether to use multiprocessing or not for the event exctraction optimization. The default value is `False`.
    save_models_as_dot_format | Whether to save the models as a dot format file. The default value is `False`. If set to True, then you should have `graphviz` software to be installed on your machine.
-   
+
+#### Prepare data for computing the overlapping parameter `op`
+The second thing to do is to prepare the events and the dataset for computing `op`:
+<pre><code>
+meta_model.prepare_data_and_computing_op()
+</code></pre>
+
+#### Stacking Ensemble Learning Pipeline
+The third thing to do is to build a stacking learning pipeline using the provided models and hyperparameters:
+<pre><code>
+meta_model.build_stacking_learning()
+</code></pre>
+
+#### Event Extraction Optimization
+The fourth thing to do is to run the Event Extraction Optimization process:
+<pre><code>
+meta_model.event_extraction_optimization()
+</code></pre>
+
+#### Get The Results and Plots
+Finally, you can plot the results, which are saved automatically: losses, true/predicted ops, true/predicted events, and delta_t.<pre><code>meta_model.plot_save(show_plots=True)</code></pre>
+
 ## How to credit our package
 
 If you use our package, please cite the following paper:
