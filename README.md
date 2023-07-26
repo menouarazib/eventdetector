@@ -139,9 +139,9 @@ plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predic
 ## Documentation
 ### Meta Model
 The first thing to do is to instantiate the `MetaModel` object with the required args:
-<pre><code>
+```python
 meta_model = MetaModel(output_dir=..., dataset=..., events=events, width=..., step=...)
-</code></pre>
+```
 For a complete description of the required and optional arguments, please refer to the following table:
 
 #### Arguments
@@ -178,25 +178,30 @@ Argument | Description
 
 #### Prepare data for computing the overlapping parameter `op`
 The second thing to do is to prepare the events and the dataset for computing `op`:
-<pre><code>
+```python
 meta_model.prepare_data_and_computing_op()
-</code></pre>
+```
 
 #### Stacking Ensemble Learning Pipeline
 The third thing to do is to build a stacking learning pipeline using the provided models and hyperparameters:
-<pre><code>
+
+```python
 meta_model.build_stacking_learning()
-</code></pre>
+```
 
 #### Event Extraction Optimization
 The fourth thing to do is to run the Event Extraction Optimization process:
-<pre><code>
+
+```python
 meta_model.event_extraction_optimization()
-</code></pre>
+```
 
 #### Get The Results and Plots
-Finally, you can plot the results, which are saved automatically: losses, true/predicted ops, true/predicted events, and delta_t.<pre><code>meta_model.plot_save(show_plots=True)</code></pre>
+Finally, you can plot the results, which are saved automatically: losses, true/predicted ops, true/predicted events, and delta_t.
 
+```python
+meta_model.plot_save(show_plots=True)
+```
 ## How to credit our package
 
 If you use our package, please cite the following paper:
