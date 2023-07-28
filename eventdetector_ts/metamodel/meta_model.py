@@ -30,6 +30,7 @@ class MetaModel:
             events: Union[list, pd.DataFrame],
             width: int,
             step: int = 1,
+            width_events: int = None,
             **kwargs
     ):
         """
@@ -43,6 +44,7 @@ class MetaModel:
             events (Union[list, pd.DataFrame]): The input events.
             width (int): The width to be used for creating overlapping partitions.
             step (int): The step size between two successive partitions.
+            width_events (int): The width to be used for events. If None then is set to width.
             kwargs (Dict): Optional keyword arguments:
                 - t_max (float): The maximum total time related to sigma. The default value is (3 * self.w_s) / 2).
                 - delta (int): The maximum time tolerance used to determine the correspondence between a predicted event
@@ -109,6 +111,7 @@ class MetaModel:
         self.events = events
         self.dataset = dataset
         self.output_dir = output_dir
+        self.width_events = width_events
         self.kwargs: Dict = kwargs
         self.y = np.empty(shape=(0,))
         self.x = np.empty(shape=(0,))
@@ -140,7 +143,8 @@ class MetaModel:
                                                                     output_dir=self.output_dir,
                                                                     time_unit=self.time_unit)
         # The Plotter class is responsible for generating and saving plots.
-        self.plotter: Plotter = Plotter(root_dir=self.output_dir, time_unit=self.time_unit, w_s=self.w_s)
+        self.plotter: Plotter = Plotter(root_dir=self.output_dir, time_unit=self.time_unit,
+                                        width_events_s=self.width_events_s)
 
     def __create_output_dir(self) -> None:
         """
@@ -177,8 +181,10 @@ class MetaModel:
         Returns:
             None
         """
+        if self.width_events is None:
+            self.width_events = self.width
         self.t_max = self.kwargs.get('t_max', (3.0 * self.w_s) / 2)  # the minimum should be equal to w_s
-        self.delta = self.kwargs.get('delta', self.w_s)
+        self.delta = self.kwargs.get('delta', self.width_events_s)
         self.s_h = self.kwargs.get('s_h', 0.05)
         self.epsilon = self.kwargs.get('epsilon', 0.0002)
         self.pa = self.kwargs.get('pa', 5)
@@ -207,6 +213,7 @@ class MetaModel:
         self.save_models_as_dot_format = self.kwargs.get('save_models_as_dot_format', False)
 
         log_dict = {
+            'width_events_s': self.width_events_s,
             't_max': self.t_max,
             'delta': self.delta,
             's_h': self.s_h,
@@ -262,8 +269,10 @@ class MetaModel:
             logger_meta_model.warning(f"The time sampling t_s is {self.t_s} {self.time_unit}s")
             self.w_s = self.t_s * self.width
             self.s_s = self.t_s * self.step
+            self.width_events_s = self.t_s * self.width_events
             config_dict['time_unit'] = self.time_unit.__str__()
             config_dict['w_s'] = self.w_s
+            config_dict['width_events_s'] = self.width_events_s
         except AttributeError:
             logger_meta_model.critical("The dataset is not compatible with the datetime format")
             raise TypeError("The index should be in datetime format.")
@@ -290,11 +299,11 @@ class MetaModel:
 
         logger_meta_model.info("Removes events that occur too close together...")
         temp: int = len(self.events)
-        self.events = remove_close_events(self.events, self.w_s, self.time_unit)
+        self.events = remove_close_events(self.events, self.width_events_s, self.time_unit)
 
         logger_meta_model.warning(f"A total of {temp - len(self.events)}/{temp} events were removed due to overlapping")
         logger_meta_model.info("Convert events to intervals...")
-        intervals = convert_events_to_intervals(self.events, self.w_s, self.time_unit)
+        intervals = convert_events_to_intervals(self.events, self.width_events_s, self.time_unit)
 
         if self.time_window is not None:
             logger_meta_model.warning(f"time_window is provided = {self.time_window} {self.time_unit}s")

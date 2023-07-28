@@ -243,13 +243,13 @@ def remove_close_events(events_df: pd.DataFrame, delta_unit_time: int, unit: Tim
     return events_df.drop(events_df.index[events_to_delete])
 
 
-def convert_events_to_intervals(events_df: pd.DataFrame, w_s: int, unit: TimeUnit) -> list[Interval]:
+def convert_events_to_intervals(events_df: pd.DataFrame, width_events_s: int, unit: TimeUnit) -> list[Interval]:
     """
     Convert events from a pandas DataFrame to intervals.
 
     Args:
         events_df (pd.DataFrame): DataFrame containing the events' data.
-        w_s (int): The overlapping partition size in unit time.
+        width_events_s (int): The overlapping partition size in unit time.
         unit: The unit time
 
     Returns:
@@ -264,8 +264,9 @@ def convert_events_to_intervals(events_df: pd.DataFrame, w_s: int, unit: TimeUni
         # Get the middle event time
         mid_time = events_df.iloc[i][MIDDLE_EVENT_LABEL]
 
-        # Compute the radius of the interval based on the overlapping partition size
-        radius = get_timedelta(delta_unit_time=w_s // 2, unit=unit)
+        width_events_s_float = float(width_events_s)
+        # Compute the radius of the interval based on the event size
+        radius = get_timedelta(delta_unit_time=width_events_s_float / 2, unit=unit)
 
         # Create an interval with the middle event time at the center
         interval = Interval(mid_time - radius, mid_time + radius)
@@ -421,7 +422,7 @@ def op(dataset_as_overlapping_partitions: np.ndarray, events_as_intervals: list[
     return dataset_as_overlapping_partitions, np.array(op_values)
 
 
-def get_timedelta(delta_unit_time: int, unit: TimeUnit) -> timedelta:
+def get_timedelta(delta_unit_time: int | float, unit: TimeUnit) -> timedelta:
     """
     Returns a timedelta object with the specified delta_unit_time in the specified TimeUnit.
 

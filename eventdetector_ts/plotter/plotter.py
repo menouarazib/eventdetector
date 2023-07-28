@@ -22,21 +22,21 @@ class Plotter:
         predictive model against the actual observed values.
     """
 
-    def __init__(self, root_dir: str, time_unit: TimeUnit, w_s: int) -> None:
+    def __init__(self, root_dir: str, time_unit: TimeUnit, width_events_s: int) -> None:
         """
         Initialize the Plotter object.
 
         Args:
             root_dir (str): The root directory for saving the plots.
             time_unit (TimeUnit): The unit time of the dataset
-            w_s (int): The width of each event in time unit
+            width_events_s (int): The width of each event in time unit
         """
 
         self.val_losses = {}
         self.train_losses = {}
         self.val_loss_meta_model: list = []
         self.train_loss_meta_model: list = []
-        self.w_s = w_s
+        self.width_events_s = width_events_s
         self.time_unit = time_unit
         # Whether to display the plots or not. Defaults to False.
         self.show = True
@@ -159,13 +159,15 @@ class Plotter:
         sns.set(style="ticks", palette=PALETTE)
 
         for i, predicted_event in enumerate(self.predicted_events):
-            rect1 = event_to_rectangle(event=predicted_event, w_s=self.w_s, time_unit=self.time_unit,
+            rect1 = event_to_rectangle(event=predicted_event, width_events_s=self.width_events_s,
+                                       time_unit=self.time_unit,
                                        color=COLOR_PREDICTED,
                                        style=STYLE_PREDICTED)
             ax.add_patch(rect1)
 
         for _, test_date in self.true_events[MIDDLE_EVENT_LABEL].iteritems():
-            rect1 = event_to_rectangle(event=test_date, w_s=self.w_s, time_unit=self.time_unit, color=COLOR_TRUE,
+            rect1 = event_to_rectangle(event=test_date, width_events_s=self.width_events_s, time_unit=self.time_unit,
+                                       color=COLOR_TRUE,
                                        style=STYLE_TRUE)
             ax.add_patch(rect1)
 
@@ -204,7 +206,7 @@ class Plotter:
         sns.set(style="ticks", palette=PALETTE)
         plt.figure(figsize=FIG_SIZE)
 
-        sns.histplot(self.delta_t, bins=bins, binrange=(-self.w_s, self.w_s))
+        sns.histplot(self.delta_t, bins=bins, binrange=(-self.width_events_s, self.width_events_s))
 
         plt.xlabel(f'delta ({self.time_unit})')
         plt.ylabel('Number of events')
@@ -277,7 +279,7 @@ class Plotter:
             None
         """
         path = os.path.join(self.working_dir, "predicted_events.csv")
-        radius = get_timedelta(self.w_s // 2, self.time_unit)
+        radius = get_timedelta(float(self.width_events_s) / 2, self.time_unit)
         with open(path, 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f, delimiter=' ')
             for i in range(len(self.predicted_events)):

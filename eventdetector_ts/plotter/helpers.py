@@ -7,13 +7,13 @@ from eventdetector_ts import TimeUnit
 from eventdetector_ts.data.helpers_data import convert_time_to_datetime, get_timedelta
 
 
-def event_to_rectangle(event, w_s, time_unit: TimeUnit, color, height=1, style="solid"):
+def event_to_rectangle(event, width_events_s, time_unit: TimeUnit, color, height=1, style="solid"):
     """
     Function to convert an event to a rectangle object for visualization.
     
     Args:
     event (datetime or other): The event timestamp or object.
-    w_s (int): The partition size in time units.
+    width_events_s (int): The event width.
     time_unit (TimeUnit): The time unit of the partition size.
     color (str): The color of the rectangle.
     height (int): The height of the rectangle.
@@ -26,7 +26,7 @@ def event_to_rectangle(event, w_s, time_unit: TimeUnit, color, height=1, style="
     time = event
     if not isinstance(event, datetime):
         time = convert_time_to_datetime(event, to_timestamp=False)
-    w_s_timedelta = get_timedelta(w_s // 2, time_unit)
+    w_s_timedelta = get_timedelta(float(width_events_s) / 2, time_unit)
     start_time = time - w_s_timedelta
     end_time = time + w_s_timedelta
 
