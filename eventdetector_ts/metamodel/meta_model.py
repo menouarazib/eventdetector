@@ -105,6 +105,8 @@ class MetaModel:
                 - save_models_as_dot_format (bool): Whether to save the models as a dot format file.
                     The default value is False. If set to True, then you should have graphviz software
                     to be installed on your machine.
+                - remove_overlapping_events (bool): Whether to remove the overlapping events or not. 
+                    The dfault value is True.
         """
         self.step = step
         self.width = width
@@ -211,6 +213,7 @@ class MetaModel:
         self.val_size = self.kwargs.get('val_size', 0.2)
         self.use_multiprocessing = self.kwargs.get('use_multiprocessing', False)
         self.save_models_as_dot_format = self.kwargs.get('save_models_as_dot_format', False)
+        self.remove_overlapping_events = self.kwargs.get("remove_overlapping_events", True)
 
         log_dict = {
             'width_events_s': self.width_events_s,
@@ -235,7 +238,8 @@ class MetaModel:
             'test_size': self.test_size,
             'val_size': self.val_size,
             'use_multiprocessing': self.use_multiprocessing,
-            'save_models_as_dot_format': self.save_models_as_dot_format
+            'save_models_as_dot_format': self.save_models_as_dot_format,
+            "remove_overlapping_events": self.remove_overlapping_events
         }
 
         log_message = pprint.pformat(log_dict, indent=4)
@@ -299,7 +303,8 @@ class MetaModel:
 
         logger_meta_model.info("Removes events that occur too close together...")
         temp: int = len(self.events)
-        self.events = remove_close_events(self.events, self.width_events_s, self.time_unit)
+        self.events = remove_close_events(self.events, self.width_events_s, self.time_unit,
+                                          self.remove_overlapping_events)
 
         logger_meta_model.warning(f"A total of {temp - len(self.events)}/{temp} events were removed due to overlapping")
         logger_meta_model.info("Convert events to intervals...")

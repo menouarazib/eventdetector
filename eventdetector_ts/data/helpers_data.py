@@ -200,7 +200,8 @@ def compute_middle_event(events: Union[list, pd.DataFrame]) -> pd.DataFrame:
     return df
 
 
-def remove_close_events(events_df: pd.DataFrame, delta_unit_time: int, unit: TimeUnit) -> pd.DataFrame:
+def remove_close_events(events_df: pd.DataFrame, delta_unit_time: int, unit: TimeUnit,
+                        remove_overlapping_events: bool) -> pd.DataFrame:
     """
     Removes events from a DataFrame that occur too close together.
 
@@ -208,6 +209,7 @@ def remove_close_events(events_df: pd.DataFrame, delta_unit_time: int, unit: Tim
         unit: The time unit
         events_df: A pandas DataFrame containing events with a column named 'middle_event'.
         delta_unit_time: A integer representing the minimum time in unit time between events.
+        remove_overlapping_events: A flag to indicate if we remove the overlapping events or not.
 
     Returns:
         A pandas DataFrame with close events removed.
@@ -240,7 +242,9 @@ def remove_close_events(events_df: pd.DataFrame, delta_unit_time: int, unit: Tim
                 break
 
     # Drop events that were marked for deletion
-    return events_df.drop(events_df.index[events_to_delete])
+    if remove_overlapping_events:
+        return events_df.drop(events_df.index[events_to_delete])
+    return events_df
 
 
 def convert_events_to_intervals(events_df: pd.DataFrame, width_events_s: int, unit: TimeUnit) -> list[Interval]:
