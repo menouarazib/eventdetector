@@ -15,7 +15,7 @@ from eventdetector_ts.data.helpers_data import compute_middle_event, remove_clos
     convert_dataframe_to_overlapping_partitions, op, check_time_unit, save_dict_to_json, \
     convert_dataset_index_to_datetime
 from eventdetector_ts.metamodel import logger_meta_model
-from eventdetector_ts.metamodel.utils import DataSplitter, validate_args
+from eventdetector_ts.metamodel.utils import DataSplitter, validate_args, validate_required_args
 from eventdetector_ts.models.models_builder import ModelCreator
 from eventdetector_ts.models.models_trainer import ModelTrainer
 from eventdetector_ts.optimization.event_extraction_pipeline import OptimizationData, EventOptimization
@@ -114,6 +114,9 @@ class MetaModel:
         self.dataset = dataset
         self.output_dir = output_dir
         self.width_events = width_events
+        validate_required_args(self)
+        if self.width_events is None:
+            self.width_events = self.width
         self.kwargs: Dict = kwargs
         self.y = np.empty(shape=(0,))
         self.x = np.empty(shape=(0,))

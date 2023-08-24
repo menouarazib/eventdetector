@@ -97,25 +97,27 @@ class DataSplitter:
         print()
 
 
-def validate_args(meta_model) -> None:
+def validate_required_args(meta_model) -> None:
     """
-    Validate the arguments of the MetaModel.
+       Validate the required arguments of the MetaModel.
 
-    Args:
-        meta_model (MetaModel): A MetaModel instance.
+       Args:
+           meta_model (MetaModel): A MetaModel instance.
 
-    Returns:
-        None
+       Returns:
+           None
 
-    Raises:
-        ValueError: If any of the arguments are invalid.
-    """
-
-    if not isinstance(meta_model.width, int) or meta_model.step <= 0:
+       Raises:
+           ValueError: If any of the arguments are invalid.
+       """
+    if not isinstance(meta_model.step, int) or meta_model.step <= 0:
         raise InvalidArgumentError("step should be a positive integer.")
 
     if not isinstance(meta_model.width, int) or meta_model.width <= meta_model.step:
         raise InvalidArgumentError(f"width should be greater than {meta_model.step}.")
+
+    if meta_model.width_events is not None and not isinstance(meta_model.width_events, int):
+        raise InvalidArgumentError("width_events should be a positive integer.")
 
     if meta_model.dataset is None or meta_model.dataset.empty:
         raise InvalidArgumentError("dataset cannot be None or empty.")
@@ -134,6 +136,21 @@ def validate_args(meta_model) -> None:
     if not re.match("^[a-zA-Z0-9_]+$", meta_model.output_dir):
         raise InvalidArgumentError(
             "Output directory name can only contain alphanumeric characters and underscores.")
+
+
+def validate_args(meta_model) -> None:
+    """
+    Validate the arguments of the MetaModel.
+
+    Args:
+        meta_model (MetaModel): A MetaModel instance.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If any of the arguments are invalid.
+    """
 
     if meta_model.fill_nan not in [FILL_NAN_ZEROS, FILL_NAN_FFILL, FILL_NAN_BFILL, FILL_NAN_MEDIAN]:
         raise InvalidArgumentError(

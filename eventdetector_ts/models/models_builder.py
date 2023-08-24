@@ -161,6 +161,21 @@ class ModelBuilder:
         # Add the layer to the model by passing its input as input_ and saving the output to self.outputs
         self.outputs = layer(input_)
 
+    def add_multi_head_attention(self, num_heads, key_dim):
+        mha = tf.keras.layers.MultiHeadAttention(num_heads=num_heads, key_dim=key_dim)
+        self.outputs = mha(
+            query=self.outputs,
+            key=self.outputs,
+            value=self.outputs)
+
+    def add_normalization(self, epsilon=1e-3):
+        self.__add_layer(tf.keras.layers.LayerNormalization(epsilon=epsilon))
+
+    def add_res_inputs(self, inputs_=None):
+        if inputs_ is None:
+            inputs_ = self.inputs
+        self.outputs = tf.keras.layers.Add()([inputs_, self.outputs])
+
     def add_lstm_layer(self, hidden_dim: int, activation: str = "tanh", return_sequences: bool = False,
                        dropout: float = 0.3) -> None:
         """
@@ -361,6 +376,18 @@ class ModelBuilder:
         # Add the global max pooling layer to the model
         self.__add_layer(pooling)
 
+    def add_global_avg_pooling(self):
+        """
+        Adds a global average pooling layer to the model.
+
+        Returns:
+            None
+        """
+        # Create a global average pooling layer
+        pooling = tf.keras.layers.GlobalAveragePooling1D()
+        # Add the global average pooling layer to the model
+        self.__add_layer(pooling)
+
     def build(self, name: str, save_models_as_dot_format: bool, root_dir: Optional[str] = None,
               ) -> tf.keras.Model:
         """
@@ -444,6 +471,32 @@ class ModelCreator:
             if not os.path.exists(models_dir):
                 os.makedirs(models_dir)
             self.root_dir = models_dir
+
+    def __create_transformer(self) -> None:
+        key_dim = 256
+        num_heads = 8
+        filters = 4
+        num_encoder_blocks = 10
+
+        transformer: ModelBuilder = ModelBuilder(inputs=self.inputs)
+        for _ in range(num_encoder_blocks):
+            transformer.add_normalization()
+            transformer.add_multi_head_attention(num_heads=num_heads, key_dim=key_dim)
+            transformer.add_res_inputs()
+            res = transformer.outputs
+            transformer.add_normalization()
+            transformer.add_conv1d_layer(filters=filters, kernel_size=1)
+            transformer.add_conv1d_layer(filters=self.inputs.shape[-1], kernel_size=1)
+            transformer.add_res_inputs(inputs_=res)
+
+        transformer.add_global_avg_pooling()
+        transformer.add_dense_layer(units=64, activation="relu")
+        transformer.add_dense_layer(units=1)
+
+        # Build the model with the chosen name and save it to the created_models dictionary
+        keras_model = transformer.build(name="transformer", save_models_as_dot_format=self.save_models_as_dot_format,
+                                        root_dir=self.root_dir)
+        self.created_models["transformer"] = keras_model
 
     def __create_lstm_networks(self) -> None:
         """
@@ -708,6 +761,9 @@ class ModelCreator:
             None
         """
         self.inputs = inputs
+        # Create Transformer
+        self.__create_transformer()
+        """
         # Create LSTM networks
         self.__create_lstm_networks()
         # Create GRU networks
@@ -726,6 +782,7 @@ class ModelCreator:
         self.__create_conv_lstm1d()
         # Create Encoder-Decoder network with a Self-Attention mechanism
         self.__create_encoder_decoder_self_attention()
+        """
 
     def __get_instances(self, model_type: str) -> int:
         # Loop through the model list to find the model of the given type
