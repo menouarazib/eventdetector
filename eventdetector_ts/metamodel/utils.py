@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
 
 from eventdetector_ts import MIN_MAX_SCALER, ROBUST_SCALER, SCALERS_DIR, FILL_NAN_ZEROS, FILL_NAN_FFILL, \
     FILL_NAN_BFILL, FILL_NAN_MEDIAN, RNN_BIDIRECTIONAL, CONV_LSTM1D, RNN_ENCODER_DECODER, FFN, CNN_RNN, \
-    GRU, CNN, SELF_ATTENTION, LSTM, TYPE_TRAINING_AVERAGE, TYPE_TRAINING_FFN, STANDARD_SCALER
+    GRU, CNN, SELF_ATTENTION, LSTM, TYPE_TRAINING_AVERAGE, TYPE_TRAINING_FFN, STANDARD_SCALER, TRANSFORMER
 from eventdetector_ts.data.helpers_data import InvalidArgumentError
 
 
@@ -199,18 +199,18 @@ def validate_args(meta_model) -> None:
     for model in meta_model.models:
         if isinstance(model, str):
             if model not in [LSTM, GRU, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D, RNN_ENCODER_DECODER, CNN_RNN,
-                             SELF_ATTENTION, FFN]:
+                             SELF_ATTENTION, FFN, TRANSFORMER]:
                 raise InvalidArgumentError(
                     f"Invalid model type {model}. Supported models are {LSTM}, {GRU}, {CNN}, {RNN_BIDIRECTIONAL},"
-                    f" {CONV_LSTM1D}, {RNN_ENCODER_DECODER}, {CNN_RNN}, {SELF_ATTENTION}, and {FFN}.")
+                    f" {CONV_LSTM1D}, {RNN_ENCODER_DECODER}, {CNN_RNN}, {SELF_ATTENTION}, {TRANSFORMER}, and {FFN}.")
         elif isinstance(model, tuple) and len(model) == 2:
             model_type, model_instances = model
             if model_type not in [LSTM, GRU, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D, RNN_ENCODER_DECODER, CNN_RNN,
-                                  SELF_ATTENTION, FFN]:
+                                  SELF_ATTENTION, FFN, TRANSFORMER]:
                 raise InvalidArgumentError(
                     f"Invalid model type {model_type}.Supported models are {LSTM}, {GRU}, {CNN}, "
                     f"{RNN_BIDIRECTIONAL},"
-                    f" {CONV_LSTM1D}, {RNN_ENCODER_DECODER}, {CNN_RNN}, {SELF_ATTENTION}, and {FFN}.")
+                    f" {CONV_LSTM1D}, {RNN_ENCODER_DECODER}, {CNN_RNN}, {SELF_ATTENTION}, {TRANSFORMER} and {FFN}.")
             if not isinstance(model_instances, int) or model_instances <= 0:
                 raise InvalidArgumentError("Number of model instances should be a positive integer.")
         else:

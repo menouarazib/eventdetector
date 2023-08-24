@@ -151,6 +151,7 @@ Argument | Description
    dataset | The input dataset as `pd.DataFrame`.
    events | The input events as a list or `pd.DataFrame`.
    width | The width to be used for creating overalapping partitions.
+   width_events | The width to be used for events. If None then is set to width.
    step | The step size between two successive partitions.
    kwargs | Optional keyword arguments:
    t_max | The maximum total time related to sigma. Default: `(3 * w_s) / 2)`.
@@ -160,7 +161,7 @@ Argument | Description
    pa | The patience for the early stopping algorithm. Default: `5`.
    t_r | The ratio threshold for the early stopping algorithm. Default: `0.97`.
    time_window | The 'time_window' parameter is crucial for controlling the amount of data used in the dataset. It should be specified as a number of units of time. By default, it is set to `None`, which means that all available data will be used. However, if a value is provided, the dataset will only include a specific interval of data around each reference event. This interval consists of data from both the left and right sides of each event, with a duration equal to the specified `time_window`. Setting a time_window can offer several advantages, including speeding up the training process and improving the neural networks' understanding for rare events.
-   models | Determine the type of deep learning models and the number of instances to use. Default: `[(model, 2) for model in [FFN]]`.
+   models | Determine the type of deep learning models and the number of instances to use. Default: `[(model, 2) for model in [FFN]]`. Available models: `LSTM`, `GRU`, `CNN`, `RNN_BIDIRECTIONAL`, `RNN_ENCODER_DECODER`, `CNN_RNN`, `FFN`, `CONV_LSTM1D`, `SELF_ATTENTION`, `TRANSFORMER`
    hyperparams_ffn | Specify for the FFN the maximum number of layers, the minimum and the maximum number of neurons per layer. Default: `(3, 64, 256)`.
    hyperparams_cnn | Specify for the CNN the minimum and maximum number of filters, the minimum, the maximum kernel size, and maximum number of pooling layers. Default: `(16, 64, 3, 8 , 2)`.
    hyperparams_rnn | Specify for the RNN the maximum number of RNN layers, the minimum and the maximum number of hidden units. Default: `(1, 16, 128)`.

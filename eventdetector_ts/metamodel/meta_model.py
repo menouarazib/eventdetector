@@ -75,7 +75,9 @@ class MetaModel:
                     The default value is (3, 64, 256).
                 - hyperparams_cnn (Tuple[int, int, int, int, int]): Specify for the CNN the minimum, maximum number
                     of filters, the minimum, the maximum kernel size, and maximum number of pooling layers.
-                    The default value is (16, 64, 3, 8 , 2).
+                    The default value is (16, 64, 3, 8, 2).
+                - hyperparams_transformer (Tuple[int, int, int]): Specify for Transformer the Key dimension, number of 
+                    heads and the number of the encoder blocks. The default value is (256, 8, 10).
                 - hyperparams_rnn (Tuple[int, int, int]): Specify for the RNN the maximum number of RNN layers
                     the minimum and the maximum number of hidden units.
                     The default value is (1, 16, 128).
@@ -131,6 +133,7 @@ class MetaModel:
         self.model_creator: ModelCreator = ModelCreator(models=self.models, hyperparams_ffn=self.hyperparams_ffn,
                                                         hyperparams_cnn=self.hyperparams_cnn,
                                                         hyperparams_rnn=self.hyperparams_rnn,
+                                                        hyperparams_transformer=self.hyperparams_transformer,
                                                         save_models_as_dot_format=self.save_models_as_dot_format,
                                                         root_dir=self.output_dir)
         # Create a `DataSplitter` object with the provided test_size and scaler_type
@@ -205,6 +208,7 @@ class MetaModel:
         self.hyperparams_ffn = self.kwargs.get('hyperparams_ffn', (3, 64, 256))
         self.hyperparams_cnn = self.kwargs.get('hyperparams_cnn', (16, 64, 3, 8, 2))
         self.hyperparams_rnn = self.kwargs.get('hyperparams_rnn', (1, 16, 128))
+        self.hyperparams_transformer = self.kwargs.get("hyperparams_transformer", (256, 8, 10))
         self.hyperparams_mm_network = self.kwargs.get('hyperparams_mm_network', (1, 32))
         self.epochs = self.kwargs.get('epochs', 256)
         self.batch_size = self.kwargs.get('batch_size', 32)
@@ -231,6 +235,7 @@ class MetaModel:
             'hyperparams_ffn': self.hyperparams_ffn,
             'hyperparams_cnn': self.hyperparams_cnn,
             'hyperparams_rnn': self.hyperparams_rnn,
+            'hyperparams_transformer': self.hyperparams_transformer,
             'hyperparams_mm_network': self.hyperparams_mm_network,
             'epochs': self.epochs,
             'batch_size': self.batch_size,

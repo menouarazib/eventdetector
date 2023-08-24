@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from eventdetector_ts import LSTM, GRU, CNN, RNN_BIDIRECTIONAL, RNN_ENCODER_DECODER, CNN_RNN, FFN, CONV_LSTM1D, \
-    SELF_ATTENTION, MODELS_DIR
+    SELF_ATTENTION, MODELS_DIR, TRANSFORMER
 from eventdetector_ts.models import logger_models
 from eventdetector_ts.models.helpers_models import SelfAttention
 
@@ -161,17 +161,42 @@ class ModelBuilder:
         # Add the layer to the model by passing its input as input_ and saving the output to self.outputs
         self.outputs = layer(input_)
 
-    def add_multi_head_attention(self, num_heads, key_dim):
+    def add_multi_head_attention(self, num_heads: int, key_dim: int) -> None:
+        """
+        Adds a MultiHeadAttention layer.
+
+        Args:
+            num_heads (int): Number of heads
+            key_dim (int): Size of each attention head for a query and key
+
+        Returns:
+            None
+        """
         mha = tf.keras.layers.MultiHeadAttention(num_heads=num_heads, key_dim=key_dim)
         self.outputs = mha(
             query=self.outputs,
             key=self.outputs,
             value=self.outputs)
 
-    def add_normalization(self, epsilon=1e-3):
+    def add_normalization(self, epsilon: float = 1e-6) -> None:
+        """
+        Adds a Normalization layer.
+        Args:
+            epsilon (float): Epsilon to avoid dividing by zero 
+
+        Returns:
+            None
+        """
         self.__add_layer(tf.keras.layers.LayerNormalization(epsilon=epsilon))
 
     def add_res_inputs(self, inputs_=None):
+        """
+        The output of the previous layer is element-wise added to given inputs
+        Args:
+            inputs_: If is None then use the original input
+        Returns:
+            None
+        """
         if inputs_ is None:
             inputs_ = self.inputs
         self.outputs = tf.keras.layers.Add()([inputs_, self.outputs])
@@ -427,6 +452,7 @@ class ModelCreator:
            hyperparams_ffn (Tuple[int, int, int]): Specify the hyper-parameters for the FFN.
            hyperparams_cnn (Tuple[int, int, int, int, int]): Specify the hyper-parameters for the CNN.
            hyperparams_rnn (Tuple[int, int, int]): Specify the hyper-parameters for the RNN.
+           hyperparams_transformer (Tuple[int, int, int]): Specify the hyperparameters for Transformer.
            inputs (tf.keras.Input): The input layer for the neural network.
            save_models_as_dot_format (bool): Whether to save the models as a dot format file.
            root_dir (str): The root directory where the created models will be saved.
@@ -435,6 +461,7 @@ class ModelCreator:
 
     def __init__(self, models: List[Tuple[str, int]], hyperparams_ffn: Tuple[int, int, int],
                  hyperparams_cnn: Tuple[int, int, int, int, int], hyperparams_rnn: Tuple[int, int, int],
+                 hyperparams_transformer: Tuple[int, int, int],
                  save_models_as_dot_format: bool,
                  root_dir: Optional[str] = None):
         """
@@ -444,9 +471,10 @@ class ModelCreator:
             models (List[Tuple[str, int]]): A list of tuples representing the model types and
                 number of instances. Supported model types include LSTM, GRU, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D,
                 RNN_ENCODER_DECODER, CNN_RNN, SELF_ATTENTION, and FFN.
-            hyperparams_ffn (Tuple[int, int, int]): Specify the hyper-parameters for the FFN.
-            hyperparams_cnn (Tuple[int, int, int, int, int]): Specify the hyper-parameters for the CNN.
+            hyperparams_ffn (Tuple[int, int, int]): Specify the hyperparameters for the FFN.
+            hyperparams_cnn (Tuple[int, int, int, int, int]): Specify the hyperparameters for the CNN.
             hyperparams_rnn (Tuple[int, int, int]): Specify the hyperparameters for the RNN.
+            hyperparams_transformer (Tuple[int, int, int]): Specify the hyperparameters for Transformer.
             save_models_as_dot_format (bool): Whether to save the models as a dot format file.
                 The default value is False. If set to True, then you should have graphviz software
                 to be installed on your machine.
@@ -460,6 +488,7 @@ class ModelCreator:
         self.hyperparams_rnn = hyperparams_rnn
         self.hyperparams_cnn = hyperparams_cnn
         self.hyperparams_ffn = hyperparams_ffn
+        self.hyperparams_transformer = hyperparams_transformer
         self.models = models
         self.created_models: Dict[str, tf.keras.Model] = {}
         self.__create_models_dir()
@@ -473,30 +502,60 @@ class ModelCreator:
             self.root_dir = models_dir
 
     def __create_transformer(self) -> None:
-        key_dim = 256
-        num_heads = 8
-        filters = 4
-        num_encoder_blocks = 10
+        """
+        Creates the Transformer model.
 
+        Returns:
+            None.
+        """
+        num_instances = self.__get_instances(TRANSFORMER)
+        if num_instances == 0:
+            return
+
+        # Hyperparameters for the Transformer model
+        filters = 4
+        key_dim, num_heads, num_encoder_blocks = self.hyperparams_transformer
+
+        # Initialize the ModelBuilder with input shape
         transformer: ModelBuilder = ModelBuilder(inputs=self.inputs)
+
+        # Build the Transformer model using multiple encoder blocks
         for _ in range(num_encoder_blocks):
+            # Add normalization layer
             transformer.add_normalization()
+
+            # Add multi-head attention layer
             transformer.add_multi_head_attention(num_heads=num_heads, key_dim=key_dim)
+
+            # Add residual connection from the input
             transformer.add_res_inputs()
             res = transformer.outputs
+
+            # Add normalization layer
             transformer.add_normalization()
+
+            # Add 1D convolutional layer
             transformer.add_conv1d_layer(filters=filters, kernel_size=1)
+
+            # Add another 1D convolutional layer with original input shape
             transformer.add_conv1d_layer(filters=self.inputs.shape[-1], kernel_size=1)
+
+            # Add residual connection from the previous layer's output
             transformer.add_res_inputs(inputs_=res)
 
+        # Add global average pooling layer
         transformer.add_global_avg_pooling()
-        transformer.add_dense_layer(units=64, activation="relu")
+
+        # Add dense layer with ReLU activation
+        transformer.add_dense_layer(units=64)
+
+        # Add final dense layer for the output
         transformer.add_dense_layer(units=1)
 
-        # Build the model with the chosen name and save it to the created_models dictionary
-        keras_model = transformer.build(name="transformer", save_models_as_dot_format=self.save_models_as_dot_format,
+        name = "transformer"
+        keras_model = transformer.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
                                         root_dir=self.root_dir)
-        self.created_models["transformer"] = keras_model
+        self.created_models[name] = keras_model
 
     def __create_lstm_networks(self) -> None:
         """
@@ -763,7 +822,6 @@ class ModelCreator:
         self.inputs = inputs
         # Create Transformer
         self.__create_transformer()
-        """
         # Create LSTM networks
         self.__create_lstm_networks()
         # Create GRU networks
@@ -782,7 +840,6 @@ class ModelCreator:
         self.__create_conv_lstm1d()
         # Create Encoder-Decoder network with a Self-Attention mechanism
         self.__create_encoder_decoder_self_attention()
-        """
 
     def __get_instances(self, model_type: str) -> int:
         # Loop through the model list to find the model of the given type
