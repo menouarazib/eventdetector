@@ -140,9 +140,11 @@ plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predic
 ### Meta Model
 The first thing to do is to instantiate the `MetaModel` object with the required args:
 ```python
-meta_model = MetaModel(output_dir=..., dataset=..., events=events, width=..., step=...)
+from eventdetector_ts.metamodel.meta_model import MetaModel
+
+meta_model = MetaModel(output_dir=..., dataset=..., events=..., width=..., step=...)
 ```
-For a complete description of the required and optional arguments, please refer to the following table:
+For a complete description of the required and optional arguments, please refer to the following tables:
 
 #### Required Arguments
 | Argument       | Type                      | Description                                                                                                                                                                                                                                                  | Default Value         |
