@@ -1,9 +1,9 @@
 import logging
 
 logger = logging.getLogger(__name__)
-COLOR_TRUE = "blue"
-COLOR_PREDICTED = "red"
-STYLE_TRUE = "solid"
-STYLE_PREDICTED = "dotted"
-FIG_SIZE = (8, 6)
-PALETTE = "Set2"
+COLOR_TRUE = "k"  # black
+COLOR_PREDICTED = "r"  # red
+STYLE_TRUE = "-"  # solid line
+STYLE_PREDICTED = "--"  # dashed line
+FIG_SIZE = (6, 4.5)  # width, height in inches
+PALETTE = "tab10"  # categorical color map

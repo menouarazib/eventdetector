@@ -1,3 +1,7 @@
+import csv
+import os
+from typing import List
+
 import numpy as np
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -31,3 +35,11 @@ def plot_prediction(predicted_op: np.ndarray, filtered_predicted_op: np.ndarray)
     plt.legend()
     # Show
     plt.show()
+
+
+def write_events_to_csv(events: List, name: str) -> None:
+    path = os.path.join(f"{name}.csv")
+    with open(path, 'w', encoding='UTF8', newline='') as f:
+        writer = csv.writer(f, delimiter=' ')
+        for (start_time, end_time) in events:
+            writer.writerow([start_time, end_time])

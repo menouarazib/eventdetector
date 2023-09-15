@@ -143,8 +143,7 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
     logger.info("Making prediction from the trained models")
     for model in models:
         # Make predictions using each model
-        predicted_y: np.ndarray = model.predict(x, batch_size=batch_size,
-                                                use_multiprocessing=False)
+        predicted_y: np.ndarray = model.predict(x, batch_size=batch_size)
         predicted_y = predicted_y.flatten()
         predictions.append(predicted_y)
 
@@ -172,7 +171,7 @@ def predict(dataset: pd.DataFrame, path: str) -> Tuple[List, np.ndarray, np.ndar
     s_peaks = get_peaks(h=h, t=t, op_g=filtered_predicted_op)
     predicted_events = []
     time_unit: TimeUnit = TimeUnit.__call__(config_data.get('time_unit'))
-    radius = get_timedelta(config_data.get("w_s") // 2, time_unit)
+    radius = get_timedelta(config_data.get("width_events_s") / 2.0, time_unit)
     logger.info(f"Generating a predicted events with radius = {radius}, predicted op and a filtered predicted op")
     for i in range(len(s_peaks)):
         predicted_event = s_peaks[i]

@@ -11,41 +11,6 @@ from eventdetector_ts.models import logger_models
 from eventdetector_ts.models.helpers_models import SelfAttention
 
 
-class DtwLoss(tf.keras.losses.Loss):
-    def __init__(self, batch_size: int = 32):
-        super(DtwLoss, self).__init__()
-        self.batch_size = batch_size
-
-    def call(self, y_true, y_pred):
-        tmp = []
-        for item in range(self.batch_size):
-            s = y_true[item, :]
-            t = y_pred[item, :]
-            n, m = len(s), len(t)
-            dtw_matrix = []
-            for i in range(n + 1):
-                line = []
-                for j in range(m + 1):
-                    if i == 0 and j == 0:
-                        line.append(0)
-                    else:
-                        line.append(np.inf)
-                dtw_matrix.append(line)
-
-            for i in range(1, n + 1):
-                for j in range(1, m + 1):
-                    cost = tf.abs(s[i - 1] - t[j - 1])
-                    last_min = tf.reduce_min([dtw_matrix[i - 1][j], dtw_matrix[i][j - 1], dtw_matrix[i - 1][j - 1]])
-                    dtw_matrix[i][j] = tf.cast(cost, dtype=tf.float32) + tf.cast(last_min, dtype=tf.float32)
-
-            temp = []
-            for i in range(len(dtw_matrix)):
-                temp.append(tf.stack(dtw_matrix[i]))
-
-            tmp.append(tf.stack(temp)[n, m])
-        return tf.reduce_mean(tmp)
-
-
 class ModelBuilder:
     """
     Helper class for building TensorFlow Keras models.
@@ -174,9 +139,9 @@ class ModelBuilder:
         """
         mha = tf.keras.layers.MultiHeadAttention(num_heads=num_heads, key_dim=key_dim)
         self.outputs = mha(
-            query=self.outputs,
-            key=self.outputs,
-            value=self.outputs)
+            query=self.__return_input(),
+            key=self.__return_input(),
+            value=self.__return_input())
 
     def add_normalization(self, epsilon: float = 1e-6) -> None:
         """
@@ -340,6 +305,20 @@ class ModelBuilder:
         flatten = tf.keras.layers.Flatten()
         self.__add_layer(flatten)
 
+    def add_dropout_layer(self, dropout: float) -> None:
+        """
+        Add dropout layer
+        
+        Args:
+            dropout: Rate
+
+        Returns:
+            None
+        """
+
+        dropout_layer = tf.keras.layers.Dropout(dropout)
+        self.__add_layer(dropout_layer)
+
     def add_max_pooling1d(self, pool_size: int, strides: Optional[int] = None) -> None:
         """
         Adds a 1D max pooling layer to the model.
@@ -448,20 +427,22 @@ class ModelCreator:
        Attributes:
            models (List[Tuple[str, int]]): A list of tuples representing the model types and number of instances.
                Supported model types include LSTM, GRU, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D, RNN_ENCODER_DECODER,
-               CNN_RNN, SELF_ATTENTION, and FFN.
-           hyperparams_ffn (Tuple[int, int, int]): Specify the hyper-parameters for the FFN.
-           hyperparams_cnn (Tuple[int, int, int, int, int]): Specify the hyper-parameters for the CNN.
-           hyperparams_rnn (Tuple[int, int, int]): Specify the hyper-parameters for the RNN.
-           hyperparams_transformer (Tuple[int, int, int]): Specify the hyperparameters for Transformer.
+               CNN_RNN, SELF_ATTENTION, TRANSFORMER, and FFN.
+           hyperparams_ffn (Tuple[int, int, int, str]): Specify the hyperparameters for the FFN.
+           hyperparams_cnn (Tuple[int, int, int, int, int, str]): Specify the hyperparameters for CNN.
+           hyperparams_rnn (Tuple[int, int, int, str]): Specify the hyperparameters for the RNN.
+           hyperparams_transformer (Tuple[int, int, int, bool, str]): Specify the hyperparameters for Transformer.
+           last_act_func (str): Activation function for the final layer of each model.
+           dropout (float): Dropout rate.
            inputs (tf.keras.Input): The input layer for the neural network.
            save_models_as_dot_format (bool): Whether to save the models as a dot format file.
            root_dir (str): The root directory where the created models will be saved.
 
        """
 
-    def __init__(self, models: List[Tuple[str, int]], hyperparams_ffn: Tuple[int, int, int],
-                 hyperparams_cnn: Tuple[int, int, int, int, int], hyperparams_rnn: Tuple[int, int, int],
-                 hyperparams_transformer: Tuple[int, int, int],
+    def __init__(self, models: List[Tuple[str, int]], hyperparams_ffn: Tuple[int, int, int, str],
+                 hyperparams_cnn: Tuple[int, int, int, int, int, str], hyperparams_rnn: Tuple[int, int, int, str],
+                 hyperparams_transformer: Tuple[int, int, int, bool, str], last_act_func: str, dropout: float,
                  save_models_as_dot_format: bool,
                  root_dir: Optional[str] = None):
         """
@@ -470,11 +451,13 @@ class ModelCreator:
         Args:
             models (List[Tuple[str, int]]): A list of tuples representing the model types and
                 number of instances. Supported model types include LSTM, GRU, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D,
-                RNN_ENCODER_DECODER, CNN_RNN, SELF_ATTENTION, and FFN.
-            hyperparams_ffn (Tuple[int, int, int]): Specify the hyperparameters for the FFN.
-            hyperparams_cnn (Tuple[int, int, int, int, int]): Specify the hyperparameters for the CNN.
-            hyperparams_rnn (Tuple[int, int, int]): Specify the hyperparameters for the RNN.
-            hyperparams_transformer (Tuple[int, int, int]): Specify the hyperparameters for Transformer.
+                RNN_ENCODER_DECODER, CNN_RNN, SELF_ATTENTION, TRANSFORMER, and FFN.
+            hyperparams_ffn (Tuple[int, int, int, str]): Specify the hyperparameters for the FFN.
+            hyperparams_cnn (Tuple[int, int, int, int, int, str]): Specify the hyperparameters for CNN.
+            hyperparams_rnn (Tuple[int, int, int, str]): Specify the hyperparameters for the RNN.
+            hyperparams_transformer (Tuple[int, int, int, bool, str]): Specify the hyperparameters for Transformer.
+            dropout (float): Dropout rate.
+            last_act_func (str): Activation function for the final layer of each model.
             save_models_as_dot_format (bool): Whether to save the models as a dot format file.
                 The default value is False. If set to True, then you should have graphviz software
                 to be installed on your machine.
@@ -489,6 +472,8 @@ class ModelCreator:
         self.hyperparams_cnn = hyperparams_cnn
         self.hyperparams_ffn = hyperparams_ffn
         self.hyperparams_transformer = hyperparams_transformer
+        self.last_act_func = last_act_func
+        self.dropout = dropout
         self.models = models
         self.created_models: Dict[str, tf.keras.Model] = {}
         self.__create_models_dir()
@@ -513,44 +498,32 @@ class ModelCreator:
             return
 
         # Hyperparameters for the Transformer model
-        filters = 4
-        key_dim, num_heads, num_encoder_blocks = self.hyperparams_transformer
+        key_dim, num_heads, num_encoder_blocks, use_original, activation_function = self.hyperparams_transformer
 
         # Initialize the ModelBuilder with input shape
         transformer: ModelBuilder = ModelBuilder(inputs=self.inputs)
 
         # Build the Transformer model using multiple encoder blocks
         for _ in range(num_encoder_blocks):
-            # Add normalization layer
-            transformer.add_normalization()
-
             # Add multi-head attention layer
-            transformer.add_multi_head_attention(num_heads=num_heads, key_dim=key_dim)
+            transformer.add_multi_head_attention(num_heads=8, key_dim=256)
 
             # Add residual connection from the input
             transformer.add_res_inputs()
-            res = transformer.outputs
 
             # Add normalization layer
             transformer.add_normalization()
 
-            # Add 1D convolutional layer
-            transformer.add_conv1d_layer(filters=filters, kernel_size=1)
+            res = transformer.outputs
 
-            # Add another 1D convolutional layer with original input shape
-            transformer.add_conv1d_layer(filters=self.inputs.shape[-1], kernel_size=1)
+            transformer.add_dense_layer(units=self.inputs.shape[-1], activation=activation_function,
+                                        dropout=self.dropout)
 
-            # Add residual connection from the previous layer's output
             transformer.add_res_inputs(inputs_=res)
 
-        # Add global average pooling layer
         transformer.add_global_avg_pooling()
 
-        # Add dense layer with ReLU activation
-        transformer.add_dense_layer(units=64)
-
-        # Add final dense layer for the output
-        transformer.add_dense_layer(units=1)
+        transformer.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
 
         name = "transformer"
         keras_model = transformer.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
@@ -565,7 +538,7 @@ class ModelCreator:
             None
         """
         # Get the maximum number of LSTM units and layers from hyperparameters
-        max_layers, min_units, max_units = self.hyperparams_rnn
+        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         # Get the number of LSTM instances from the model list
         num_instances = self.__get_instances(LSTM)
         # If there are LSTM instances, create them
@@ -576,18 +549,19 @@ class ModelCreator:
                 # Set a base name for the model
                 name = f"{LSTM}_{i}"
                 # Choose a random number of layers between 1 and the maximum number of layers
-                num_layers = random.randint(1, max_layers + 1)
-                units = [random.randint(min_units, max_units + 1) for _ in range(num_layers)]
+                num_layers = random.randint(1, max_layers)
+                units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
                     units_j = units[j]
                     if j == num_layers - 1:
-                        model.add_lstm_layer(hidden_dim=units_j)
+                        model.add_lstm_layer(hidden_dim=units_j, activation=activation_function, dropout=self.dropout)
                     else:
-                        model.add_lstm_layer(hidden_dim=units_j, return_sequences=True)
+                        model.add_lstm_layer(hidden_dim=units_j, return_sequences=True, activation=activation_function,
+                                             dropout=self.dropout)
                 # adds a dense layer with a single unit to a neural network model,
                 # for regression where the output is a continuous numerical value.
-                model.add_dense_layer(units=1, dropout=None)
+                model.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
                 # Build the model with the chosen name and save it to the created_models dictionary
                 keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
                                           root_dir=self.root_dir)
@@ -600,24 +574,25 @@ class ModelCreator:
         Returns:
             None
         """
-        max_layers, min_units, max_units = self.hyperparams_rnn
+        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         num_instances = self.__get_instances(GRU)
 
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{GRU}_{i}"
-                num_layers = random.randint(1, max_layers + 1)
-                units = [random.randint(min_units, max_units + 1) for _ in range(num_layers)]
+                num_layers = random.randint(1, max_layers)
+                units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
                     units_j = units[j]
                     if j == num_layers - 1:
-                        model.add_gru_layer(hidden_dim=units_j)
+                        model.add_gru_layer(hidden_dim=units_j, activation=activation_function, dropout=self.dropout)
                     else:
-                        model.add_gru_layer(hidden_dim=units_j, return_sequences=True)
+                        model.add_gru_layer(hidden_dim=units_j, return_sequences=True, activation=activation_function,
+                                            dropout=self.dropout)
                 # Add last layer for regression
-                model.add_dense_layer(units=1, dropout=None)
+                model.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
                 keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
                                           root_dir=self.root_dir)
                 self.created_models[name] = keras_model
@@ -629,109 +604,120 @@ class ModelCreator:
         Returns:
             None
         """
-        filters_min, filters_max, kernel_size_min, kernel_size_max, max_layers = self.hyperparams_cnn
+        filters_min, filters_max, kernel_size_min, kernel_size_max, max_layers, activation_function = \
+            self.hyperparams_cnn
         num_instances = self.__get_instances(CNN)
 
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{CNN}_{i}"
-                num_layers = random.randint(1, max_layers + 1)
-                filters_per_layer = random.randint(filters_min, filters_max + 1)
-                kernel_size_per_layer = random.randint(kernel_size_min, kernel_size_max + 1)
+                num_layers = random.randint(1, max_layers)
+                filters_per_layer = random.randint(filters_min, filters_max)
+                kernel_size_per_layer = random.randint(kernel_size_min, kernel_size_max)
                 for j in range(num_layers):
                     filters = max(1, filters_per_layer // (2 ** (num_layers - j - 1)))
                     kernel_size = kernel_size_per_layer
-                    model.add_conv1d_layer(filters=filters, kernel_size=kernel_size)
+                    model.add_conv1d_layer(filters=filters, kernel_size=kernel_size, activation=activation_function)
                     if j % 2 == 1:
                         model.add_max_pooling1d(pool_size=2, strides=2)
 
                 # Add flatten layer before dense layer
                 model.add_flatten_layer()
+                # Add dropout layer
+                model.add_dropout_layer(dropout=self.dropout)
                 # Add dense output layer for regression
-                model.add_dense_layer(units=1, dropout=None)
+                model.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
                 keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
                                           root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_bi_lstm(self):
-        max_layers, min_units, max_units = self.hyperparams_rnn
+        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         num_instances = self.__get_instances(RNN_BIDIRECTIONAL)
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{RNN_BIDIRECTIONAL}_{i}"
-                num_layers = random.randint(1, max_layers + 1)
-                units = [random.randint(min_units, max_units + 1) for _ in range(num_layers)]
+                num_layers = random.randint(1, max_layers)
+                units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
                     units_j = units[j]
                     if j == num_layers - 1:
-                        model.add_bidirectional(hidden_dim=units_j)
+                        model.add_bidirectional(hidden_dim=units_j, activation=activation_function,
+                                                dropout=self.dropout)
                     else:
-                        model.add_bidirectional(hidden_dim=units_j, return_sequences=True)
+                        model.add_bidirectional(hidden_dim=units_j, return_sequences=True,
+                                                activation=activation_function, dropout=self.dropout)
                 # Add last layer for regression
-                model.add_dense_layer(units=1, dropout=None)
+                model.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
                 keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
                                           root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_ffn(self):
-        max_layers, min_units, max_units = self.hyperparams_ffn
+        max_layers, min_units, max_units, activation_function = self.hyperparams_ffn
+        print(max_layers, min_units, max_units)
         num_instances = self.__get_instances(FFN)
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 model.add_flatten_layer()
                 name = f"{FFN}_{i}"
-                num_layers = random.randint(1, max_layers + 1)
-                units = [random.randint(min_units, max_units + 1) for _ in range(num_layers)]
+                num_layers = random.randint(1, max_layers)
+                units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
                     units_j = units[j]
-                    model.add_dense_layer(units=units_j)
+                    model.add_dense_layer(units=units_j, activation=activation_function, dropout=self.dropout)
+
                 # Add last layer for regression
-                model.add_dense_layer(units=1, dropout=None)
+                model.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
                 keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
                                           root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_rnn_encoder_decoder(self):
-        max_layers, min_units, max_units = self.hyperparams_rnn
+        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         num_instances = self.__get_instances(RNN_ENCODER_DECODER)
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{RNN_ENCODER_DECODER}_{i}"
-                num_layers = random.randint(1, max_layers + 1)
-                units = [random.randint(min_units, max_units + 1) for _ in range(num_layers)]
+                num_layers = random.randint(1, max_layers)
+                units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
                     units_j = units[j]
                     if j == num_layers - 1:
-                        model.add_lstm_layer(hidden_dim=units_j, return_sequences=True)
-                        model.add_gru_layer(hidden_dim=units_j)
+                        model.add_lstm_layer(hidden_dim=units_j, return_sequences=True, activation=activation_function,
+                                             dropout=self.dropout)
+                        model.add_gru_layer(hidden_dim=units_j, activation=activation_function, dropout=self.dropout)
                     else:
-                        model.add_lstm_layer(hidden_dim=units_j, return_sequences=True)
-                        model.add_gru_layer(hidden_dim=units_j, return_sequences=True)
+                        model.add_lstm_layer(hidden_dim=units_j, return_sequences=True, activation=activation_function,
+                                             dropout=self.dropout)
+                        model.add_gru_layer(hidden_dim=units_j, return_sequences=True, activation=activation_function,
+                                            dropout=self.dropout)
 
                 # Add last layer for regression
-                model.add_dense_layer(units=1, dropout=None)
+                model.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
                 keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
                                           root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_cnn_rnn(self):
-        max_layers, min_units, max_units = self.hyperparams_rnn
-        filters_max, filters_min, kernel_size_min, kernel_size_max, max_layers_ = self.hyperparams_cnn
+        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
+        filters_min, filters_max, kernel_size_min, kernel_size_max, max_layers_, activation_function_cnn = (
+            self.hyperparams_cnn)
         max_layers = max(max_layers_, max_layers)
         num_instances = self.__get_instances(CNN_RNN)
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{CNN_RNN}_{i}"
-                num_layers = random.randint(1, max_layers + 1)
-                units = [random.randint(min_units, max_units + 1) for _ in range(num_layers)]
+                num_layers = random.randint(1, max_layers)
+                units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 filters_per_layer = random.randint(filters_min, filters_max + 1)
                 kernel_size_per_layer = random.randint(kernel_size_min, kernel_size_max + 1)
@@ -739,21 +725,24 @@ class ModelCreator:
                     units_j = units[j]
                     filters = max(1, filters_per_layer // (2 ** (num_layers - j - 1)))
                     kernel_size = kernel_size_per_layer
-                    model.add_conv1d_layer(filters=filters, kernel_size=kernel_size)
-                    model.add_lstm_layer(hidden_dim=units_j, return_sequences=True)
+                    model.add_conv1d_layer(filters=filters, kernel_size=kernel_size, activation=activation_function_cnn)
+                    model.add_lstm_layer(hidden_dim=units_j, return_sequences=True, activation=activation_function)
                     if j % 2 == 1:
                         model.add_max_pooling1d(pool_size=2, strides=2)
 
                 # Add flatten layer before dense layer
                 model.add_flatten_layer()
+                # Add dropout layer
+                model.add_dropout_layer(dropout=self.dropout)
                 # Add last layer for regression
-                model.add_dense_layer(units=1, dropout=None)
+                model.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
                 keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
                                           root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_conv_lstm1d(self):
-        filters_min, filters_max, kernel_size_min, kernel_size_max, max_layers = self.hyperparams_cnn
+        filters_min, filters_max, kernel_size_min, kernel_size_max, max_layers, activation_function = (
+            self.hyperparams_cnn)
         num_instances = self.__get_instances(CONV_LSTM1D)
         if num_instances > 0:
             for i in range(num_instances):
@@ -762,37 +751,42 @@ class ModelCreator:
                 new_shape = (shape_inputs[1], 1, shape_inputs[2])
                 model.add_reshape(shape=new_shape)
                 name = f"{CONV_LSTM1D}_{i}"
-                num_layers = random.randint(1, max_layers + 1)
-                filters_per_layer = random.randint(filters_min, filters_max + 1)
-                kernel_size_per_layer = random.randint(kernel_size_min, kernel_size_max + 1)
+                num_layers = random.randint(1, max_layers)
+                filters_per_layer = random.randint(filters_min, filters_max)
+                kernel_size_per_layer = random.randint(kernel_size_min, kernel_size_max)
                 for j in range(num_layers):
                     filters = max(1, filters_per_layer // (2 ** (num_layers - j - 1)))
                     kernel_size = kernel_size_per_layer
-                    model.add_conv_lstm1d(filters=filters, kernel_size=kernel_size, return_sequences=True)
+                    model.add_conv_lstm1d(filters=filters, kernel_size=kernel_size, return_sequences=True,
+                                          activation=activation_function, dropout=self.dropout)
 
                 # Add flatten layer before dense layer
                 model.add_flatten_layer()
+                # Add dropout layer
+                model.add_dropout_layer(dropout=self.dropout)
                 # Add last layer for regression
-                model.add_dense_layer(units=1, dropout=None)
+                model.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
                 keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
                                           root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
     def __create_encoder_decoder_self_attention(self):
-        max_layers, min_units, max_units = self.hyperparams_rnn
+        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         num_instances = self.__get_instances(SELF_ATTENTION)
 
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{SELF_ATTENTION}_{i}"
-                num_layers = random.randint(1, max_layers + 1)
-                units = [random.randint(min_units, max_units + 1) for _ in range(num_layers)]
+                num_layers = random.randint(1, max_layers)
+                units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
                     units_j = units[j]
-                    model.add_bidirectional(hidden_dim=units_j, return_sequences=True)
-                    model.add_gru_layer(hidden_dim=units_j, return_sequences=True)
+                    model.add_bidirectional(hidden_dim=units_j, return_sequences=True, activation=activation_function,
+                                            dropout=self.dropout)
+                    model.add_gru_layer(hidden_dim=units_j, return_sequences=True, activation=activation_function,
+                                        dropout=self.dropout)
                     model.add_self_attention(units=units_j)
                     if j == num_layers - 1:
                         # Two cases
@@ -800,11 +794,12 @@ class ModelCreator:
                         case2 = "USE_MAX_GLOBAl_POOLING"
                         chosen_case = random.choice([case1, case2])
                         if chosen_case == case1:
-                            model.add_lstm_layer(hidden_dim=units_j, return_sequences=False)
+                            model.add_lstm_layer(hidden_dim=units_j, return_sequences=False,
+                                                 activation=activation_function, dropout=self.dropout)
                         else:
                             model.add_global_max_pooling()
                 # Add last layer for regression
-                model.add_dense_layer(units=1, dropout=None)
+                model.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
                 keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
                                           root_dir=self.root_dir)
                 self.created_models[name] = keras_model

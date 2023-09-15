@@ -516,6 +516,36 @@ def check_time_unit(diff: timedelta) -> Tuple[int, TimeUnit]:
     return t_s, time_unit
 
 
+def convert_seconds_to_time_unit(value: Union[float, int], unit: TimeUnit) -> Union[float, int]:
+    """
+    Converts a given value from seconds to a specified time unit.
+
+    Args:
+        value (Union[float, int]): The value in seconds that needs to be converted.
+        unit (TimeUnit): The target time unit for the conversion.
+
+    Returns:
+        Union[float, int]: The converted value in the target time unit.
+
+    Raises:
+        ValueError: If an invalid TimeUnit is provided.
+    """
+    conversion_factors = {
+        TimeUnit.MICROSECOND: 1e6,
+        TimeUnit.MILLISECOND: 1e3,
+        TimeUnit.SECOND: 1,
+        TimeUnit.MINUTE: 1 / 60,
+        TimeUnit.HOUR: 1 / 3600,
+        TimeUnit.DAY: 1 / (3600 * 24),
+        TimeUnit.YEAR: 1 / (3600 * 24 * 365.25)
+    }
+
+    if unit in conversion_factors:
+        return value * conversion_factors[unit]
+
+    raise ValueError("Invalid TimeUnit value.")
+
+
 def save_dict_to_json(path: str, data: Dict):
     """
     Save a dictionary into a json file

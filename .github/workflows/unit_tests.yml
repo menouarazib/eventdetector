@@ -1,6 +1,10 @@
 name: Tests and Lint
 
-on: [ push ]
+on:
+  push:
+    branches:
+      - master
+      - develop
 
 jobs:
   build:
@@ -24,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --no-cache-dir ruff pytest coverage
-          pip install --no-cache-dir -r requirements.txt
+          pip install --no-cache-dir -r requirements_dev.txt
       - name: Lint with ruff
         run: |
           # stop the build if there are Python syntax errors or undefined names

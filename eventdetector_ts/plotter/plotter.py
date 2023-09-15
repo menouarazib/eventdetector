@@ -133,7 +133,7 @@ class Plotter:
         sns.lineplot(x=np.arange(n), y=self.test_y, color=COLOR_TRUE, label='True Op')
         sns.lineplot(x=np.arange(n), y=self.predicted_y, color=COLOR_PREDICTED, label='Predicted Op')
         # Add labels and title to the plot
-        plt.xlabel('Partitions')
+        plt.xlabel('Windows')
         plt.ylabel('Op')
         plt.title('True Op vs Predicted Op')
         # Add legend
@@ -279,13 +279,17 @@ class Plotter:
             None
         """
         path = os.path.join(self.working_dir, "predicted_events.csv")
-        radius = get_timedelta(float(self.width_events_s) / 2, self.time_unit)
+        radius = get_timedelta(float(self.width_events_s) / 2.0, self.time_unit)
         with open(path, 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f, delimiter=' ')
             for i in range(len(self.predicted_events)):
                 predicted_event = self.predicted_events[i]
                 start_time = predicted_event - radius
                 end_time = predicted_event + radius
+
+                start_time = start_time.replace(microsecond=0)
+                end_time = end_time.replace(microsecond=0)
+
                 writer.writerow([start_time.isoformat(), end_time.isoformat()])
 
         path = os.path.join(self.working_dir, "true_events.csv")
@@ -294,6 +298,10 @@ class Plotter:
             for _, test_date in enumerate(self.true_events[MIDDLE_EVENT_LABEL]):
                 start_time = test_date - radius
                 end_time = test_date + radius
+
+                start_time = start_time.replace(microsecond=0)
+                end_time = end_time.replace(microsecond=0)
+
                 writer.writerow([start_time.isoformat(), end_time.isoformat()])
 
     def __save_op(self) -> None:

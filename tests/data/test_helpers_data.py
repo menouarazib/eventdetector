@@ -9,7 +9,7 @@ from sympy.testing import pytest
 from eventdetector_ts import TimeUnit
 from eventdetector_ts.data.helpers_data import overlapping_partitions, compute_middle_event, \
     num_columns, convert_dataframe_to_overlapping_partitions, get_timedelta, get_total_units, check_time_unit, \
-    convert_dataset_index_to_datetime
+    convert_dataset_index_to_datetime, convert_seconds_to_time_unit
 
 
 def test_overlapping_partitions():
@@ -255,6 +255,11 @@ class TestHelpers(unittest.TestCase):
 
         # Check if the index is converted to datetime format
         self.assertTrue(is_datetime64_any_dtype(dataset.index))
+
+    def test_conversion(self):
+        self.assertEqual(convert_seconds_to_time_unit(1, TimeUnit.SECOND), 1)
+        self.assertEqual(convert_seconds_to_time_unit(60, TimeUnit.MINUTE), 1)
+        self.assertEqual(convert_seconds_to_time_unit(3600, TimeUnit.HOUR), 1)
 
 
 if __name__ == '__main__':

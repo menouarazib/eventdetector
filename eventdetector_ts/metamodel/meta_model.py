@@ -2,7 +2,7 @@
 import os
 import pprint
 import shutil
-from typing import Union, Dict
+from typing import Union, Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -13,7 +13,7 @@ from eventdetector_ts import FFN, FILL_NAN_ZEROS, TYPE_TRAINING_AVERAGE, STANDAR
 from eventdetector_ts.data.helpers_data import compute_middle_event, remove_close_events, \
     convert_events_to_intervals, get_union_times_events, get_dataset_within_events_times, \
     convert_dataframe_to_overlapping_partitions, op, check_time_unit, save_dict_to_json, \
-    convert_dataset_index_to_datetime
+    convert_dataset_index_to_datetime, convert_seconds_to_time_unit
 from eventdetector_ts.metamodel import logger_meta_model
 from eventdetector_ts.metamodel.utils import DataSplitter, validate_args, validate_required_args
 from eventdetector_ts.models.models_builder import ModelCreator
@@ -30,7 +30,7 @@ class MetaModel:
             events: Union[list, pd.DataFrame],
             width: int,
             step: int = 1,
-            width_events: int = None,
+            width_events: Optional[Union[int, float]] = None,
             **kwargs
     ):
         """
@@ -38,52 +38,61 @@ class MetaModel:
 
         Args:
             output_dir (str): The name or path of the directory where all outputs will be saved.
-            If output_dir is a
-                folder name, it will create the full path in the current directory.
-            dataset (pd.DataFrame): The input dataset as pd.DataFrame.
-            events (Union[list, pd.DataFrame]): The input events.
-            width (int): The width to be used for creating overlapping partitions.
-            step (int): The step size between two successive partitions.
-            width_events (int): The width to be used for events. If None then is set to width.
-            kwargs (Dict): Optional keyword arguments:
-                - t_max (float): The maximum total time related to sigma. The default value is (3 * self.w_s) / 2).
-                - delta (int): The maximum time tolerance used to determine the correspondence between a predicted event
-                    and its actual counterpart in the true events.
-                    The default value is w_s.
-                - s_h (float): A step parameter for the peak height threshold h. The default value is 0.05.
+                If output_dir is a folder name, the full path in the current directory will be created.
+            dataset (pd.DataFrame): The input dataset as a Pandas DataFrame.
+            events (Union[list, pd.DataFrame]): The input events as either a list or a Pandas DataFrame.
+            width (int): Number of consecutive time steps in each partition (window) when creating overlapping 
+                partitions (sliding windows).
+            step (int = 1): Number of time steps to advance the sliding window. Default to 1.
+            width_events (Union[int, float] = None): The width of each event. 
+                If it's an integer, it represents the number of time steps that constitute an event. 
+                If it's a float, it represents the duration in seconds of each event. 
+                If not provided (None), it defaults to the value of width.
+            kwargs (Dict): Optional keyword arguments for additional parameters.
+                - t_max (float): The maximum total time is linked to the `sigma variable of the Gaussian filter. 
+                    This time should be expressed in the same unit of time (seconds, minutes, etc.) as used in the 
+                    dataset. The unit of time for the dataset is determined by its time sampling. In other words, 
+                    the `sigma` variable should align with the timescale used in your time series data. 
+                    The default value is calculated as (3 * width * time_sampling) / 2.
+                - delta (Union[int, float]): The maximum time tolerance used to determine the correspondence 
+                    between a predicted event and its actual counterpart in the true events. If it's an integer, it 
+                    represents the number of time steps. If it's a float, it represents the duration in seconds
+                    The default value is width_events * time_sampling.
+                - s_h (float): A step parameter for adjusting the peak height threshold `h` during the peak detection 
+                    process. The default value is 0.05.
                 - epsilon (float): A small constant used to control the size of set which contains the top models
                     with the lowest MSE values. The default value is 0.0002.
                 - pa (int): The patience for the early stopping algorithm. The default value is 5.
                 - t_r (float): The ratio threshold for the early stopping algorithm.
                     The default value is 0.97.
-                - time_window Optional[int] = None: The 'time_window' parameter is crucial for controlling the amount 
-                    of data used in the dataset.
-                    It should be specified as a number of units of time.
-                    By default, it is set to None, which means that all available data will be used.
-                    However, if a value is provided, the dataset will only include a specific interval of data 
-                    around each reference event.
-                    This interval consists of data from both the left and right sides of 
-                    each event, with a duration equal to the specified 'time_window'.
-                    Setting a time_window can offer 
-                    several advantages, including speeding up the training process and improving the 
-                    neural networks' understanding for rare events.
+                - time_window (Union[int, float] = None): This parameter controls the amount of data within the dataset 
+                    is used for the training process. If it's an integer, it represents a specific number time steps. 
+                    If it's a float, it represents a duration in seconds. By default, it is set to None, which means all
+                    available data will be used. However, if a value is provided, the dataset will include a specific 
+                    interval of data surrounding each reference event. This interval includes data from both sides of 
+                    each event, with a duration equal to the specified `time_window`. Setting a `time_window` in some 
+                    situations can offer several advantages, such as accelerating the training process and enhancing 
+                    the neural networks' understanding of rare events.
                 - models (List[Union[str, Tuple[str, int]]]): Determines the type of deep learning models to use.
                     If a tuple is passed, it specifies both the model type and the number of instances to run.
-                    The default value is [(model, 2) for model in [FFN]].
-                - hyperparams_ffn (Tuple[int, int, int]): Specify for the FFN the maximum number of layers,
-                    the minimum and the maximum number of neurons per layer.
-                    The default value is (3, 64, 256).
-                - hyperparams_cnn (Tuple[int, int, int, int, int]): Specify for the CNN the minimum, maximum number
-                    of filters, the minimum, the maximum kernel size, and maximum number of pooling layers.
-                    The default value is (16, 64, 3, 8, 2).
-                - hyperparams_transformer (Tuple[int, int, int]): Specify for Transformer the Key dimension, number of 
-                    heads and the number of the encoder blocks. The default value is (256, 8, 10).
-                - hyperparams_rnn (Tuple[int, int, int]): Specify for the RNN the maximum number of RNN layers
-                    the minimum and the maximum number of hidden units.
-                    The default value is (1, 16, 128).
-                - hyperparams_mm_network (Tuple[int, int]): Specify for the MetaModel network the number
-                    of layers and the number of neurons per layer.
-                    The default value is (1, 32).
+                    The default value is [(FFN, 2)].
+                - hyperparams_ffn (Tuple[int, int, int, str]): Specify for the FFN the maximum number of layers,
+                    the minimum and the maximum number of neurons per layer, and the activation function. 
+                    The default value is (3, 64, 256, "sigmoid"). The List of available activation functions are 
+                    ["relu","sigmoid","tanh","softmax","leaky_relu","elu","selu","swish"]. If you pass `None`, no 
+                    activation is applied (i.e. "linear" activation: `a(x) = x`).
+                - hyperparams_cnn (Tuple[int, int, int, int, int, str]): Specify for the CNN the minimum, maximum number
+                    of filters, the minimum, the maximum kernel size, the maximum number of pooling layers, and the 
+                    activation function. The default value is (16, 64, 3, 8, 2, "relu").
+                - hyperparams_transformer (Tuple[int, int, int, bool, str]): Specify for Transformer the Key dimension, 
+                    number of heads, the number of the encoder blocks, a flag to indicate the use of the original 
+                    architecture, and the activation function. The default value is (256, 8, 10, True, "relu").
+                - hyperparams_rnn (Tuple[int, int, int, str]): Specify for the RNN the maximum number of RNN layers, 
+                    the minimum and the maximum number of hidden units, and the activation function.
+                    The default value is (1, 16, 128, "tanh").
+                - hyperparams_mm_network (Tuple[int, int, str]): Specify for the MetaModel network the number
+                    of layers, the number of neurons per layer, and the activation function.
+                    The default value is (1, 32, "sigmoid").
                 - epochs (int): The number of epochs to train different models. The default value is False 256.
                 - batch_size (int): The number of samples per gradient update.
                     The default value is 32.
@@ -102,13 +111,16 @@ class MetaModel:
                     Should be a value between 0 and 1. Default is 0.2.
                 - val_size (float): The proportion of the training set to use for validation.
                     Should be a value between 0 and 1. Default is 0.2.
-                - use_multiprocessing (bool): Whether to use multiprocessing or not for the event exctraction
-                    optimization. The default value is False.
-                - save_models_as_dot_format (bool): Whether to save the models as a dot format file.
+                - save_models_as_dot_format (bool = False): Whether to save the models as a dot format file.
                     The default value is False. If set to True, then you should have graphviz software
                     to be installed on your machine.
-                - remove_overlapping_events (bool): Whether to remove the overlapping events or not. 
-                    The dfault value is True.
+                - remove_overlapping_events (bool = True): Whether to remove the overlapping events or not. 
+                    The default value is True.
+                - dropout (float = 0.3): The dropout rate, which determines the fraction of input units to drop during 
+                    training.
+                - last_act_func (str = "sigmoid"): Activation function for the final layer of each model. Defaults to
+                    "sigmoid". If set to `None`, no activation will be applied (i.e., "linear" activation: `a(x) = x`).
+
         """
         self.step = step
         self.width = width
@@ -125,6 +137,7 @@ class MetaModel:
         self.__compute_and_set_time_sampling()
         self.__set_defaults()
         validate_args(self)
+
         if self.save_models_as_dot_format:
             logger_meta_model.warning("save_models_as_dot_format is set to true, "
                                       "you should have graphviz software to be installed on your machine.")
@@ -134,6 +147,7 @@ class MetaModel:
                                                         hyperparams_cnn=self.hyperparams_cnn,
                                                         hyperparams_rnn=self.hyperparams_rnn,
                                                         hyperparams_transformer=self.hyperparams_transformer,
+                                                        last_act_func=self.last_act_func, dropout=self.dropout,
                                                         save_models_as_dot_format=self.save_models_as_dot_format,
                                                         root_dir=self.output_dir)
         # Create a `DataSplitter` object with the provided test_size and scaler_type
@@ -150,6 +164,8 @@ class MetaModel:
                                                                     s_h=self.s_h, delta=self.delta,
                                                                     output_dir=self.output_dir,
                                                                     time_unit=self.time_unit)
+
+        self.event_optimization: EventOptimization = EventOptimization(optimization_data=self.optimization_data)
         # The Plotter class is responsible for generating and saving plots.
         self.plotter: Plotter = Plotter(root_dir=self.output_dir, time_unit=self.time_unit,
                                         width_events_s=self.width_events_s)
@@ -192,24 +208,37 @@ class MetaModel:
         if self.width_events is None:
             self.width_events = self.width
         self.t_max = self.kwargs.get('t_max', (3.0 * self.w_s) / 2)  # the minimum should be equal to w_s
-        self.delta = self.kwargs.get('delta', self.width_events_s)
+
+        if self.kwargs.get('delta') is None:
+            self.delta = self.width_events_s
+        else:
+            if isinstance(self.kwargs.get('delta'), float):
+                self.delta = convert_seconds_to_time_unit(value=self.kwargs.get('delta'), unit=self.time_unit)
+
         self.s_h = self.kwargs.get('s_h', 0.05)
         self.epsilon = self.kwargs.get('epsilon', 0.0002)
         self.pa = self.kwargs.get('pa', 5)
         self.t_r = self.kwargs.get('t_r', 0.97)
-        self.time_window = self.kwargs.get('time_window', None)
-        self.models = self.kwargs.get('models', [(model, 2) for model in [FFN]])
+
+        if self.kwargs.get('time_window') is None:
+            self.time_window = None
+        else:
+            if isinstance(self.kwargs.get('time_window'), float):
+                self.time_window = convert_seconds_to_time_unit(value=self.kwargs.get('time_window'),
+                                                                unit=self.time_unit)
+
+        self.models = self.kwargs.get('models', [(FFN, 2)])
         for i, model in enumerate(self.models):
             if isinstance(model, str):
-                self.models[i] = (model, 2)
+                self.models[i] = (model, 1)
             elif isinstance(model, tuple) and len(model) == 1:
-                self.models[i] = (model[0], 3)
+                self.models[i] = (model[0], 1)
 
-        self.hyperparams_ffn = self.kwargs.get('hyperparams_ffn', (3, 64, 256))
-        self.hyperparams_cnn = self.kwargs.get('hyperparams_cnn', (16, 64, 3, 8, 2))
-        self.hyperparams_rnn = self.kwargs.get('hyperparams_rnn', (1, 16, 128))
-        self.hyperparams_transformer = self.kwargs.get("hyperparams_transformer", (256, 8, 10))
-        self.hyperparams_mm_network = self.kwargs.get('hyperparams_mm_network', (1, 32))
+        self.hyperparams_ffn = self.kwargs.get('hyperparams_ffn', (3, 64, 256, "sigmoid"))
+        self.hyperparams_cnn = self.kwargs.get('hyperparams_cnn', (16, 64, 3, 8, 2, "relu"))
+        self.hyperparams_rnn = self.kwargs.get('hyperparams_rnn', (1, 16, 128, "tanh"))
+        self.hyperparams_transformer = self.kwargs.get("hyperparams_transformer", (256, 4, 1, True, "relu"))
+        self.hyperparams_mm_network = self.kwargs.get('hyperparams_mm_network', (1, 32, "sigmoid"))
         self.epochs = self.kwargs.get('epochs', 256)
         self.batch_size = self.kwargs.get('batch_size', 32)
         self.fill_nan = self.kwargs.get('fill_nan', FILL_NAN_ZEROS)
@@ -218,9 +247,11 @@ class MetaModel:
         self.use_kfold = self.kwargs.get('use_kfold', False)
         self.test_size = self.kwargs.get('test_size', 0.2)
         self.val_size = self.kwargs.get('val_size', 0.2)
-        self.use_multiprocessing = self.kwargs.get('use_multiprocessing', False)
+
         self.save_models_as_dot_format = self.kwargs.get('save_models_as_dot_format', False)
         self.remove_overlapping_events = self.kwargs.get("remove_overlapping_events", True)
+        self.last_act_func = self.kwargs.get("last_act_func", "sigmoid")
+        self.dropout = self.kwargs.get("dropout", 0.3)
 
         log_dict = {
             'width_events_s': self.width_events_s,
@@ -245,13 +276,14 @@ class MetaModel:
             'use_kfold': self.use_kfold,
             'test_size': self.test_size,
             'val_size': self.val_size,
-            'use_multiprocessing': self.use_multiprocessing,
             'save_models_as_dot_format': self.save_models_as_dot_format,
-            "remove_overlapping_events": self.remove_overlapping_events
+            "remove_overlapping_events": self.remove_overlapping_events,
+            "last_act_func": self.last_act_func,
+            "dropout": self.dropout
         }
 
         log_message = pprint.pformat(log_dict, indent=4)
-        logger_meta_model.warning(log_message)
+        logger_meta_model.info(log_message)
 
         config_dict.update({'width': self.width, 'step': self.step, 'batch_size': self.batch_size,
                             'type_training': self.type_training, 'fill_nan': self.fill_nan})
@@ -282,7 +314,9 @@ class MetaModel:
             self.w_s = self.t_s * self.width
             self.s_s = self.t_s * self.step
             self.width_events_s = self.t_s * self.width_events
-            config_dict['time_unit'] = self.time_unit.__str__()
+            if isinstance(self.width_events, float):
+                self.width_events_s = convert_seconds_to_time_unit(value=self.width_events, unit=self.time_unit)
+
             config_dict['w_s'] = self.w_s
             config_dict['width_events_s'] = self.width_events_s
         except AttributeError:
@@ -381,8 +415,8 @@ class MetaModel:
         Returns:
             None
         """
-        event_optimization: EventOptimization = EventOptimization(optimization_data=self.optimization_data)
-        predicted_events, delta_t = event_optimization.max_f1score(use_multiprocessing=self.use_multiprocessing)
+
+        predicted_events, delta_t = self.event_optimization.max_f1score()
         path = os.path.join(self.output_dir, CONFIG_FILE)
         logger_meta_model.info(f"Saving config file into {path}")
         save_dict_to_json(path=path, data=config_dict)

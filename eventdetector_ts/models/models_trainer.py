@@ -124,8 +124,7 @@ class ModelTrainer:
         min_loss = np.Inf
         for model_name, model in created_models.items():
             logger_models.info(f"Evaluating model {model_name} on test data")
-            loss = model.evaluate(self.data_splitter.test_x, self.data_splitter.test_y, batch_size=self.batch_size,
-                                  use_multiprocessing=True)
+            loss = model.evaluate(self.data_splitter.test_x, self.data_splitter.test_y, batch_size=self.batch_size)
             logger_models.info(f"The loss value of model {model_name} on test data is {loss:.4f}")
             losses_test_data[model_name] = loss
             if min_loss > loss:
@@ -175,8 +174,7 @@ class ModelTrainer:
         predictions = []
         for model_name, model in self.best_models.items():
             # Make predictions for the test set using each model
-            predicted_y: np.ndarray = model.predict(self.data_splitter.test_x, batch_size=self.batch_size,
-                                                    use_multiprocessing=True)
+            predicted_y: np.ndarray = model.predict(self.data_splitter.test_x, batch_size=self.batch_size)
             predicted_y = predicted_y.flatten()
             predictions.append(predicted_y)
 
@@ -218,10 +216,8 @@ class ModelTrainer:
             self.train_loss_meta_model = history.history['loss']
             self.val_loss_meta_model = history.history['val_loss']
 
-            # final_prediction: np.ndarray = keras_model.predict(self.data_splitter.test_x, batch_size=self.batch_size,
-            #                                                   use_multiprocessing=True)
-            final_prediction: np.ndarray = keras_model.predict(test_x, batch_size=self.batch_size,
-                                                               use_multiprocessing=False)
+            # final_prediction: np.ndarray = keras_model.predict(self.data_splitter.test_x, batch_size=self.batch_size)
+            final_prediction: np.ndarray = keras_model.predict(test_x, batch_size=self.batch_size)
             final_prediction = final_prediction.flatten()
             return final_prediction, tf.keras.losses.mse(final_prediction, test_y), test_y
         else:

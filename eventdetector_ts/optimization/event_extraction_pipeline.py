@@ -1,4 +1,3 @@
-import multiprocessing as mp
 from datetime import timedelta
 from math import ceil
 from typing import Tuple
@@ -21,11 +20,11 @@ class OptimizationData:
         - time_unit (TimeUnit): Unit of time used in the dataset.
         - true_events (pd.DataFrame): DataFrame to store true events.
         - predicted_op (np.ndarray): Array to store predicted outcomes.
-        - delta (int): The maximum time tolerance used to determine the correspondence between a predicted event
+        - delta (int | float): The maximum time tolerance used to determine the correspondence between a predicted event
                     and its actual counterpart in the true events.
         - s_h (float): A step parameter for the peak height threshold h.
-        - s_s (int): Step size in time unit for overalapping the partition.
-        - w_s (int): Size in time unit of the overalapping partition.
+        - s_s (int): Step size in time unit for overlapping the partition.
+        - w_s (int): Size in time unit of the overlapping partition.
         - t_max (float): The maximum total time related to sigma.
         - output_dir (str): The parent directory.
         - big_sigma (int): Value calculated based on t_max, w_s, and s_s.
@@ -35,7 +34,7 @@ class OptimizationData:
 
     def __init__(self, t_max: float, w_s: int, s_s: int,
                  s_h: float,
-                 delta: int,
+                 delta: int | float,
                  output_dir: str, time_unit: TimeUnit):
         """
         Initializes the OptimizationData object.
@@ -45,7 +44,7 @@ class OptimizationData:
             w_s (int): Size in time unit of the overalapping partition.
             s_s (int): Step size in time unit for overalapping the partition.
             s_h (float): A step parameter for the peak height threshold h.
-            delta (int): The maximum time tolerance used to determine the correspondence between a predicted event
+            delta (int | float): The maximum time tolerance used to determine the correspondence between a predicted event
                     and its actual counterpart in the true events.
             output_dir (str): The parent directory.
             time_unit (TimeUnit): Unit of time used in the dataset.
@@ -86,7 +85,7 @@ class OptimizationData:
 
 def get_peaks(h: float, t: np.ndarray, op_g: np.ndarray) -> np.ndarray:
     """
-    Compute peaks for given mid_times of partitions, op values and threshold h. 
+    Compute peaks for given mid_times of partitions, op values, and threshold h.
     Args:
         h (float): Threshold for peaks.
         t (np.ndarray): mid_times of partitions
@@ -189,9 +188,11 @@ class OptimizationCalculator:
     def evaluate_combination(self, combination):
         sigma, m, h = combination
         f1_score, precision, recall, peaks, delta_t = self.compute_f1score(sigma, m, h)
-        formatted_combination = ', '.join(f'{item:.2f}' for item in combination)
-        logger.info(f"Evaluated Combination [sigma, m, h] : [{formatted_combination}] => [F1 Score: {f1_score:.4f}, "
-                    f"Precision: {precision:.4f}, Recall: {recall:.4f}]")
+        formatted_combination = ', '.join(f'{item:.4f}' for item in combination)
+        if f1_score > 0:
+            logger.info(
+                f"Evaluated Combination [sigma, m, h] : [{formatted_combination}] => [F1 Score: {f1_score:.4f}, "
+                f"Precision: {precision:.4f}, Recall: {recall:.4f}]")
         return f1_score, precision, recall, peaks, delta_t
 
 
@@ -210,18 +211,16 @@ class EventOptimization:
     def __init__(self, optimization_data: OptimizationData):
         self.optimization_data = optimization_data
         self.optimization_calculator: OptimizationCalculator = OptimizationCalculator(self.optimization_data)
+        self.results = ()
 
-    def max_f1score(self, use_multiprocessing: bool = False) -> tuple[list, list]:
+    def max_f1score(self) -> tuple[list, list]:
         """
         The optimization process aims to maximize the F1-Score metric by fine-tuning several parameters,
             including the filter size (2m + 1) and standard deviation (σ) of the Gaussian filter,
             and the peak height threshold h.
 
-        Args:
-            use_multiprocessing (bool): Using or not multiprocessing
-
         Returns:
-              list of peaks
+              list of peaks, delta_t
         """
         sigma_range = range(1, self.optimization_data.big_sigma + 1)
         h_values = np.arange(0, 1, self.optimization_data.s_h)
@@ -230,16 +229,9 @@ class EventOptimization:
                         h in h_values]
 
         try:
-            if use_multiprocessing:
-                # Create a multiprocessing pool with the desired number of processes
-                num_processes = mp.cpu_count() // 2  # Use the number of available CPU cores
-                pool = mp.Pool(processes=num_processes)
-                # Evaluate combinations in parallel
-                results = pool.map(self.optimization_calculator.evaluate_combination, combinations)
-            else:
-                # Evaluate combinations sequentially
-                results = [self.optimization_calculator.evaluate_combination(combination) for combination in
-                           combinations]
+            # Evaluate combinations sequentially
+            results = [self.optimization_calculator.evaluate_combination(combination) for combination in
+                       combinations]
         except ValueError as e:
             logger.error(e)
             exit(0)
@@ -248,10 +240,11 @@ class EventOptimization:
         best_combination_index = np.argmax(list(map(lambda metrics: metrics[0], results)))
         best_combination = combinations[best_combination_index]
         config_dict["best_combination"] = best_combination
-        max_f1_score, precision, recall, peaks, delta_t = results[best_combination_index]
+        self.results = results[best_combination_index]
+        max_f1_score, precision, recall, peaks, delta_t = self.results
 
-        formatted_combination = ', '.join(f'{item:.2f}' for item in best_combination)
-        logger.info(
+        formatted_combination = ', '.join(f'{item:.4f}' for item in best_combination)
+        logger.warning(
             f"Best Combination [sigma, m, h] : [{formatted_combination}] => "
             f"[Max F1 Score: {max_f1_score:.4f} => Precision:{precision:.4f}, Recall:{recall:.4f}]")
         return peaks, delta_t

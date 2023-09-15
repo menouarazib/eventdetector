@@ -2,7 +2,6 @@ import logging
 
 import numpy as np
 import tensorflow as tf
-from keras.utils.io_utils import print_msg
 from sklearn.model_selection import KFold
 
 
@@ -83,7 +82,7 @@ class CustomEarlyStopping(tf.keras.callbacks.Callback):
                     self.stopped_epoch = epoch
                     self.model.stop_training = True
                     if self.verbose > 0:
-                        print_msg(
+                        tf.print(
                             "Restoring model weights from "
                             "the end of the best epoch: "
                             f"{self.best_epoch + 1}."
@@ -97,7 +96,7 @@ class CustomEarlyStopping(tf.keras.callbacks.Callback):
         """
         if logs is not None:
             if self.stopped_epoch > 0 and self.verbose > 0:
-                print_msg(
+                tf.print(
                     f"Epoch {self.stopped_epoch + 1}: early stopping. "
                     "Restoring model weights from "
                     "the end of the best epoch: "
