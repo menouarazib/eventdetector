@@ -438,3 +438,15 @@ class MetaModel:
         self.plotter.plot_prediction()
         self.plotter.plot_predicted_events()
         self.plotter.plot_delta_t(bins=10)
+
+    def fit(self) -> None:
+        """
+        Run prepare_data_and_computing_op, build_stacking_learning, event_extraction_optimization, and plot_save
+        
+        Returns:
+            None
+        """
+        self.prepare_data_and_computing_op()
+        self.build_stacking_learning()
+        self.event_extraction_optimization()
+        self.plot_save()
