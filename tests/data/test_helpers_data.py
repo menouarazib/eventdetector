@@ -157,7 +157,7 @@ class TestHelpers(unittest.TestCase):
 
     def test_invalid_unit(self):
         with self.assertRaises(ValueError):
-            get_timedelta(10, None)
+            get_timedelta(10, "null")
 
     def test_microsecond_(self):
         td = timedelta(microseconds=123456789)

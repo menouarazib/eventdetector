@@ -12,6 +12,7 @@ from pandas.core.dtypes.common import is_datetime64_any_dtype
 
 from eventdetector_ts import TIME_LABEL, FILL_NAN_ZEROS, FILL_NAN_FFILL, FILL_NAN_BFILL, FILL_NAN_MEDIAN, \
     MIDDLE_EVENT_LABEL, TimeUnit
+from eventdetector_ts.data import VALUE_ERROR
 from eventdetector_ts.data.interval import Interval
 
 
@@ -426,7 +427,7 @@ def op(dataset_as_overlapping_partitions: np.ndarray, events_as_intervals: list[
     return dataset_as_overlapping_partitions, np.array(op_values)
 
 
-def get_timedelta(delta_unit_time: int | float, unit: TimeUnit) -> timedelta:
+def get_timedelta(delta_unit_time: int | float, unit: TimeUnit | object) -> timedelta:
     """
     Returns a timedelta object with the specified delta_unit_time in the specified TimeUnit.
 
@@ -452,10 +453,10 @@ def get_timedelta(delta_unit_time: int | float, unit: TimeUnit) -> timedelta:
     elif unit == TimeUnit.YEAR:
         return timedelta(days=delta_unit_time * 365)
     else:
-        raise ValueError("Invalid TimeUnit value.")
+        raise VALUE_ERROR
 
 
-def get_total_units(timedelta_: timedelta, unit: TimeUnit) -> float:
+def get_total_units(timedelta_: timedelta, unit: TimeUnit | object) -> float:
     if unit == TimeUnit.MICROSECOND:
         return timedelta_.total_seconds() * 1e6
     elif unit == TimeUnit.MILLISECOND:
@@ -471,7 +472,7 @@ def get_total_units(timedelta_: timedelta, unit: TimeUnit) -> float:
     elif unit == TimeUnit.YEAR:
         return timedelta_.total_seconds() / (3600 * 24 * 365.25)
     else:
-        raise ValueError("Invalid TimeUnit value.")
+        raise VALUE_ERROR
 
 
 def check_time_unit(diff: timedelta) -> Tuple[int, TimeUnit]:
@@ -543,7 +544,7 @@ def convert_seconds_to_time_unit(value: Union[float, int], unit: TimeUnit) -> Un
     if unit in conversion_factors:
         return value * conversion_factors[unit]
 
-    raise ValueError("Invalid TimeUnit value.")
+    raise VALUE_ERROR
 
 
 def save_dict_to_json(path: str, data: Dict):
