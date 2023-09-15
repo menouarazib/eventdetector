@@ -33,21 +33,19 @@ license = { file = "LICENSE" }
 classifiers = ["License :: OSI Approved :: MIT License", "Programming Language :: Python :: 3", "Operating System :: OS Independent"]
 
 dependencies = [
-    "joblib==1.2.0",
-    "keras==2.9.0",
-    "matplotlib==3.5.3",
-    "numpy==1.23.2",
-    "pandas==1.4.3",
-    "python_dateutil==2.8.2",
-    "scikit_learn==1.2.2",
-    "scipy==1.10.1",
-    "seaborn==0.12.2",
-    "sympy==1.11.1",
-    "tensorflow==2.9.2",
-    "colorlog==6.7.0",
-    "pydot==1.4.2",
-    "pyqt5==5.15.9",
-    "tqdm==4.64.1"
+    "joblib",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "python_dateutil",
+    "scikit_learn",
+    "scipy",
+    "seaborn",
+    "sympy",
+    "colorlog",
+    "pydot",
+    "pyqt5",
+    "tqdm"
 ]
 
 [project.urls]
