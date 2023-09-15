@@ -456,7 +456,7 @@ def get_timedelta(delta_unit_time: Union[int, float], unit: TimeUnit) -> timedel
         raise VALUE_ERROR
 
 
-def get_total_units(timedelta_: timedelta, unit: TimeUnit | object) -> float:
+def get_total_units(timedelta_: timedelta, unit: Union[TimeUnit, object]) -> float:
     if unit == TimeUnit.MICROSECOND:
         return timedelta_.total_seconds() * 1e6
     elif unit == TimeUnit.MILLISECOND:
