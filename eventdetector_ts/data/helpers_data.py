@@ -427,7 +427,7 @@ def op(dataset_as_overlapping_partitions: np.ndarray, events_as_intervals: list[
     return dataset_as_overlapping_partitions, np.array(op_values)
 
 
-def get_timedelta(delta_unit_time: int | float, unit: TimeUnit | object) -> timedelta:
+def get_timedelta(delta_unit_time: Union[int, float], unit: TimeUnit) -> timedelta:
     """
     Returns a timedelta object with the specified delta_unit_time in the specified TimeUnit.
 
