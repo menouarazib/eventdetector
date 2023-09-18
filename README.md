@@ -40,7 +40,7 @@ It provides a rich support for event detection in time series.
 
 ## Installation
 
-**Before installing this package, please ensure that you have TensorFlow installed in your environment.** This package relies on TensorFlow for its functionality, but does not include it as a dependency to allow users to manage their own TensorFlow installations. You can install TensorFlow via pip with `pip install tensorflow`.
+**Before installing this package, please ensure that you have `TensorFlow` installed in your environment.** This package relies on `TensorFlow` for its functionality, but does not include it as a dependency to allow users to manage their own TensorFlow installations. You can install TensorFlow via pip with `pip install tensorflow`.
 
 Once TensorFlow is installed, you can proceed with the installation of this package.
 Please follow the instructions below:
@@ -158,10 +158,12 @@ predicted_events, predicted_op, filtered_predicted_op = predict(dataset=dataset_
 plot_prediction(predicted_op=predicted_op, filtered_predicted_op=filtered_predicted_op)
 ```
  
-
 ## Documentation
+For a deeper understanding of the parameters presented below,
+please refer to our paper available at this [link](https://osf.io/uabjg).
+
 ### Meta Model
-The first thing to do is to instantiate the `MetaModel` object with the required args:
+The first step is to instantiate the `MetaModel` object with the required arguments:
 ```python
 from eventdetector_ts.metamodel.meta_model import MetaModel
 
@@ -177,7 +179,7 @@ For a complete description of the required and optional arguments, please refer 
 | `events`       | Union[list, pd.DataFrame] | The input events as either a list or a Pandas DataFrame.                                                                                                                                                                                                     | -             |
 | `width`        | int                       | Number of consecutive time steps in each partition (window) when creating overlapping partitions (sliding windows).                                                                                                                                          | -             |
 | `step`         | int                       | Number of time steps to advance the sliding window.                                                                                                                                                                                                          | 1             |
-| `width_events` | Union[int, float]         | The width of each event. If it's an `ìnt`, it represents the number of time steps that constitute an event. If it's a `float`, it represents the duration in seconds of each event. If not provided (None), it defaults to the value of width*time_sampling. | `width -1`       |
+| `width_events` | Union[int, float]         | The width of each event. If it's an `ìnt`, it represents the number of time steps that constitute an event. If it's a `float`, it represents the duration in seconds of each event. If not provided (None), it defaults to the value of width*time_sampling. | `width -1`    |
 
 #### Optional Arguments: Kwargs
 | Argument                    | Type                                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Default Value                          |
@@ -237,7 +239,8 @@ meta_model.plot_save(show_plots=True)
 ## How to credit our package
 
 If you use our package, please cite the following paper:
-```python
+
+```bash
 @misc{azib_renard_garnier_génot_andré_2023,
  title={Universal Event Detection in Time Series},
  url={osf.io/uabjg},
@@ -248,4 +251,3 @@ If you use our package, please cite the following paper:
  month={Jul}
 }
 ```
-
