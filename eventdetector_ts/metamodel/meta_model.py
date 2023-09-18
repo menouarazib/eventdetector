@@ -1,4 +1,3 @@
-# Set up logging
 import os
 import pprint
 import shutil
@@ -47,17 +46,17 @@ class MetaModel:
             width_events (Union[int, float] = None): The width of each event. 
                 If it's an integer, it represents the number of time steps that constitute an event. 
                 If it's a float, it represents the duration in seconds of each event. 
-                If not provided (None), it defaults to the value of width.
+                If not provided (None), it defaults to the value of (width -1).
             kwargs (Dict): Optional keyword arguments for additional parameters.
                 - t_max (float): The maximum total time is linked to the `sigma variable of the Gaussian filter. 
                     This time should be expressed in the same unit of time (seconds, minutes, etc.) as used in the 
                     dataset. The unit of time for the dataset is determined by its time sampling. In other words, 
                     the `sigma` variable should align with the timescale used in your time series data. 
-                    The default value is calculated as (3 * width * time_sampling) / 2.
+                    The default value is calculated as (3 x (width-1) x time_sampling) / 2.
                 - delta (Union[int, float]): The maximum time tolerance used to determine the correspondence 
                     between a predicted event and its actual counterpart in the true events. If it's an integer, it 
                     represents the number of time steps. If it's a float, it represents the duration in seconds
-                    The default value is width_events * time_sampling.
+                    The default value is width_events x time_sampling.
                 - s_h (float): A step parameter for adjusting the peak height threshold `h` during the peak detection 
                     process. The default value is 0.05.
                 - epsilon (float): A small constant used to control the size of set which contains the top models
@@ -129,8 +128,6 @@ class MetaModel:
         self.output_dir = output_dir
         self.width_events = width_events
         validate_required_args(self)
-        if self.width_events is None:
-            self.width_events = self.width
         self.kwargs: Dict = kwargs
         self.y = np.empty(shape=(0,))
         self.x = np.empty(shape=(0,))
@@ -311,14 +308,20 @@ class MetaModel:
             logger_meta_model.info("Computing the time sampling and time unit of the dataset")
             self.t_s, self.time_unit = check_time_unit(diff=diff)
             logger_meta_model.warning(f"The time sampling t_s is {self.t_s} {self.time_unit}s")
-            self.w_s = self.t_s * self.width
+            self.w_s = self.t_s * (self.width - 1)
             self.s_s = self.t_s * self.step
-            self.width_events_s = self.t_s * self.width_events
+
+            if self.width_events is None:
+                self.width_events_s = self.w_s
+            else:
+                self.width_events_s = self.t_s * self.width_events
+
             if isinstance(self.width_events, float):
                 self.width_events_s = convert_seconds_to_time_unit(value=self.width_events, unit=self.time_unit)
 
             config_dict['w_s'] = self.w_s
             config_dict['width_events_s'] = self.width_events_s
+            config_dict['time_unit'] = self.time_unit.value
         except AttributeError:
             logger_meta_model.critical("The dataset is not compatible with the datetime format")
             raise TypeError("The index should be in datetime format.")
@@ -341,6 +344,7 @@ class MetaModel:
         """
 
         logger_meta_model.info("Computes the middle date of events...")
+
         self.events = compute_middle_event(self.events)
 
         logger_meta_model.info("Removes events that occur too close together...")

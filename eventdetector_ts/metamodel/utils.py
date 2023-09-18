@@ -110,15 +110,8 @@ def validate_required_args(meta_model) -> None:
        Raises:
            ValueError: If any of the arguments are invalid.
        """
-    if not isinstance(meta_model.step, int) or meta_model.step <= 0:
-        raise InvalidArgumentError("step should be a positive integer.")
 
-    if not isinstance(meta_model.width, int) or meta_model.width <= meta_model.step:
-        raise InvalidArgumentError(f"width should be greater than {meta_model.step}.")
-
-    if meta_model.width_events is not None and not isinstance(meta_model.width_events,
-                                                              (int, float)) and meta_model.width_events <= 0:
-        raise InvalidArgumentError("width_events should be either a positive integer or positive float.")
+    __validate_required_args(meta_model=meta_model)
 
     if meta_model.dataset is None or meta_model.dataset.empty:
         raise InvalidArgumentError("dataset cannot be None or empty.")
@@ -134,12 +127,78 @@ def validate_required_args(meta_model) -> None:
     elif not isinstance(meta_model.events, (list, pd.DataFrame)):
         raise InvalidArgumentError("Events should be a list or a Pandas DataFrame.")
 
-    if not re.match("^[a-zA-Z0-9_]+$", meta_model.output_dir):
+    if not re.match(r"^\w+$", meta_model.output_dir):
         raise InvalidArgumentError(
             "Output directory name can only contain alphanumeric characters and underscores.")
 
 
+def __validate_required_args(meta_model) -> None:
+    if not isinstance(meta_model.step, int) or meta_model.step <= 0:
+        raise InvalidArgumentError("step should be a positive integer.")
+
+    if not isinstance(meta_model.width, int) or meta_model.width <= meta_model.step:
+        raise InvalidArgumentError(f"width should be greater than step = {meta_model.step}.")
+
+    if meta_model.width_events is not None and not isinstance(meta_model.width_events,
+                                                              (int, float)) and meta_model.width_events <= 0:
+        raise InvalidArgumentError("width_events should be either a positive integer or positive float.")
+
+
 def validate_args(meta_model) -> None:
+    """
+    Validate the arguments of the MetaModel.
+
+    Args:
+        meta_model (MetaModel): A MetaModel instance.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If any of the arguments are invalid.
+    """
+
+    validate_args_1(meta_model)
+    validate_args_2(meta_model)
+    validate_args_3(meta_model)
+    validate_args_4(meta_model)
+    validate_args_5(meta_model)
+
+    if not all(val > 0 for val in meta_model.hyperparams_ffn[:-1]):
+        raise ValueError("hyperparams_ffn values must be greater than 0 except the last which is"
+                         " the activation function (str)")
+    if not all(val > 0 for val in meta_model.hyperparams_cnn[:-1]):
+        raise ValueError("hyperparams_cnn values must be greater than 0 except the last which is"
+                         " the activation function (str)")
+    if not all(val > 0 for val in meta_model.hyperparams_rnn[:-1]):
+        raise ValueError("hyperparams_rnn values must be greater than 0 except the last which is"
+                         " the activation function (str)")
+
+    if meta_model.hyperparams_ffn[1] > meta_model.hyperparams_ffn[2]:
+        raise ValueError(
+            "Minimum number of neurons per layer must be less than the maximum number for hyperparams_ffn")
+    if meta_model.hyperparams_cnn[0] > meta_model.hyperparams_cnn[1]:
+        raise ValueError("Minimum number of filters must be less than the maximum number for hyperparams_cnn")
+    if meta_model.hyperparams_cnn[2] > meta_model.hyperparams_cnn[3]:
+        raise ValueError("Minimum kernel size must be less than the maximum kernel size for hyperparams_cnn")
+    if meta_model.hyperparams_rnn[1] > meta_model.hyperparams_rnn[2]:
+        raise ValueError("Minimum number of hidden units must be less than the maximum number for hyperparams_rnn")
+
+    if len(meta_model.hyperparams_mm_network) != 3:
+        raise ValueError("hyperparams_mm_network must be a tuple of length 3")
+
+    if not all(isinstance(val, int) for val in meta_model.hyperparams_mm_network[:-1]):
+        raise ValueError("hyperparams_mm_network values must be integers except the last which is"
+                         " the activation function (str)")
+
+    if not isinstance(meta_model.save_models_as_dot_format, bool):
+        raise InvalidArgumentError("Invalid save_models_as_dot_format parameter: must be a boolean.")
+
+    if meta_model.dropout is None or not 0 <= meta_model.dropout < 1 or not isinstance(meta_model.dropout, float):
+        raise InvalidArgumentError("Invalid dropout parameter: must be a float between 0 and 1.0.")
+
+
+def validate_args_1(meta_model) -> None:
     """
     Validate the arguments of the MetaModel.
 
@@ -182,6 +241,21 @@ def validate_args(meta_model) -> None:
     if not isinstance(meta_model.pa, int) or meta_model.pa <= 0:
         raise InvalidArgumentError("pa should be a positive integer.")
 
+
+def validate_args_2(meta_model) -> None:
+    """
+    Validate the arguments of the MetaModel.
+
+    Args:
+        meta_model (MetaModel): A MetaModel instance.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If any of the arguments are invalid.
+    """
+
     if not isinstance(meta_model.t_r, float) or not (0 < meta_model.t_r <= 1):
         raise InvalidArgumentError("t_r should be a positive number between 0 and 1.")
 
@@ -197,25 +271,58 @@ def validate_args(meta_model) -> None:
         raise InvalidArgumentError(
             "Invalid format for models. It should be a list of strings or tuples of (string, integer).")
 
+
+def validate_model_type(model):
+    if model not in [LSTM, GRU, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D, RNN_ENCODER_DECODER, CNN_RNN,
+                     SELF_ATTENTION, FFN, TRANSFORMER]:
+        raise InvalidArgumentError(
+            f"Invalid model type {model}. Supported models are {LSTM}, {GRU}, {CNN}, {RNN_BIDIRECTIONAL},"
+            f" {CONV_LSTM1D}, {RNN_ENCODER_DECODER}, {CNN_RNN}, {SELF_ATTENTION}, {TRANSFORMER}, and {FFN}.")
+
+
+def validate_model_instances(model_instances):
+    if not isinstance(model_instances, int) or model_instances <= 0:
+        raise InvalidArgumentError("Number of model instances should be a positive integer.")
+
+
+def validate_args_3(meta_model) -> None:
+    """
+    Validate the arguments of the MetaModel.
+
+    Args:
+        meta_model (MetaModel): A MetaModel instance.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If any of the arguments are invalid.
+    """
+
     for model in meta_model.models:
         if isinstance(model, str):
-            if model not in [LSTM, GRU, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D, RNN_ENCODER_DECODER, CNN_RNN,
-                             SELF_ATTENTION, FFN, TRANSFORMER]:
-                raise InvalidArgumentError(
-                    f"Invalid model type {model}. Supported models are {LSTM}, {GRU}, {CNN}, {RNN_BIDIRECTIONAL},"
-                    f" {CONV_LSTM1D}, {RNN_ENCODER_DECODER}, {CNN_RNN}, {SELF_ATTENTION}, {TRANSFORMER}, and {FFN}.")
+            validate_model_type(model)
         elif isinstance(model, tuple) and len(model) == 2:
             model_type, model_instances = model
-            if model_type not in [LSTM, GRU, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D, RNN_ENCODER_DECODER, CNN_RNN,
-                                  SELF_ATTENTION, FFN, TRANSFORMER]:
-                raise InvalidArgumentError(
-                    f"Invalid model type {model_type}.Supported models are {LSTM}, {GRU}, {CNN}, "
-                    f"{RNN_BIDIRECTIONAL},"
-                    f" {CONV_LSTM1D}, {RNN_ENCODER_DECODER}, {CNN_RNN}, {SELF_ATTENTION}, {TRANSFORMER} and {FFN}.")
-            if not isinstance(model_instances, int) or model_instances <= 0:
-                raise InvalidArgumentError("Number of model instances should be a positive integer.")
+            validate_model_type(model_type)
+            validate_model_instances(model_instances)
         else:
             raise InvalidArgumentError(f"Invalid model specification {model}.")
+
+
+def validate_args_4(meta_model) -> None:
+    """
+    Validate the arguments of the MetaModel.
+
+    Args:
+        meta_model (MetaModel): A MetaModel instance.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If any of the arguments are invalid.
+    """
 
     if meta_model.type_training not in [TYPE_TRAINING_AVERAGE, TYPE_TRAINING_FFN]:
         raise InvalidArgumentError(
@@ -245,6 +352,21 @@ def validate_args(meta_model) -> None:
     if len(meta_model.hyperparams_transformer) != 5:
         raise ValueError("hyperparams_transformer must be a tuple of length 5")
 
+
+def validate_args_5(meta_model) -> None:
+    """
+    Validate the arguments of the MetaModel.
+
+    Args:
+        meta_model (MetaModel): A MetaModel instance.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If any of the arguments are invalid.
+    """
+
     param1, param2, param3, param4, param5 = meta_model.hyperparams_transformer
     if not (all(isinstance(p, int) for p in [param1, param2, param3]) and isinstance(param4, bool) and isinstance(
             param5,
@@ -260,36 +382,3 @@ def validate_args(meta_model) -> None:
     if not all(isinstance(val, int) for val in meta_model.hyperparams_rnn[:-1]):
         raise ValueError("hyperparams_rnn values must be integers except the last which is"
                          " the activation function (str)")
-
-    if not all(val > 0 for val in meta_model.hyperparams_ffn[:-1]):
-        raise ValueError("hyperparams_ffn values must be greater than 0 except the last which is"
-                         " the activation function (str)")
-    if not all(val > 0 for val in meta_model.hyperparams_cnn[:-1]):
-        raise ValueError("hyperparams_cnn values must be greater than 0 except the last which is"
-                         " the activation function (str)")
-    if not all(val > 0 for val in meta_model.hyperparams_rnn[:-1]):
-        raise ValueError("hyperparams_rnn values must be greater than 0 except the last which is"
-                         " the activation function (str)")
-
-    if meta_model.hyperparams_ffn[1] > meta_model.hyperparams_ffn[2]:
-        raise ValueError(
-            "Minimum number of neurons per layer must be less than the maximum number for hyperparams_ffn")
-    if meta_model.hyperparams_cnn[0] > meta_model.hyperparams_cnn[1]:
-        raise ValueError("Minimum number of filters must be less than the maximum number for hyperparams_cnn")
-    if meta_model.hyperparams_cnn[2] > meta_model.hyperparams_cnn[3]:
-        raise ValueError("Minimum kernel size must be less than the maximum kernel size for hyperparams_cnn")
-    if meta_model.hyperparams_rnn[1] > meta_model.hyperparams_rnn[2]:
-        raise ValueError("Minimum number of hidden units must be less than the maximum number for hyperparams_rnn")
-
-    if len(meta_model.hyperparams_mm_network) != 3:
-        raise ValueError("hyperparams_mm_network must be a tuple of length 3")
-
-    if not all(isinstance(val, int) for val in meta_model.hyperparams_mm_network[:-1]):
-        raise ValueError("hyperparams_mm_network values must be integers except the last which is"
-                         " the activation function (str)")
-
-    if not isinstance(meta_model.save_models_as_dot_format, bool):
-        raise InvalidArgumentError("Invalid save_models_as_dot_format parameter: must be a boolean.")
-
-    if meta_model.dropout is None or not 0 <= meta_model.dropout < 1 or not isinstance(meta_model.dropout, float):
-        raise InvalidArgumentError("Invalid dropout parameter: must be a float between 0 and 1.0.")

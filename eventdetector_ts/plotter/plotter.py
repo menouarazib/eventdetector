@@ -22,14 +22,14 @@ class Plotter:
         predictive model against the actual observed values.
     """
 
-    def __init__(self, root_dir: str, time_unit: TimeUnit, width_events_s: int) -> None:
+    def __init__(self, root_dir: str, time_unit: TimeUnit, width_events_s: float) -> None:
         """
         Initialize the Plotter object.
 
         Args:
             root_dir (str): The root directory for saving the plots.
-            time_unit (TimeUnit): The unit time of the dataset
-            width_events_s (int): The width of each event in time unit
+            time_unit (TimeUnit): The unit time of the dataset.
+            width_events_s (float): The width of events in the unit of time for the dataset.
         """
 
         self.val_losses = {}

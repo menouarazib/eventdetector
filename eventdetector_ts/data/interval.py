@@ -28,6 +28,15 @@ class Interval:
         """
         return "{} ---> {}".format(self.start_time, self.end_time)
 
+    def __repr__(self) -> str:
+        """
+        Returns a string representation of the interval in the format "start_time ---> end_time".
+
+        Returns:
+            str: A string representation of the interval.
+        """
+        return "{} ---> {}".format(self.start_time, self.end_time)
+
     def overlap(self, other: 'Interval') -> timedelta:
         """
         Computes the overlapping time (ot) between this interval and another interval.

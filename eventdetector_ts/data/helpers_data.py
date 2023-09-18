@@ -248,13 +248,14 @@ def remove_close_events(events_df: pd.DataFrame, delta_unit_time: int, unit: Tim
     return events_df
 
 
-def convert_events_to_intervals(events_df: pd.DataFrame, width_events_s: int, unit: TimeUnit) -> list[Interval]:
+def convert_events_to_intervals(events_df: pd.DataFrame, width_events_s: float, unit: TimeUnit) \
+        -> list[Interval]:
     """
     Convert events from a pandas DataFrame to intervals.
 
     Args:
         events_df (pd.DataFrame): DataFrame containing the events' data.
-        width_events_s (int): The overlapping partition size in unit time.
+        width_events_s (float): The width of events in the unit of time for the dataset.
         unit: The unit time
 
     Returns:

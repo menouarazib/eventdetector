@@ -11,6 +11,30 @@ from eventdetector_ts.models import logger_models
 from eventdetector_ts.models.helpers_models import SelfAttention
 
 
+def check_shape_compatibility(expected_shape, actual_shape, layer_name):
+    if expected_shape is not None and expected_shape != actual_shape:
+        msg = f"The expected input shape for layer '{layer_name}' is {expected_shape}, " \
+              f"but received {actual_shape} instead."
+        logger_models.critical(msg)
+        raise ValueError(msg)
+
+
+def check_dtype_compatibility(expected_dtype, actual_dtype, layer_name):
+    if expected_dtype is not None and expected_dtype != actual_dtype:
+        msg = f"The expected input dtype for layer '{layer_name}' is {expected_dtype}, " \
+              f"but received {actual_dtype} instead."
+        logger_models.critical(msg)
+        raise ValueError(msg)
+
+
+def check_rank_compatibility(expected_rank, actual_rank, layer_name):
+    if expected_rank is not None and expected_rank != actual_rank:
+        msg = f"The expected input rank for layer '{layer_name}' is {expected_rank}, " \
+              f"but received {actual_rank} instead."
+        logger_models.critical(msg)
+        raise ValueError(msg)
+
+
 class ModelBuilder:
     """
     Helper class for building TensorFlow Keras models.
@@ -84,21 +108,9 @@ class ModelBuilder:
             actual_rank = len(actual_shape)
 
             # Check if the shape, dtype, and rank are compatible
-            if expected_shape is not None and expected_shape != actual_shape:
-                msg = f"The expected input shape for layer '{layer.name}' is {expected_shape}, " \
-                      f"but received {actual_shape} instead."
-                logger_models.critical(msg)
-                raise ValueError(msg)
-            if expected_dtype is not None and expected_dtype != actual_dtype:
-                msg = f"The expected input dtype for layer '{layer.name}' is {expected_dtype}, " \
-                      f"but received {actual_dtype} instead."
-                logger_models.critical(msg)
-                raise ValueError(msg)
-            if expected_rank is not None and expected_rank != actual_rank:
-                msg = f"The expected input rank for layer '{layer.name}' is {expected_rank}, " \
-                      f"but received {actual_rank} instead."
-                logger_models.critical(msg)
-                raise ValueError(msg)
+            check_shape_compatibility(expected_shape, actual_shape, layer.name)
+            check_dtype_compatibility(expected_dtype, actual_dtype, layer.name)
+            check_rank_compatibility(expected_rank, actual_rank, layer.name)
 
         return input_
 
@@ -658,7 +670,6 @@ class ModelCreator:
 
     def __create_ffn(self):
         max_layers, min_units, max_units, activation_function = self.hyperparams_ffn
-        print(max_layers, min_units, max_units)
         num_instances = self.__get_instances(FFN)
         if num_instances > 0:
             for i in range(num_instances):
@@ -770,6 +781,28 @@ class ModelCreator:
                                           root_dir=self.root_dir)
                 self.created_models[name] = keras_model
 
+    def __create_model_layers_attention(self, model, num_layers, units, activation_function):
+        for j in range(num_layers):
+            units_j = units[j]
+            model.add_bidirectional(hidden_dim=units_j, return_sequences=True, activation=activation_function,
+                                    dropout=self.dropout)
+            model.add_gru_layer(hidden_dim=units_j, return_sequences=True, activation=activation_function,
+                                dropout=self.dropout)
+            model.add_self_attention(units=units_j)
+            if j == num_layers - 1:
+                self.__add_final_layer_attention(model, units_j, activation_function)
+
+    def __add_final_layer_attention(self, model, units_j, activation_function):
+        # Two cases
+        case1 = "USE_LSTM"
+        case2 = "USE_MAX_GLOBAl_POOLING"
+        chosen_case = random.choice([case1, case2])
+        if chosen_case == case1:
+            model.add_lstm_layer(hidden_dim=units_j, return_sequences=False,
+                                 activation=activation_function, dropout=self.dropout)
+        else:
+            model.add_global_max_pooling()
+
     def __create_encoder_decoder_self_attention(self):
         max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         num_instances = self.__get_instances(SELF_ATTENTION)
@@ -781,23 +814,7 @@ class ModelCreator:
                 num_layers = random.randint(1, max_layers)
                 units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
-                for j in range(num_layers):
-                    units_j = units[j]
-                    model.add_bidirectional(hidden_dim=units_j, return_sequences=True, activation=activation_function,
-                                            dropout=self.dropout)
-                    model.add_gru_layer(hidden_dim=units_j, return_sequences=True, activation=activation_function,
-                                        dropout=self.dropout)
-                    model.add_self_attention(units=units_j)
-                    if j == num_layers - 1:
-                        # Two cases
-                        case1 = "USE_LSTM"
-                        case2 = "USE_MAX_GLOBAl_POOLING"
-                        chosen_case = random.choice([case1, case2])
-                        if chosen_case == case1:
-                            model.add_lstm_layer(hidden_dim=units_j, return_sequences=False,
-                                                 activation=activation_function, dropout=self.dropout)
-                        else:
-                            model.add_global_max_pooling()
+                self.__create_model_layers_attention(model, num_layers, units, activation_function)
                 # Add last layer for regression
                 model.add_dense_layer(units=1, dropout=None, activation=self.last_act_func)
                 keras_model = model.build(name=name, save_models_as_dot_format=self.save_models_as_dot_format,
