@@ -15,7 +15,7 @@ Universal Event Detection in Time Series
 
 - [Introduction](#introduction)
 - [Installation](#installation)
-- [Quickstart](#quickstart)
+- [Quickstart](#quickstart-examples)
 - [Make Prediction](#make-prediction)
 - [Documentation](#documentation)
 - [How to credit our package](#how-to-credit-our-package)
@@ -68,7 +68,7 @@ env\Scripts\activate.bat  # for Windows
 
 <pre><code>pip install -r requirements.txt</code></pre>
 
-## Quickstart Example
+## Quickstart Examples
 ### Data sets
 To quickly get started with `EventDetector`, follow the steps below:
 
