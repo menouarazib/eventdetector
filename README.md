@@ -87,8 +87,7 @@ from eventdetector_ts.metamodel.meta_model import MetaModel
 
 dataset, events = load_credit_card_fraud()
 
-meta_model = MetaModel(dataset=dataset, events=events, width=2, step=1, output_dir='credit_card_fraud',
-                       width_events=1.0)
+meta_model = MetaModel(dataset=dataset, events=events, width=3, step=1, output_dir='credit_card_fraud', batch_size=3000)
 
 # Prepare the events and dataset for computing op.
 meta_model.prepare_data_and_computing_op()
@@ -106,30 +105,23 @@ from eventdetector_ts.metamodel.meta_model import MetaModel
 
 dataset, events = load_credit_card_fraud()
 
-meta_model = MetaModel(dataset=dataset, events=events, width=2, step=1, output_dir='credit_card_fraud',
-                       width_events=1.0)
+meta_model = MetaModel(dataset=dataset, events=events, width=3, step=1, output_dir='credit_card_fraud', batch_size=3000)
 
 meta_model.fit()
 ```
   - Martian Bow Shock:
-    ```python
-    from eventdetector_ts import load_martian_bow_shock
-    from eventdetector_ts.metamodel.meta_model import MetaModel
-    
-    dataset, events = load_martian_bow_shock()
-    
-    # Create the MetaModel.
-    meta_model = MetaModel(output_dir="martian_bow_shocks", dataset=dataset, events=events, width=45, step=1,
-                           time_window=5400, batch_size=3000)
-    # Prepare the events and dataset for computing op.
-    meta_model.prepare_data_and_computing_op()
-    # Builds a stacking learning pipeline using the provided models and hyperparameters.
-    meta_model.build_stacking_learning()
-    # Run the Event Extraction Optimization process.
-    meta_model.event_extraction_optimization()
-    # Plot the results: Losses, true/predicted op, true/predicted events, deltat_t.
-    meta_model.plot_save(show_plots=True)
-    ```
+```python
+from eventdetector_ts import load_martian_bow_shock
+from eventdetector_ts.metamodel.meta_model import MetaModel
+
+dataset, events = load_martian_bow_shock()
+
+meta_model = MetaModel(output_dir="mex_bow_shocks", dataset=dataset, events=events, width=45, step=1,
+                       time_window=5400.0, batch_size=3000)
+
+meta_model.fit()
+
+```
 ### Results and Performance Evaluation
 
 #### Performance Metrics

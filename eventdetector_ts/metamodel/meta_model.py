@@ -195,7 +195,7 @@ class MetaModel:
 
         config_dict['output_dir'] = self.output_dir
 
-    def __set_defaults(self) -> None:
+    def __set_defaults_bis(self) -> None:
         """
         Sets default values for any missing keyword arguments in self.kwargs.
 
@@ -211,11 +211,22 @@ class MetaModel:
         else:
             if isinstance(self.kwargs.get('delta'), float):
                 self.delta = convert_seconds_to_time_unit(value=self.kwargs.get('delta'), unit=self.time_unit)
+            else:
+                self.delta = self.kwargs.get('delta') * self.t_s
 
         self.s_h = self.kwargs.get('s_h', 0.05)
         self.epsilon = self.kwargs.get('epsilon', 0.0002)
         self.pa = self.kwargs.get('pa', 5)
         self.t_r = self.kwargs.get('t_r', 0.97)
+
+    def __set_defaults(self) -> None:
+        """
+        Sets default values for any missing keyword arguments in self.kwargs.
+
+        Returns:
+            None
+        """
+        self.__set_defaults_bis()
 
         if self.kwargs.get('time_window') is None:
             self.time_window = None
@@ -223,6 +234,8 @@ class MetaModel:
             if isinstance(self.kwargs.get('time_window'), float):
                 self.time_window = convert_seconds_to_time_unit(value=self.kwargs.get('time_window'),
                                                                 unit=self.time_unit)
+            else:
+                self.time_window = self.kwargs.get('time_window') * self.t_s
 
         self.models = self.kwargs.get('models', [(FFN, 2)])
         for i, model in enumerate(self.models):
