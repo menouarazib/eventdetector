@@ -165,7 +165,7 @@ class Plotter:
                                        style=STYLE_PREDICTED)
             ax.add_patch(rect1)
 
-        for _, test_date in self.true_events[MIDDLE_EVENT_LABEL].iteritems():
+        for _, test_date in self.true_events[MIDDLE_EVENT_LABEL].items():
             rect1 = event_to_rectangle(event=test_date, width_events_s=self.width_events_s, time_unit=self.time_unit,
                                        color=COLOR_TRUE,
                                        style=STYLE_TRUE)

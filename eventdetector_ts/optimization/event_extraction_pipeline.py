@@ -20,8 +20,8 @@ class OptimizationData:
         - time_unit (TimeUnit): Unit of time used in the dataset.
         - true_events (pd.DataFrame): DataFrame to store true events.
         - predicted_op (np.ndarray): Array to store predicted outcomes.
-        - delta Union[int, float]: The maximum time tolerance used to determine the correspondence between a predicted event
-                    and its actual counterpart in the true events.
+        - delta Union[int, float]: The maximum time tolerance used to determine the correspondence between a predicted 
+            event and its actual counterpart in the true events.
         - s_h (float): A step parameter for the peak height threshold h.
         - s_s (int): Step size in time unit for overlapping the partition.
         - w_s (int): Size in time unit of the overlapping partition.
@@ -44,8 +44,8 @@ class OptimizationData:
             w_s (int): Size in time unit of the overalapping partition.
             s_s (int): Step size in time unit for overalapping the partition.
             s_h (float): A step parameter for the peak height threshold h.
-            delta Union[int, float]: The maximum time tolerance used to determine the correspondence between a predicted event
-                    and its actual counterpart in the true events.
+            delta Union[int, float]: The maximum time tolerance used to determine the correspondence between a predicted
+                event and its actual counterpart in the true events.
             output_dir (str): The parent directory.
             time_unit (TimeUnit): Unit of time used in the dataset.
         """
