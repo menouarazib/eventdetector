@@ -29,8 +29,8 @@ Secondly, it `does not require labeled datasets` where each point is
 labeled; instead, it only requires reference events defined as time
 points or intervals of time. Thirdly, it is designed to be `robust`
 through the use of a stacked ensemble learning metamodel that
-combines deep learning models, including classic feed-forward
-neural networks (FFNs) and state-of-the-art architectures like
+combines deep learning models, from classic feed-forward
+neural networks (FFNs) to the state-of-the-art architectures like
 transformers. By leveraging the collective strengths of multiple
 models, this ensemble approach can mitigate individual model
 weaknesses and biases, resulting in more robust predictions.
