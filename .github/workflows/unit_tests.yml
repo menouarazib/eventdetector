@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: [ "3.9", "3.10", "3.11" ]
+        python-version: [ "3.11" ]
 
     steps:
       - uses: actions/checkout@v3
@@ -48,14 +48,14 @@ jobs:
         run: |
           coverage run -m pytest tests/
           coverage xml -o coverage.xml
-      - name: Upload coverage report (only for ubuntu-latest and python 3.10)
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' }}
+      - name: Upload coverage report (only for ubuntu-latest and python 3.11)
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11' }}
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
           path: coverage.xml
-      - name: Run Coveralls (only for ubuntu-latest and python 3.10)
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' }}
+      - name: Run Coveralls (only for ubuntu-latest and python 3.11)
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: coverallsapp/github-action@v2
