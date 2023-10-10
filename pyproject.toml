@@ -17,7 +17,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "eventdetector_ts"
-version = "1.0.8"
+version = "1.0.9"
 description = "This package offers an implementation of the method outlined in the paper, Universal Event Detection in Time Series. It is designed to empower users to apply this method to their own datasets and tailor the detection process to meet their unique requirements."
 keywords = ["Event Detection", "Time Series", "Universal Approximation Theory", "Deep Learning", "Stacking Ensemble Learning"]
 authors = [
