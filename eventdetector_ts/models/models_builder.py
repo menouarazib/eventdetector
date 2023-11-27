@@ -440,9 +440,9 @@ class ModelCreator:
            models (List[Tuple[str, int]]): A list of tuples representing the model types and number of instances.
                Supported model types include LSTM, GRU, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D, RNN_ENCODER_DECODER,
                CNN_RNN, SELF_ATTENTION, TRANSFORMER, and FFN.
-           hyperparams_ffn (Tuple[int, int, int, str]): Specify the hyperparameters for the FFN.
-           hyperparams_cnn (Tuple[int, int, int, int, int, str]): Specify the hyperparameters for CNN.
-           hyperparams_rnn (Tuple[int, int, int, str]): Specify the hyperparameters for the RNN.
+           hyperparams_ffn (Tuple[int, int, int,int, str]): Specify the hyperparameters for the FFN.
+           hyperparams_cnn (Tuple[int, int, int,int, int, int, str]): Specify the hyperparameters for CNN.
+           hyperparams_rnn (Tuple[int, int, int,int, str]): Specify the hyperparameters for the RNN.
            hyperparams_transformer (Tuple[int, int, int, bool, str]): Specify the hyperparameters for Transformer.
            last_act_func (str): Activation function for the final layer of each model.
            dropout (float): Dropout rate.
@@ -452,8 +452,9 @@ class ModelCreator:
 
        """
 
-    def __init__(self, models: List[Tuple[str, int]], hyperparams_ffn: Tuple[int, int, int, str],
-                 hyperparams_cnn: Tuple[int, int, int, int, int, str], hyperparams_rnn: Tuple[int, int, int, str],
+    def __init__(self, models: List[Tuple[str, int]], hyperparams_ffn: Tuple[int, int, int, int, str],
+                 hyperparams_cnn: Tuple[int, int, int, int, int, int, str],
+                 hyperparams_rnn: Tuple[int, int, int, int, str],
                  hyperparams_transformer: Tuple[int, int, int, bool, str], last_act_func: str, dropout: float,
                  save_models_as_dot_format: bool,
                  root_dir: Optional[str] = None):
@@ -464,9 +465,9 @@ class ModelCreator:
             models (List[Tuple[str, int]]): A list of tuples representing the model types and
                 number of instances. Supported model types include LSTM, GRU, CNN, RNN_BIDIRECTIONAL, CONV_LSTM1D,
                 RNN_ENCODER_DECODER, CNN_RNN, SELF_ATTENTION, TRANSFORMER, and FFN.
-            hyperparams_ffn (Tuple[int, int, int, str]): Specify the hyperparameters for the FFN.
-            hyperparams_cnn (Tuple[int, int, int, int, int, str]): Specify the hyperparameters for CNN.
-            hyperparams_rnn (Tuple[int, int, int, str]): Specify the hyperparameters for the RNN.
+            hyperparams_ffn (Tuple[int, int, int, int, str]): Specify the hyperparameters for the FFN.
+            hyperparams_cnn (Tuple[int, int, int,int, int, int, str]): Specify the hyperparameters for CNN.
+            hyperparams_rnn (Tuple[int, int,int, int, str]): Specify the hyperparameters for the RNN.
             hyperparams_transformer (Tuple[int, int, int, bool, str]): Specify the hyperparameters for Transformer.
             dropout (float): Dropout rate.
             last_act_func (str): Activation function for the final layer of each model.
@@ -550,7 +551,7 @@ class ModelCreator:
             None
         """
         # Get the maximum number of LSTM units and layers from hyperparameters
-        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
+        min_layers, max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         # Get the number of LSTM instances from the model list
         num_instances = self.__get_instances(LSTM)
         # If there are LSTM instances, create them
@@ -561,7 +562,7 @@ class ModelCreator:
                 # Set a base name for the model
                 name = f"{LSTM}_{i}"
                 # Choose a random number of layers between 1 and the maximum number of layers
-                num_layers = random.randint(1, max_layers)
+                num_layers = random.randint(min_layers, max_layers)
                 units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
@@ -586,14 +587,14 @@ class ModelCreator:
         Returns:
             None
         """
-        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
+        min_layers, max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         num_instances = self.__get_instances(GRU)
 
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{GRU}_{i}"
-                num_layers = random.randint(1, max_layers)
+                num_layers = random.randint(min_layers, max_layers)
                 units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
@@ -616,7 +617,7 @@ class ModelCreator:
         Returns:
             None
         """
-        filters_min, filters_max, kernel_size_min, kernel_size_max, max_layers, activation_function = \
+        filters_min, filters_max, kernel_size_min, kernel_size_max, min_layers, max_layers, activation_function = \
             self.hyperparams_cnn
         num_instances = self.__get_instances(CNN)
 
@@ -624,7 +625,7 @@ class ModelCreator:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{CNN}_{i}"
-                num_layers = random.randint(1, max_layers)
+                num_layers = random.randint(min_layers, max_layers)
                 filters_per_layer = random.randint(filters_min, filters_max)
                 kernel_size_per_layer = random.randint(kernel_size_min, kernel_size_max)
                 for j in range(num_layers):
@@ -645,13 +646,13 @@ class ModelCreator:
                 self.created_models[name] = keras_model
 
     def __create_bi_lstm(self):
-        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
+        min_layers, max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         num_instances = self.__get_instances(RNN_BIDIRECTIONAL)
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{RNN_BIDIRECTIONAL}_{i}"
-                num_layers = random.randint(1, max_layers)
+                num_layers = random.randint(min_layers, max_layers)
                 units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
@@ -669,14 +670,14 @@ class ModelCreator:
                 self.created_models[name] = keras_model
 
     def __create_ffn(self):
-        max_layers, min_units, max_units, activation_function = self.hyperparams_ffn
+        min_layers, max_layers, min_units, max_units, activation_function = self.hyperparams_ffn
         num_instances = self.__get_instances(FFN)
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 model.add_flatten_layer()
                 name = f"{FFN}_{i}"
-                num_layers = random.randint(1, max_layers)
+                num_layers = random.randint(min_layers, max_layers)
                 units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
@@ -690,13 +691,13 @@ class ModelCreator:
                 self.created_models[name] = keras_model
 
     def __create_rnn_encoder_decoder(self):
-        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
+        min_layers, max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         num_instances = self.__get_instances(RNN_ENCODER_DECODER)
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{RNN_ENCODER_DECODER}_{i}"
-                num_layers = random.randint(1, max_layers)
+                num_layers = random.randint(min_layers, max_layers)
                 units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 for j in range(num_layers):
@@ -718,8 +719,8 @@ class ModelCreator:
                 self.created_models[name] = keras_model
 
     def __create_cnn_rnn(self):
-        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
-        filters_min, filters_max, kernel_size_min, kernel_size_max, max_layers_, activation_function_cnn = (
+        min_layers, max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
+        filters_min, filters_max, kernel_size_min, kernel_size_max, min_layers_, max_layers_, activation_function_cnn = (
             self.hyperparams_cnn)
         max_layers = max(max_layers_, max_layers)
         num_instances = self.__get_instances(CNN_RNN)
@@ -727,7 +728,7 @@ class ModelCreator:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{CNN_RNN}_{i}"
-                num_layers = random.randint(1, max_layers)
+                num_layers = random.randint(min_layers_, max_layers)
                 units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 filters_per_layer = random.randint(filters_min, filters_max + 1)
@@ -752,7 +753,7 @@ class ModelCreator:
                 self.created_models[name] = keras_model
 
     def __create_conv_lstm1d(self):
-        filters_min, filters_max, kernel_size_min, kernel_size_max, max_layers, activation_function = (
+        filters_min, filters_max, kernel_size_min, kernel_size_max, min_layers, max_layers, activation_function = (
             self.hyperparams_cnn)
         num_instances = self.__get_instances(CONV_LSTM1D)
         if num_instances > 0:
@@ -762,7 +763,7 @@ class ModelCreator:
                 new_shape = (shape_inputs[1], 1, shape_inputs[2])
                 model.add_reshape(shape=new_shape)
                 name = f"{CONV_LSTM1D}_{i}"
-                num_layers = random.randint(1, max_layers)
+                num_layers = random.randint(min_layers, max_layers)
                 filters_per_layer = random.randint(filters_min, filters_max)
                 kernel_size_per_layer = random.randint(kernel_size_min, kernel_size_max)
                 for j in range(num_layers):
@@ -804,14 +805,14 @@ class ModelCreator:
             model.add_global_max_pooling()
 
     def __create_encoder_decoder_self_attention(self):
-        max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
+        min_layers, max_layers, min_units, max_units, activation_function = self.hyperparams_rnn
         num_instances = self.__get_instances(SELF_ATTENTION)
 
         if num_instances > 0:
             for i in range(num_instances):
                 model: ModelBuilder = ModelBuilder(inputs=self.inputs)
                 name = f"{SELF_ATTENTION}_{i}"
-                num_layers = random.randint(1, max_layers)
+                num_layers = random.randint(min_layers, max_layers)
                 units = [random.randint(min_units, max_units) for _ in range(num_layers)]
                 units = sorted(units, reverse=True)
                 self.__create_model_layers_attention(model, num_layers, units, activation_function)

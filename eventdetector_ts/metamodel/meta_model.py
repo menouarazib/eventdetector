@@ -14,7 +14,8 @@ from eventdetector_ts.data.helpers_data import compute_middle_event, remove_clos
     convert_dataframe_to_overlapping_partitions, op, check_time_unit, save_dict_to_json, \
     convert_dataset_index_to_datetime, convert_seconds_to_time_unit
 from eventdetector_ts.metamodel import logger_meta_model
-from eventdetector_ts.metamodel.utils import DataSplitter, validate_args, validate_required_args
+from eventdetector_ts.metamodel.utils import DataSplitter, validate_args, validate_required_args, validate_ffn, \
+    validate_cnn, validate_rnn
 from eventdetector_ts.models.models_builder import ModelCreator
 from eventdetector_ts.models.models_trainer import ModelTrainer
 from eventdetector_ts.optimization.event_extraction_pipeline import OptimizationData, EventOptimization
@@ -244,9 +245,12 @@ class MetaModel:
             elif isinstance(model, tuple) and len(model) == 1:
                 self.models[i] = (model[0], 1)
 
-        self.hyperparams_ffn = self.kwargs.get('hyperparams_ffn', (3, 64, 256, "sigmoid"))
-        self.hyperparams_cnn = self.kwargs.get('hyperparams_cnn', (16, 64, 3, 8, 2, "relu"))
-        self.hyperparams_rnn = self.kwargs.get('hyperparams_rnn', (1, 16, 128, "tanh"))
+        self.hyperparams_ffn = self.kwargs.get('hyperparams_ffn', (1, 3, 64, 256, "sigmoid"))
+        self.hyperparams_ffn = validate_ffn(self)
+        self.hyperparams_cnn = self.kwargs.get('hyperparams_cnn', (16, 64, 3, 8, 1, 2, "relu"))
+        self.hyperparams_cnn = validate_cnn(self)
+        self.hyperparams_rnn = self.kwargs.get('hyperparams_rnn', (1, 2, 16, 128, "tanh"))
+        self.hyperparams_rnn = validate_rnn(self)
         self.hyperparams_transformer = self.kwargs.get("hyperparams_transformer", (256, 4, 1, True, "relu"))
         self.hyperparams_mm_network = self.kwargs.get('hyperparams_mm_network', (1, 32, "sigmoid"))
         self.epochs = self.kwargs.get('epochs', 256)

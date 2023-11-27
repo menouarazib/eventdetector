@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Dict
+from typing import Dict, Tuple
 
 import joblib
 import numpy as np
@@ -164,26 +164,6 @@ def validate_args(meta_model) -> None:
     validate_args_4(meta_model)
     validate_args_5(meta_model)
 
-    if not all(val > 0 for val in meta_model.hyperparams_ffn[:-1]):
-        raise ValueError("hyperparams_ffn values must be greater than 0 except the last which is"
-                         " the activation function (str)")
-    if not all(val > 0 for val in meta_model.hyperparams_cnn[:-1]):
-        raise ValueError("hyperparams_cnn values must be greater than 0 except the last which is"
-                         " the activation function (str)")
-    if not all(val > 0 for val in meta_model.hyperparams_rnn[:-1]):
-        raise ValueError("hyperparams_rnn values must be greater than 0 except the last which is"
-                         " the activation function (str)")
-
-    if meta_model.hyperparams_ffn[1] > meta_model.hyperparams_ffn[2]:
-        raise ValueError(
-            "Minimum number of neurons per layer must be less than the maximum number for hyperparams_ffn")
-    if meta_model.hyperparams_cnn[0] > meta_model.hyperparams_cnn[1]:
-        raise ValueError("Minimum number of filters must be less than the maximum number for hyperparams_cnn")
-    if meta_model.hyperparams_cnn[2] > meta_model.hyperparams_cnn[3]:
-        raise ValueError("Minimum kernel size must be less than the maximum kernel size for hyperparams_cnn")
-    if meta_model.hyperparams_rnn[1] > meta_model.hyperparams_rnn[2]:
-        raise ValueError("Minimum number of hidden units must be less than the maximum number for hyperparams_rnn")
-
     if len(meta_model.hyperparams_mm_network) != 3:
         raise ValueError("hyperparams_mm_network must be a tuple of length 3")
 
@@ -343,12 +323,6 @@ def validate_args_4(meta_model) -> None:
     if not 0 < meta_model.val_size < 1 or not isinstance(meta_model.val_size, float):
         raise InvalidArgumentError("Invalid val_size parameter: must be a float between 0 and 1.")
 
-    if len(meta_model.hyperparams_ffn) != 4:
-        raise ValueError("hyperparams_ffn must be a tuple of length 4")
-    if len(meta_model.hyperparams_cnn) != 6:
-        raise ValueError("hyperparams_cnn must be a tuple of length 6")
-    if len(meta_model.hyperparams_rnn) != 4:
-        raise ValueError("hyperparams_rnn must be a tuple of length 4")
     if len(meta_model.hyperparams_transformer) != 5:
         raise ValueError("hyperparams_transformer must be a tuple of length 5")
 
@@ -373,12 +347,69 @@ def validate_args_5(meta_model) -> None:
             str)):
         raise ValueError("hyperparams_transformer values must be Tuple[int, int, int, bool, str]")
 
-    if not all(isinstance(val, int) for val in meta_model.hyperparams_ffn[:-1]):
-        raise ValueError("hyperparams_ffn values must be integers except the last which is"
-                         " the activation function (str)")
-    if not all(isinstance(val, int) for val in meta_model.hyperparams_cnn[:-1]):
-        raise ValueError("hyperparams_cnn values must be integers except the last which is"
-                         " the activation function (str)")
-    if not all(isinstance(val, int) for val in meta_model.hyperparams_rnn[:-1]):
-        raise ValueError("hyperparams_rnn values must be integers except the last which is"
-                         " the activation function (str)")
+
+def validate_ffn(meta_model) -> Tuple:
+    hyperparams_ffn = meta_model.hyperparams_ffn
+    l_ffn = len(hyperparams_ffn)
+    print(l_ffn)
+
+    if not 2 < l_ffn < 6:
+        raise ValueError("hyperparams_ffn must be a tuple of length 3, 4 or 5")
+
+    if l_ffn == 3:
+        max_layers, min_neurons, max_neurons = hyperparams_ffn
+        return 1, max_layers, min_neurons, max_neurons, "sigmoid"
+
+    if l_ffn == 4:
+        if isinstance(hyperparams_ffn[-1], str):
+            max_layers, min_neurons, max_neurons, activation = hyperparams_ffn
+            return 1, max_layers, min_neurons, max_neurons, activation
+        else:
+            min_layers, max_layers, min_neurons, max_neurons = hyperparams_ffn
+            return min_layers, max_layers, min_neurons, max_neurons, "sigmoid"
+
+    return hyperparams_ffn
+
+
+def validate_cnn(meta_model) -> Tuple:
+    hyperparams_cnn = meta_model.hyperparams_cnn
+    l_cnn = len(hyperparams_cnn)
+
+    if not 4 < l_cnn < 8:
+        raise ValueError("hyperparams_cnn must be a tuple of length between 5 and 7.")
+
+    if l_cnn == 5:
+        min_f, max_f, min_k, max_k, max_layers = hyperparams_cnn
+        return min_f, max_f, min_k, max_k, 1, max_layers, "relu"
+
+    if l_cnn == 6:
+        if isinstance(hyperparams_cnn[-1], str):
+            min_f, max_f, min_k, max_k, max_layers, activation = hyperparams_cnn
+            return min_f, max_f, min_k, max_k, 1, max_layers, activation
+        else:
+            min_f, max_f, min_k, max_k, min_layers, max_layers = hyperparams_cnn
+            return min_f, max_f, min_k, max_k, min_layers, max_layers, "relu"
+
+    return hyperparams_cnn
+
+
+def validate_rnn(meta_model) -> Tuple:
+    hyperparams_rnn = meta_model.hyperparams_rnn
+    l_rnn = len(hyperparams_rnn)
+
+    if not 2 < l_rnn < 6:
+        raise ValueError("hyperparams_rnn must be a tuple of length 3, 4 or 5")
+
+    if l_rnn == 3:
+        max_layers, min_neurons, max_neurons = hyperparams_rnn
+        return 1, max_layers, min_neurons, max_neurons, "tanh"
+
+    if l_rnn == 4:
+        if isinstance(hyperparams_rnn[-1], str):
+            max_layers, min_neurons, max_neurons, activation = hyperparams_rnn
+            return 1, max_layers, min_neurons, max_neurons, activation
+        else:
+            min_layers, max_layers, min_neurons, max_neurons = hyperparams_rnn
+            return min_layers, max_layers, min_neurons, max_neurons, "tanh"
+
+    return hyperparams_rnn

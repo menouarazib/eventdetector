@@ -110,6 +110,8 @@ class ModelTrainer:
                                                               test_size=self.val_size,
                                                               shuffle=False)
             # Print message indicating fitting of a current model
+            logger_models.info(f"Summary of {model_name}...")
+            logger_models.info(model.summary())
             logger_models.info(f"Fitting of {model_name}...")
             # Fit the model using training data and validate using validation data
             history = model.fit(train_x, train_y, epochs=self.epochs,
