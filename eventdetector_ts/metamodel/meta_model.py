@@ -76,20 +76,20 @@ class MetaModel:
                 - models (List[Union[str, Tuple[str, int]]]): Determines the type of deep learning models to use.
                     If a tuple is passed, it specifies both the model type and the number of instances to run.
                     The default value is [(FFN, 2)].
-                - hyperparams_ffn (Tuple[int, int, int, str]): Specify for the FFN the maximum number of layers,
-                    the minimum and the maximum number of neurons per layer, and the activation function. 
-                    The default value is (3, 64, 256, "sigmoid"). The List of available activation functions are 
+                - hyperparams_ffn (Tuple[int, int, int, int, str]): Specify for the FFN the minimum and the maximum number 
+                    of layers, the minimum and the maximum number of neurons per layer, and the activation function. 
+                    The default value is (1, 3, 64, 256, "sigmoid"). The List of available activation functions are 
                     ["relu","sigmoid","tanh","softmax","leaky_relu","elu","selu","swish"]. If you pass `None`, no 
                     activation is applied (i.e. "linear" activation: `a(x) = x`).
                 - hyperparams_cnn (Tuple[int, int, int, int, int, str]): Specify for the CNN the minimum, maximum number
-                    of filters, the minimum, the maximum kernel size, the maximum number of pooling layers, and the 
-                    activation function. The default value is (16, 64, 3, 8, 2, "relu").
+                    of filters, the minimum, the maximum kernel size, the minimum and the maximum number of pooling
+                    layers, and the activation function. The default value is (16, 64, 3, 8, 1, 2, "relu").
                 - hyperparams_transformer (Tuple[int, int, int, bool, str]): Specify for Transformer the Key dimension, 
                     number of heads, the number of the encoder blocks, a flag to indicate the use of the original 
                     architecture, and the activation function. The default value is (256, 8, 10, True, "relu").
-                - hyperparams_rnn (Tuple[int, int, int, str]): Specify for the RNN the maximum number of RNN layers, 
-                    the minimum and the maximum number of hidden units, and the activation function.
-                    The default value is (1, 16, 128, "tanh").
+                - hyperparams_rnn (Tuple[int, int, int, str]): Specify for the RNN the minimum and the maximum number 
+                    of RNN layers, the minimum and the maximum number of hidden units, and the activation function.
+                    The default value is (1, 2, 16, 128, "tanh").
                 - hyperparams_mm_network (Tuple[int, int, str]): Specify for the MetaModel network the number
                     of layers, the number of neurons per layer, and the activation function.
                     The default value is (1, 32, "sigmoid").

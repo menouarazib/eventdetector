@@ -33,9 +33,9 @@ class TestModelsBuilder(unittest.TestCase):
         model_creator = ModelCreator(
             [(RNN_ENCODER_DECODER, 1), (FFN, 2), (CNN, 2), (RNN_BIDIRECTIONAL, 1), (CONV_LSTM1D, 1), (LSTM, 3),
              (SELF_ATTENTION, 3)],
-            hyperparams_rnn=(3, 45, 46, "tanh"),
-            hyperparams_cnn=(64, 65, 3, 4, 1, "relu"),
-            hyperparams_ffn=(3, 64, 128, "sigmoid"), save_models_as_dot_format=False, root_dir=None, dropout=0.3,
+            hyperparams_rnn=(1, 2, 45, 46, "tanh"),
+            hyperparams_cnn=(64, 65, 3, 4, 1, 1, "relu"),
+            hyperparams_ffn=(1, 2, 64, 128, "sigmoid"), save_models_as_dot_format=False, root_dir=None, dropout=0.3,
             last_act_func="sigmoid", hyperparams_transformer=(256, 4, 1, True, "relu"))
 
         model_creator.create_models(inputs=self.inputs_rnn)
