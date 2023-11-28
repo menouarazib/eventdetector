@@ -37,7 +37,7 @@ models, this ensemble approach can mitigate individual model
 weaknesses and biases, resulting in more robust predictions.
 Finally, to facilitate practical implementation, we have developed
 this package called `EventDetector` to accompany the proposed method. 
-It provides a rich support for event detection in time series. We establish mathematically that our method is universal, and capable of detecting any type of event with arbitrary precision under mild continuity assumptions on the time series. These events may encompass change points, frauds, anomalies, physical occurrences, and more. We substantiate our theoretical results using the universal approximation theorem. Additionally, we provide empirical validations that confirm our claims, demonstrating that our method, with a limited number of parameters, outperforms other deep learning approaches, particularly for rare events and imbalanced datasets from different domains.
+It provides a rich support for event detection in time series. We establish `mathematically` that our method is universal, and capable of detecting any type of event with arbitrary precision under mild continuity assumptions on the time series. These events may encompass change points, frauds, anomalies, physical occurrences, and more. We substantiate our theoretical results using the universal approximation theorem. Additionally, we provide empirical validations that confirm our claims, demonstrating that our method, with a limited number of parameters, outperforms other deep learning approaches, particularly for rare events and imbalanced datasets from different domains.
 
 ## Installation
 
@@ -121,16 +121,16 @@ meta_model.fit()
 
 | Method              | Number of Parameters | Precision | Recall | F1-Score |
 |---------------------|----------------------|-----------|--------|----------|
-| CNN [[3]](#3)       | 119,457              | 0.89      | 0.68   | 0.77     |
-| FFN+SMOTE [[4]](#4) | 5,561                | 0.79      | 0.81   | 0.80     |
-| FFN+SMOTE [[5]](#5) | N/A                  | 0.82      | 0.79   | 0.81     |
+| CNN [[1]](#1)       | 119,457              | 0.89      | 0.68   | 0.77     |
+| FFN+SMOTE [[2]](#2) | 5,561                | 0.79      | 0.81   | 0.80     |
+| FFN+SMOTE [[3]](#3) | N/A                  | 0.82      | 0.79   | 0.81     |
 | Ours                | 1,201                | 0.98      | 0.74   | 0.85     |
 
 ##### Bow Shock Crossings
 
 | Method             | Number of Parameters | Precision | Recall        | F1-Score      |
 |--------------------|----------------------|-----------|---------------|---------------|
-| ResNat18 [[6]](#6) | 29,886,979           | 0.99      | [0.83 , 0.88] | [0.91 , 0.94] |
+| ResNat18 [[4]](#4) | 29,886,979           | 0.99      | [0.83 , 0.88] | [0.91 , 0.94] |
 | Ours               | 6,121                | 0.95      | 0.96          | 0.95          |
 
 #### Training and Validation Losses
@@ -279,20 +279,15 @@ If you use our package, please cite the following papers:
 ```
 
 # References
-<a id="1"> [1] M. Azib, B. Renard, P. Garnier, V. Génot, and N. André, “A Comprehensive Python Library for Deep Learning-Based Event Detection in Multivariate Time Series Data and Information Retrieval in NLP,” 2023. [Online]. Available: arXiv:2310.16485.
+
+<a id="3"> [1] F. K. Alarfaj, I. Malik, H. U. Khan, N. Almusallam, M. Ramzan and M. Ahmed, “Credit Card Fraud Detection Using State-of-the-Art Machine Learning and Deep Learning Algorithms,” in IEEE Access, vol. 10, pp. 39700-39715, 2022, doi: 10.1109/ACCESS.2022.3166891.
 </a>
 
-<a id="2"> [2] M. Azib, B. Renard, P. Garnier, V. Génot, and N. André, “Universal Event Detection in Time Series,” 2023. [Online]. Available: arXiv:2311.15654.
+<a id="4"> [2] D. Varmedja, M. Karanovic, S. Sladojevic, M. Arsenovic and A. Anderla, “Credit Card Fraud Detection - Machine Learning methods,” 2019 18th International Symposium INFOTEH-JAHORINA (INFOTEH), East Sarajevo, Bosnia and Herzegovina, 2019, pp. 1-5, doi: 10.1109/INFOTEH.2019.8717766.
 </a>
 
-<a id="3"> [3] F. K. Alarfaj, I. Malik, H. U. Khan, N. Almusallam, M. Ramzan and M. Ahmed, “Credit Card Fraud Detection Using State-of-the-Art Machine Learning and Deep Learning Algorithms,” in IEEE Access, vol. 10, pp. 39700-39715, 2022, doi: 10.1109/ACCESS.2022.3166891.
+<a id="5"> [3] E. Ileberi, Y. Sun and Z. Wang, “A machine learning based credit card fraud detection using the GA algorithm for feature selection,” in J Big Data, vol. 9, no. 24, 2022. [Online]. Available: https://doi.org/10.1186/s40537-022-00573-8.
 </a>
 
-<a id="4"> [4] D. Varmedja, M. Karanovic, S. Sladojevic, M. Arsenovic and A. Anderla, “Credit Card Fraud Detection - Machine Learning methods,” 2019 18th International Symposium INFOTEH-JAHORINA (INFOTEH), East Sarajevo, Bosnia and Herzegovina, 2019, pp. 1-5, doi: 10.1109/INFOTEH.2019.8717766.
-</a>
-
-<a id="5"> [5] E. Ileberi, Y. Sun and Z. Wang, “A machine learning based credit card fraud detection using the GA algorithm for feature selection,” in J Big Data, vol. 9, no. 24, 2022. [Online]. Available: https://doi.org/10.1186/s40537-022-00573-8.
-</a>
-
-<a id="6"> [6] I. K. Cheng, N. Achilleos and A. Smith, “Automated bow shock and magnetopause boundary detection with Cassini using threshold and deep learning methods,” Front. Astron. Space Sci., vol. 9, 2022, doi: 10.3389/fspas.2022.1016453.
+<a id="6"> [4] I. K. Cheng, N. Achilleos and A. Smith, “Automated bow shock and magnetopause boundary detection with Cassini using threshold and deep learning methods,” Front. Astron. Space Sci., vol. 9, 2022, doi: 10.3389/fspas.2022.1016453.
 </a>
