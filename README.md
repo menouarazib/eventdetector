@@ -93,7 +93,7 @@ dataset, events = load_credit_card_fraud()
 
 meta_model = MetaModel(dataset=dataset, events=events, width=2, step=1,
                        output_dir='credit_card_fraud', batch_size=3200, s_h=0.01, models=[(FFN, 1)],
-                       hyperparams_ffn=(1,1, 20, 20, "sigmoid"))
+                       hyperparams_ffn=(1, 1, 20, 20, "sigmoid"))
 
 meta_model.fit()
 
@@ -147,7 +147,7 @@ justifying the obtained good metrics.
 #### Comparison of Predicted `op` and True `op`
 The Figure below illustrates the comparison between the predicted $op$ values and the true $op$ values on the Bow Shock Crossings and Credit Card Frauds.
 <p align="center">
-  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_ccf.png" width="400" alt="Predicted $op$ for Credit Card Frauds">
+  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_ccf.png" width="424" alt="Predicted $op$ for Credit Card Frauds">
   <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_bs.png" width="400" alt="Predicted $op$ for Bow Shock Crossings">
 </p>
 
