@@ -19,7 +19,9 @@ Universal Event Detection in Time Series
 - [Make Prediction](#make-prediction)
 - [Documentation](#documentation)
 - [How to credit our package](#how-to-credit-our-package)
+- [Futures Works](#future-works)
 - [References](#references)
+
 
 ## Introduction
 We present a new `Universal` deep-learning supervised method for detecting events in
@@ -186,14 +188,14 @@ meta_model = MetaModel(output_dir=..., dataset=..., events=..., width=..., step=
 For a complete description of the required and optional arguments, please refer to the following tables:
 
 #### Required Arguments
-| Argument       | Type                      | Description                                                                                                                                                                                                                                                  | Default Value |
-|----------------|---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| `output_dir`   | str                       | The name or path of the directory where all outputs will be saved. If `output_dir` is a folder name, the full path in the current directory will be created.                                                                                                 | -             |
-| `dataset`      | pd.DataFrame              | The input dataset as a Pandas DataFrame.                                                                                                                                                                                                                     | -             |
-| `events`       | Union[list, pd.DataFrame] | The input events as either a list or a Pandas DataFrame.                                                                                                                                                                                                     | -             |
-| `width`        | int                       | Number of consecutive time steps in each partition (window) when creating overlapping partitions (sliding windows).                                                                                                                                          | -             |
-| `step`         | int                       | Number of time steps to advance the sliding window.                                                                                                                                                                                                          | 1             |
-| `width_events` | Union[int, float]         | The width of each event. If it's an `ìnt`, it represents the number of time steps that constitute an event. If it's a `float`, it represents the duration in seconds of each event. If not provided (None), it defaults to the value of width*time_sampling. | `width -1`    |
+| Argument       | Type                      | Description                                                                                                                                                                                                                                          | Default Value |
+|----------------|---------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| `output_dir`   | str                       | The name or path of the directory where all outputs will be saved. If `output_dir` is a folder name, the full path in the current directory will be created.                                                                                         | -             |
+| `dataset`      | pd.DataFrame              | The input dataset as a Pandas DataFrame.                                                                                                                                                                                                             | -             |
+| `events`       | Union[list, pd.DataFrame] | The input events as either a list or a Pandas DataFrame.                                                                                                                                                                                             | -             |
+| `width`        | int                       | Number of consecutive time steps in each partition (window) when creating overlapping partitions (sliding windows).                                                                                                                                  | -             |
+| `step`         | int                       | Number of time steps to advance the sliding window.                                                                                                                                                                                                  | 1             |
+| `width_events` | Union[int, float]         | The width of each event. If it's an `ìnt`, it represents the number of time steps that constitute an event. If it's a `float`, it represents the duration in seconds of each event. If not provided (None), it defaults to the value of  `width -1`. | `width -1`    |
 
 #### Optional Arguments: Kwargs
 | Argument                    | Type                                     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Default Value                          |
@@ -278,6 +280,9 @@ If you use our package, please cite the following papers:
 }
 ```
 
+# Future Works
+In our future works, we aim to enhance our model’s capabilities by predicting events of varying durations. This would be a significant improvement over our current approach, which only predicts the midpoint of events with a fixed duration.
+
 # References
 
 <a id="3"> [1] F. K. Alarfaj, I. Malik, H. U. Khan, N. Almusallam, M. Ramzan and M. Ahmed, “Credit Card Fraud Detection Using State-of-the-Art Machine Learning and Deep Learning Algorithms,” in IEEE Access, vol. 10, pp. 39700-39715, 2022, doi: 10.1109/ACCESS.2022.3166891.
@@ -291,3 +296,4 @@ If you use our package, please cite the following papers:
 
 <a id="6"> [4] I. K. Cheng, N. Achilleos and A. Smith, “Automated bow shock and magnetopause boundary detection with Cassini using threshold and deep learning methods,” Front. Astron. Space Sci., vol. 9, 2022, doi: 10.3389/fspas.2022.1016453.
 </a>
+

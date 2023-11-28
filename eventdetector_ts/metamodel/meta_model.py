@@ -76,11 +76,11 @@ class MetaModel:
                 - models (List[Union[str, Tuple[str, int]]]): Determines the type of deep learning models to use.
                     If a tuple is passed, it specifies both the model type and the number of instances to run.
                     The default value is [(FFN, 2)].
-                - hyperparams_ffn (Tuple[int, int, int, int, str]): Specify for the FFN the minimum and the maximum number 
-                    of layers, the minimum and the maximum number of neurons per layer, and the activation function. 
-                    The default value is (1, 3, 64, 256, "sigmoid"). The List of available activation functions are 
-                    ["relu","sigmoid","tanh","softmax","leaky_relu","elu","selu","swish"]. If you pass `None`, no 
-                    activation is applied (i.e. "linear" activation: `a(x) = x`).
+                - hyperparams_ffn (Tuple[int, int, int, int, str]): Specify for the FFN the minimum and the maximum 
+                    number of layers, the minimum and the maximum number of neurons per layer, and the activation 
+                    function. The default value is (1, 3, 64, 256, "sigmoid"). The List of available activation 
+                    functions are ["relu","sigmoid","tanh","softmax","leaky_relu","elu","selu","swish"]. 
+                    If you pass `None`, no activation is applied (i.e. "linear" activation: `a(x) = x`).
                 - hyperparams_cnn (Tuple[int, int, int, int, int, str]): Specify for the CNN the minimum, maximum number
                     of filters, the minimum, the maximum kernel size, the minimum and the maximum number of pooling
                     layers, and the activation function. The default value is (16, 64, 3, 8, 1, 2, "relu").
