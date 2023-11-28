@@ -224,27 +224,29 @@ For a complete description of the required and optional arguments, please refer 
 | `dropout`                   | float                                    | The dropout rate, which determines the fraction of input units to drop during training.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 0.3                                    |
 | `last_act_func`             | str                                      | Activation function for the final layer of each model. If set to `None`, no activation will be applied (i.e., "linear" activation: `a(x) = x`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | "sigmoid"                              |
 
-#### Prepare data for computing the overlapping parameter `op`
+#### The method `fit`
+The method `fit` calls automatically the following methods: 
+##### Prepare data for computing the overlapping parameter `op`
 The second thing to do is to prepare the events and the dataset for computing `op`:
 ```python
 meta_model.prepare_data_and_computing_op()
 ```
 
-#### Stacking Ensemble Learning Pipeline
+##### Stacking Ensemble Learning Pipeline
 The third thing to do is to build a stacking learning pipeline using the provided models and hyperparameters:
 
 ```python
 meta_model.build_stacking_learning()
 ```
 
-#### Event Extraction Optimization
+##### Event Extraction Optimization
 The fourth thing to do is to run the Event Extraction Optimization process:
 
 ```python
 meta_model.event_extraction_optimization()
 ```
 
-#### Get The Results and Plots
+##### Get The Results and Plots
 Finally, you can plot the results, which are saved automatically: losses, true/predicted ops, true/predicted events, and delta_t.
 
 ```python
@@ -252,7 +254,7 @@ meta_model.plot_save(show_plots=True)
 ```
 ## How to credit our package
 
-If you use our package, please cite the following paper:
+If you use our package, please cite the following papers:
 
 ```bash
 @misc{azib2023universal,
