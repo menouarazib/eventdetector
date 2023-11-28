@@ -18,8 +18,23 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "eventdetector_ts"
 version = "1.1.0"
-description = "This package offers an implementation of the method outlined in the paper, Universal Event Detection in Time Series. It is designed to empower users to apply this method to their own datasets and tailor the detection process to meet their unique requirements."
-keywords = ["Event Detection", "Time Series", "Universal Approximation Theory", "Deep Learning", "Stacking Ensemble Learning"]
+description = "This package, EventDetector, introduces a groundbreaking universal event detection method for multivariate time series data. Unlike traditional deep-learning supervised methods, our approach is regression-based, requiring only reference events instead of labeled datasets. It incorporates a robust stacked ensemble learning metamodel, leveraging diverse deep learning models, from Feed-Forward Neural Networks to advanced architectures like Transformers. The ensemble ensures greater resilience and accuracy by mitigating individual model biases. The package facilitates practical implementation of our method, providing comprehensive support for event detection in time series. Mathematically proven to be universal, our method excels in detecting various events, such as change points, frauds, anomalies, and physical occurrences, with remarkable precision. Empirical validations showcase its superior performance, particularly for rare events and imbalanced datasets across diverse domains."
+keywords = [
+    "Universal Event Detection",
+    "Multivariate Time Series",
+    "Regression-based",
+    "Stacked Ensemble Learning",
+    "Deep Learning Models",
+    "Feed-Forward Neural Networks",
+    "Transformers",
+    "Event Detection Package",
+    "Rare Events",
+    "Imbalanced Datasets",
+    "Anomaly Detection",
+    "Change Point Detection",
+    "Fraud Detection",
+    "Empirical Validations"
+]
 authors = [
     { name = "Menouar Azib", email = "menouar.azib@akkodis.com" }
 ]
