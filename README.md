@@ -7,7 +7,7 @@
 ![Unit Tests and Lint](https://github.com/menouarazib/eventdetector/actions/workflows/unit_tests.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/menouarazib/eventdetector/badge.svg?branch=master)](https://coveralls.io/github/menouarazib/eventdetector?branch=master)
 [![License](https://img.shields.io/github/license/menouarazib/eventdetector)](https://github.com/menouarazib/eventdetector/blob/master/LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.31219/osf.io/uabjg.svg)](https://doi.org/10.31219/osf.io/uabjg)
+[![DOI](https://zenodo.org/badge/DOI/10.31219/osf.io/uabjg.svg)](https://doi.org/10.48550/arXiv.2310.16485)
 
 Universal Event Detection in Time Series
 ==========================================================
