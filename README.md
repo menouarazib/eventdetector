@@ -147,8 +147,8 @@ justifying the obtained good metrics.
 #### Comparison of Predicted `op` and True `op`
 The Figure below illustrates the comparison between the predicted $op$ values and the true $op$ values on the Bow Shock Crossings and Credit Card Frauds.
 <p align="center">
-  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_ccf.png" width="424" alt="Predicted $op$ for Credit Card Frauds">
-  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_bs.png" width="400" alt="Predicted $op$ for Bow Shock Crossings">
+  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_ccf.png" width="400" height="400" alt="Predicted $op$ for Credit Card Frauds">
+  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_bs.png" width="400" height="400" alt="Predicted $op$ for Bow Shock Crossings">
 </p>
 
 #### Distribution of time differences δ(t) between predicted events and ground truth events for Bow Shock Crossings and Credit Card Frauds
