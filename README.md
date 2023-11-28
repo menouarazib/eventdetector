@@ -19,6 +19,7 @@ Universal Event Detection in Time Series
 - [Make Prediction](#make-prediction)
 - [Documentation](#documentation)
 - [How to credit our package](#how-to-credit-our-package)
+- [References](#references)
 
 ## Introduction
 We present a new `Universal` deep-learning supervised method for detecting events in
@@ -29,14 +30,14 @@ Secondly, it `does not require labeled datasets` where each point is
 labeled; instead, it only requires reference events defined as time
 points or intervals of time. Thirdly, it is designed to be `robust`
 through the use of a stacked ensemble learning metamodel that
-combines deep learning models, from classic feed-forward
-neural networks (FFNs) to the state-of-the-art architectures like
-transformers. By leveraging the collective strengths of multiple
+combines deep learning models, from classic Feed-Forward
+Neural Networks (FFNs) to the state-of-the-art architectures like
+Transformers. By leveraging the collective strengths of multiple
 models, this ensemble approach can mitigate individual model
 weaknesses and biases, resulting in more robust predictions.
 Finally, to facilitate practical implementation, we have developed
-a Python package called `EventDetector` to accompany the proposed method. 
-It provides a rich support for event detection in time series.
+this package called `EventDetector` to accompany the proposed method. 
+It provides a rich support for event detection in time series. We establish mathematically that our method is universal, and capable of detecting any type of event with arbitrary precision under mild continuity assumptions on the time series. These events may encompass change points, frauds, anomalies, physical occurrences, and more. We substantiate our theoretical results using the universal approximation theorem. Additionally, we provide empirical validations that confirm our claims, demonstrating that our method, with a limited number of parameters, outperforms other deep learning approaches, particularly for rare events and imbalanced datasets from different domains.
 
 ## Installation
 
@@ -73,76 +74,89 @@ env\Scripts\activate.bat  # for Windows
 To quickly get started with `EventDetector`, follow the steps below:
 
 - You can either download the datasets and event catalogs manually or use the built-in methods for the desired application:
-  - Martian Bow Shock: `eventdetector_ts.load_martian_bow_shock()`
+  - Bow Shock Crossings: `eventdetector_ts.load_martian_bow_shock()`
       - [bow_shock_dataset](https://archive.org/download/martian_bow_shock_dataset/martian_bow_shock_dataset.pkl)
       - [bow_shock_events](https://archive.org/download/martian_bow_shock_events/martian_bow_shock_events.csv)
-  - Credit Card Fraud: `eventdetector_ts.load_credit_card_fraud()`
+  - Credit Card Frauds: `eventdetector_ts.load_credit_card_fraud()`
       - [credit_card_dataset](https://archive.org/download/credit_card_fraud_dataset/credit_card_fraud_dataset.csv)
       - [credit_card_events](https://archive.org/download/credit_card_fraud_events/credit_card_fraud_events.csv)
+  - NLP:
+      - [Keyword extraction and the identification of tags for part-of-speech tagging (POS) in textual data.](https://github.com/menouarazib/InformationRetrievalInNLP)
+
 ### Code Implementations:
-  - Credit Card Fraud:
+  - Credit Card Frauds:
 ```python
-from eventdetector_ts import load_credit_card_fraud
+from eventdetector_ts import load_credit_card_fraud, FFN
 from eventdetector_ts.metamodel.meta_model import MetaModel
 
 dataset, events = load_credit_card_fraud()
 
-meta_model = MetaModel(dataset=dataset, events=events, width=3, step=1, output_dir='credit_card_fraud', batch_size=3000)
-
-# Prepare the events and dataset for computing op.
-meta_model.prepare_data_and_computing_op()
-# Builds a stacking learning pipeline using the provided models and hyperparameters.
-meta_model.build_stacking_learning()
-# Run the Event Extraction Optimization process.
-meta_model.event_extraction_optimization()
-# Plot the results: Losses, true/predicted op, true/predicted events, deltat_t.
-meta_model.plot_save(show_plots=True)
-```
-Or just call `fit` method :
-```python
-from eventdetector_ts import load_credit_card_fraud
-from eventdetector_ts.metamodel.meta_model import MetaModel
-
-dataset, events = load_credit_card_fraud()
-
-meta_model = MetaModel(dataset=dataset, events=events, width=3, step=1, output_dir='credit_card_fraud', batch_size=3000)
+meta_model = MetaModel(dataset=dataset, events=events, width=2, step=1,
+                       output_dir='credit_card_fraud', batch_size=3200, s_h=0.01, models=[(FFN, 1)],
+                       hyperparams_ffn=(1,1, 20, 20, "sigmoid"))
 
 meta_model.fit()
+
 ```
   - Martian Bow Shock:
 ```python
-from eventdetector_ts import load_martian_bow_shock
+from eventdetector_ts import load_martian_bow_shock, FFN
 from eventdetector_ts.metamodel.meta_model import MetaModel
 
 dataset, events = load_martian_bow_shock()
 
-meta_model = MetaModel(output_dir="mex_bow_shocks", dataset=dataset, events=events, width=45, step=1,
-                       time_window=5400.0, batch_size=3000)
+meta_model = MetaModel(output_dir="mex_bow_shocks", dataset=dataset, events=events, width=76, step=1,
+                       time_window=5400.0, batch_size=3000, models=[(FFN, 1)],
+                       hyperparams_ffn=(1 , 1, 20, 20, "sigmoid"))
 
 meta_model.fit()
 
-```
-### Results and Performance Evaluation
+``` 
 
-#### Performance Metrics
+### Performance Evaluation and Outputs
 
-Table below presents the performance metrics for precision, recall, and F1-Score, providing a quantitative assessment of the framework's accuracy and effectiveness in the two data sets.
+#### Comparison of Our Method with Deep Learning Methods
 
-| Data set          | F1-Score | Precision | Recall   |
-|-------------------|----------|-----------|----------|
-| Martian bow shock | 0.9021   | 0.9455    | 0.8626   |
-| Credit card fraud | 0.8372   | 0.9643    | 0.7397   |
+##### Credit Card Frauds
+
+| Method              | Number of Parameters | Precision | Recall | F1-Score |
+|---------------------|----------------------|-----------|--------|----------|
+| CNN [[3]](#3)       | 119,457              | 0.89      | 0.68   | 0.77     |
+| FFN+SMOTE [[4]](#4) | 5,561                | 0.79      | 0.81   | 0.80     |
+| FFN+SMOTE [[5]](#5) | N/A                  | 0.82      | 0.79   | 0.81     |
+| Ours                | 1,201                | 0.98      | 0.74   | 0.85     |
+
+##### Bow Shock Crossings
+
+| Method             | Number of Parameters | Precision | Recall        | F1-Score      |
+|--------------------|----------------------|-----------|---------------|---------------|
+| ResNat18 [[6]](#6) | 29,886,979           | 0.99      | [0.83 , 0.88] | [0.91 , 0.94] |
+| Ours               | 6,121                | 0.95      | 0.96          | 0.95          |
 
 #### Training and Validation Losses
 
-The Figure below showcases the training loss and validation loss of the stacked models during the training process on the Martian bow shock and credit card fraud cases. The stacked models used in this evaluation consist of two feedforward neural networks (`FFN_0`, `FFN_1`) with distinct configurations of hyperparameters. The low losses observed in both cases indicate that the meta model has successfully learned the underlying patterns, justifying the obtained good metrics.
+The Figure below showcases the training loss and validation loss of the FFNs on the Bow Shock Crossings and Credit Card Frauds.
+The low losses observed in both cases indicate that the metamodel has successfully learned the underlying patterns,
+justifying the obtained good metrics.
 
-![Training and validation losses](https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/losses_mex_ccf.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/losses_ccf.png" width="400" alt="Training and Validation Losses for Credit Card Frauds">
+  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/losses_bs.png" width="400" alt="Training and Validation Losses for Bow Shock Crossings">
+</p>
 
 #### Comparison of Predicted `op` and True `op`
-The Figure below illustrates the comparison between the predicted $op$ values and the true $op$ values on the Martian bow shock (`delta = 180` seconds) and credit card fraud (`delta = 3` seconds) datasets.
+The Figure below illustrates the comparison between the predicted $op$ values and the true $op$ values on the Bow Shock Crossings and Credit Card Frauds.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_ccf.png" width="400" alt="Predicted $op$ for Credit Card Frauds">
+  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_bs.png" width="400" alt="Predicted $op$ for Bow Shock Crossings">
+</p>
 
-![Comparison of predicted `op` and true `op`](https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/op_mex_ccf.png)
+#### Distribution of time differences δ(t) between predicted events and ground truth events for Bow Shock Crossings and Credit Card Frauds
+<p align="center">
+  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/delta_t_ccf.png" width="400" alt="Predicted $op$ for Credit Card Frauds">
+  <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/delta_t_bs.png" width="400" alt="Predicted $op$ for Bow Shock Crossings">
+</p>
+
 
 ## Make Prediction
 ```python
@@ -241,13 +255,42 @@ meta_model.plot_save(show_plots=True)
 If you use our package, please cite the following paper:
 
 ```bash
-@misc{azib_renard_garnier_génot_andré_2023,
- title={Universal Event Detection in Time Series},
- url={osf.io/uabjg},
- DOI={10.31219/osf.io/uabjg},
- publisher={OSF Preprints},
- author={Azib, Menouar and Renard, Benjamin and Garnier, Philippe and Génot, Vincent and André, Nicolas},
- year={2023},
- month={Jul}
+@misc{azib2023universal,
+      title={Universal Event Detection in Time Series}, 
+      author={Menouar Azib and Benjamin Renard and Philippe Garnier and Vincent Génot and Nicolas André},
+      year={2023},
+      eprint={2311.15654},
+      archivePrefix={arXiv},
+      primaryClass={stat.ML}
 }
 ```
+
+```bash
+@misc{azib2023comprehensive,
+      title={A Comprehensive Python Library for Deep Learning-Based Event Detection in Multivariate Time Series Data and Information Retrieval in NLP}, 
+      author={Menouar Azib and Benjamin Renard and Philippe Garnier and Vincent Génot and Nicolas André},
+      year={2023},
+      eprint={2310.16485},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+```
+
+# References
+<a id="1"> [1] M. Azib, B. Renard, P. Garnier, V. Génot, and N. André, “A Comprehensive Python Library for Deep Learning-Based Event Detection in Multivariate Time Series Data and Information Retrieval in NLP,” 2023. [Online]. Available: arXiv:2310.16485.
+</a>
+
+<a id="2"> [2] M. Azib, B. Renard, P. Garnier, V. Génot, and N. André, “Universal Event Detection in Time Series,” 2023. [Online]. Available: arXiv:2311.15654.
+</a>
+
+<a id="3"> [3] F. K. Alarfaj, I. Malik, H. U. Khan, N. Almusallam, M. Ramzan and M. Ahmed, “Credit Card Fraud Detection Using State-of-the-Art Machine Learning and Deep Learning Algorithms,” in IEEE Access, vol. 10, pp. 39700-39715, 2022, doi: 10.1109/ACCESS.2022.3166891.
+</a>
+
+<a id="4"> [4] D. Varmedja, M. Karanovic, S. Sladojevic, M. Arsenovic and A. Anderla, “Credit Card Fraud Detection - Machine Learning methods,” 2019 18th International Symposium INFOTEH-JAHORINA (INFOTEH), East Sarajevo, Bosnia and Herzegovina, 2019, pp. 1-5, doi: 10.1109/INFOTEH.2019.8717766.
+</a>
+
+<a id="5"> [5] E. Ileberi, Y. Sun and Z. Wang, “A machine learning based credit card fraud detection using the GA algorithm for feature selection,” in J Big Data, vol. 9, no. 24, 2022. [Online]. Available: https://doi.org/10.1186/s40537-022-00573-8.
+</a>
+
+<a id="6"> [6] I. K. Cheng, N. Achilleos and A. Smith, “Automated bow shock and magnetopause boundary detection with Cassini using threshold and deep learning methods,” Front. Astron. Space Sci., vol. 9, 2022, doi: 10.3389/fspas.2022.1016453.
+</a>
