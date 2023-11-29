@@ -41,6 +41,10 @@ Finally, to facilitate practical implementation, we have developed
 this package called `EventDetector` to accompany the proposed method. 
 It provides a rich support for event detection in time series. We establish `mathematically` that our method is universal, and capable of detecting any type of event with arbitrary precision under mild continuity assumptions on the time series. These events may encompass change points, frauds, anomalies, physical occurrences, and more. We substantiate our theoretical results using the universal approximation theorem. Additionally, we provide empirical validations that confirm our claims, demonstrating that our method, with a limited number of parameters, outperforms other deep learning approaches, particularly for rare events and imbalanced datasets from different domains.
 
+<h1 align="center">
+<img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/inputs_event_detector.png" width="400">
+</h1><br>
+
 ## Installation
 
 **Before installing this package, please ensure that you have `TensorFlow` installed in your environment.** This package relies on `TensorFlow` for its functionality, but does not include it as a dependency to allow users to manage their own TensorFlow installations. You can install TensorFlow via pip with `pip install tensorflow`.

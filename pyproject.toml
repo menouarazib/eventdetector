@@ -18,7 +18,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "eventdetector_ts"
 version = "1.1.0"
-description = "This package, EventDetector, introduces a groundbreaking universal event detection method for multivariate time series data. Unlike traditional deep-learning supervised methods, our approach is regression-based, requiring only reference events instead of labeled datasets. It incorporates a robust stacked ensemble learning metamodel, leveraging diverse deep learning models, from Feed-Forward Neural Networks to advanced architectures like Transformers. The ensemble ensures greater resilience and accuracy by mitigating individual model biases. The package facilitates practical implementation of our method, providing comprehensive support for event detection in time series. Mathematically proven to be universal, our method excels in detecting various events, such as change points, frauds, anomalies, and physical occurrences, with remarkable precision. Empirical validations showcase its superior performance, particularly for rare events and imbalanced datasets across diverse domains."
+description = "EventDetector introduces a universal event detection method for multivariate time series. Unlike traditional deep-learning methods, it's regression-based, requiring only reference events. The robust stacked ensemble, from Feed-Forward Neural Networks to Transformers, ensures accuracy by mitigating biases. The package supports practical implementation, excelling in detecting events with precision, validated across diverse domains."
 keywords = [
     "Universal Event Detection",
     "Multivariate Time Series",
