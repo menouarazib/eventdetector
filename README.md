@@ -42,7 +42,7 @@ this package called `EventDetector` to accompany the proposed method.
 It provides a rich support for event detection in time series. We establish `mathematically` that our method is universal, and capable of detecting any type of event with arbitrary precision under mild continuity assumptions on the time series. These events may encompass change points, frauds, anomalies, physical occurrences, and more. We substantiate our theoretical results using the universal approximation theorem. Additionally, we provide empirical validations that confirm our claims, demonstrating that our method, with a limited number of parameters, outperforms other deep learning approaches, particularly for rare events and imbalanced datasets from different domains.
 
 <h1 align="center">
-<img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/inputs_event_detector.png" width="400">
+<img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/inputs_event_detector.png">
 </h1><br>
 
 ## Installation
