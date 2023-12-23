@@ -263,17 +263,6 @@ meta_model.plot_save(show_plots=True)
 If you use our package, please cite the following papers:
 
 ```bash
-@misc{azib2023universal,
-      title={Universal Event Detection in Time Series}, 
-      author={Menouar Azib and Benjamin Renard and Philippe Garnier and Vincent Génot and Nicolas André},
-      year={2023},
-      eprint={2311.15654},
-      archivePrefix={arXiv},
-      primaryClass={stat.ML}
-}
-```
-
-```bash
 @misc{azib2023comprehensive,
       title={A Comprehensive Python Library for Deep Learning-Based Event Detection in Multivariate Time Series Data and Information Retrieval in NLP}, 
       author={Menouar Azib and Benjamin Renard and Philippe Garnier and Vincent Génot and Nicolas André},
