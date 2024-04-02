@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/github/license/menouarazib/eventdetector)](https://github.com/menouarazib/eventdetector/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.48550/arXiv.org/2310.16485.svg)](https://doi.org/10.48550/arXiv.2310.16485)
 
-Universal Event Detection in Time Series
+A Comprehensive Python Library for Deep Learning-Based Event Detection in Multivariate Time Series Data
 ==========================================================
 ## Table of Contents
 
@@ -24,22 +24,7 @@ Universal Event Detection in Time Series
 
 
 ## Introduction
-We present a new `Universal` deep-learning supervised method for detecting events in
-multivariate time series data. This method combines `4` distinct
-novelties compared to existing deep-learning supervised methods.
-Firstly, it is based on `regression` instead of binary classification.
-Secondly, it `does not require labeled datasets` where each point is
-labeled; instead, it only requires reference events defined as time
-points or intervals of time. Thirdly, it is designed to be `robust`
-through the use of a stacked ensemble learning metamodel that
-combines deep learning models, from classic Feed-Forward
-Neural Networks (FFNs) to the state-of-the-art architectures like
-Transformers. By leveraging the collective strengths of multiple
-models, this ensemble approach can mitigate individual model
-weaknesses and biases, resulting in more robust predictions.
-Finally, to facilitate practical implementation, we have developed
-this package called `EventDetector` to accompany the proposed method. 
-It provides a rich support for event detection in time series. We establish `mathematically` that our method is universal, and capable of detecting any type of event with arbitrary precision under mild continuity assumptions on the time series. These events may encompass change points, frauds, anomalies, physical occurrences, and more. We substantiate our theoretical results using the universal approximation theorem. Additionally, we provide empirical validations that confirm our claims, demonstrating that our method, with a limited number of parameters, outperforms other deep learning approaches, particularly for rare events and imbalanced datasets from different domains.
+Event detection in time series data is crucial in various domains, including finance, healthcare, cybersecurity, and science. Accurately identifying events in time series data is vital for making informed decisions, detecting anomalies, and predicting future trends. Despite extensive research exploring diverse methods for event detection in time series, with deep learning approaches being among the most advanced, there is still room for improvement and innovation in this field. In this paper, we present a new deep learning supervised method for detecting events in multivariate time series data. Our method combines four distinct novelties compared to existing deep-learning supervised methods. Firstly, it is based on regression instead of binary classification. Secondly, it does not require labeled datasets where each point is labeled; instead, it only requires reference events defined as time points or intervals of time. Thirdly, it is designed to be robust by using a stacked ensemble learning meta-model that combines deep learning models, ranging from classic feed-forward neural networks (FFNs) to state-of-the-art architectures like transformers. This ensemble approach can mitigate individual model weaknesses and biases, resulting in more robust predictions. Finally, to facilitate practical implementation, we have developed a Python package to accompany our proposed method. The package, called eventdetector-ts, can be installed through the Python Package Index (PyPI). In this paper, we present our method and provide a comprehensive guide on the usage of the package. We showcase its versatility and effectiveness through different real-world use cases from natural language processing (NLP) to financial security domains.
 
 <h1 align="center">
 <img src="https://raw.githubusercontent.com/menouarazib/eventdetector/master/images/inputs_event_detector.png">
@@ -263,13 +248,16 @@ meta_model.plot_save(show_plots=True)
 If you use our package, please cite the following papers:
 
 ```bash
-@misc{azib2023comprehensive,
-      title={A Comprehensive Python Library for Deep Learning-Based Event Detection in Multivariate Time Series Data and Information Retrieval in NLP}, 
-      author={Menouar Azib and Benjamin Renard and Philippe Garnier and Vincent Génot and Nicolas André},
-      year={2023},
-      eprint={2310.16485},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+@INPROCEEDINGS{10459857,
+  author={Azib, Menouar and Renard, Benjamin and Garnier, Philippe and Génot, Vincent and André, Nicolas},
+  booktitle={2023 International Conference on Machine Learning and Applications (ICMLA)}, 
+  title={A Comprehensive Python Library for Deep Learning-Based Event Detection in Multivariate Time Series Data}, 
+  year={2023},
+  volume={},
+  number={},
+  pages={1399-1404},
+  keywords={Deep learning;Technological innovation;Event detection;Time series analysis;Predictive models;Tagging;Transformers;Event Detection in Time Series;Regression;Python Package;Information Retrieval;Natural Language Pro-cessing (NLP)},
+  doi={10.1109/ICMLA58977.2023.00211}
 }
 ```
 
