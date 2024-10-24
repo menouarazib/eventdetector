@@ -154,9 +154,8 @@ class ModelTrainer:
         for model_name, model in self.best_models.items():
             # Print the name of the current model being saved
             logger_models.info(f"Current model to be saved on the disk is {model_name}")
-            path = os.path.join(output_dir, MODELS_DIR)
-            # Save the model to the specified directory
-            model_path = os.path.join(path, model_name)
+            model_name_with_ext = f"{model_name}.keras"
+            model_path = os.path.join(output_dir, MODELS_DIR, model_name_with_ext)
             model.save(model_path)
         logger_models.info("Models saved successfully.")
 
